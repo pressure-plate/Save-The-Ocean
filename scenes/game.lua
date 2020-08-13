@@ -24,7 +24,7 @@ local pickableObjectTable = {}
  
 local submarine
 local submarineIsRising = false
-local submarineRisingSpeed = 350
+local submarineRisingSpeed = 400
 
 local gameLoopTimer
 local livesText
@@ -92,8 +92,8 @@ end
 local function moveSubmarine( event )
 
 	local transRot -- var to hold the rotation transition reference
-	local rotDeg = 20 -- rotation degree
-	local rotTime = 500 -- rotation degree
+	local rotDeg = 15 -- rotation degree
+	local rotTime = 1000 -- rotation degree
 
 	-- start of touch
 	if ( event.phase == "began" ) then
@@ -126,19 +126,19 @@ end
 
 local function onEnterFrame( event ) 
 
-	-- bounds of submarine rotation -------------------------------------------
+	-- check bounds of submarine rotation -------------------------------------
 	if (submarineIsRising == true and submarine.y < 70) then
 		submarineIsRising = false
 		submarine:setLinearVelocity( 0, 0 )
 		transition.cancel( submarine )
-		transition.to( submarine, {rotation = 0, time = 200} )
+		transition.to( submarine, {rotation = 0, time = 150} )
 	end
 
 	if (submarineIsRising == false and submarine.y > display.contentHeight-70) then
 		submarineIsRising = true
 		submarine:setLinearVelocity( 0, 0 )
 		transition.cancel( submarine )
-		transition.to( submarine, {rotation = 0, time = 200} )
+		transition.to( submarine, {rotation = 0, time = 150} )
 	end
 
 
