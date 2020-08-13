@@ -101,9 +101,11 @@ local function moveSubmarine( event )
 		display.currentStage:setFocus( submarine )
 
 		-- rotate submarine
+		transition.cancel( transRot )
 		transRot = transition.to( submarine, {rotation = -rotDeg, time = rotTime} )
 
 		-- rise of submarine
+		submarineIsRising = true
 		submarine:setLinearVelocity( 0, -submarineRisingSpeed )
 		
 	elseif ( event.phase == "ended" or event.phase == "cancelled" ) then
@@ -115,15 +117,29 @@ local function moveSubmarine( event )
 		transRot = transition.to( submarine, {rotation = rotDeg, time = rotTime} )
 	
 		-- fall of submarine
+		submarineIsRising = false
 		submarine:setLinearVelocity( 0, submarineRisingSpeed )	
 	end
 	
     return true  -- Prevents touch propagation to underlying objects
 end
 
-local onEnterFrame = function( event ) 
+local function onEnterFrame( event ) 
 
 	-- bounds of submarine rotation -------------------------------------------
+	if (submarineIsRising == true and submarine.y < 70) then
+		submarineIsRising = false
+		submarine:setLinearVelocity( 0, 0 )
+		transition.cancel( submarine )
+		transition.to( submarine, {rotation = 0, time = 200} )
+	end
+
+	if (submarineIsRising == false and submarine.y > display.contentHeight-70) then
+		submarineIsRising = true
+		submarine:setLinearVelocity( 0, 0 )
+		transition.cancel( submarine )
+		transition.to( submarine, {rotation = 0, time = 200} )
+	end
 
 
 end
