@@ -8,7 +8,7 @@ local scene = composer.newScene()
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
 -- -----------------------------------------------------------------------------------
 
--- initialize variables -------------------------
+-- initialize variables -------------------------------------------------------
 
 local bgLayerNum = 7 -- num of the background layers to load from the assets folder
 
@@ -18,7 +18,7 @@ local uiGroup
 
 local bgLayerGroupTable = {}
 
--- define functions -----------------------------
+-- define functions -----------------------------------------------------------
 
 local function gotoGame()
     composer.gotoScene( "scenes.game", { time=800, effect="crossFade" } )
