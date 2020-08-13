@@ -62,9 +62,8 @@ local function onEnterFrame( self, event )
 		self:setLinearVelocity( 0, 0 )
 		transition.cancel( self )
 		transition.to( self, {rotation = 0, time = 150} )
-	end
-
-	if (submarineIsRising == false and self.y > display.contentHeight-70) then
+	
+	elseif (submarineIsRising == false and self.y > display.contentHeight-70) then
 		submarineIsRising = true
 		self:setLinearVelocity( 0, 0 )
 		transition.cancel( self )
@@ -83,7 +82,7 @@ function M.init( group )
     -- init vars
     M.submarine = nil
     submarineIsRising = false
-    submarineRisingSpeed = 400
+    submarineRisingSpeed = 600
 
 	-- load submarine skin
 	local submarinePaint = {

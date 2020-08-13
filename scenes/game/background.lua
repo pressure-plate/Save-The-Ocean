@@ -1,5 +1,7 @@
 local M = {}
 
+local composer = require( "composer" )
+
 local physics = require( "physics" )
 
 -- background vars
@@ -21,7 +23,7 @@ local function backgroundScroller( self, event )
 	-- set a different speed for each layer
 	for i=1, M.bgLayerNum do
 		if ( self == bgLayerGroupTable[i] ) then
-			speed = i
+            speed = i * composer.getVariable( "gameSpeed" )
 		end
 	end
 

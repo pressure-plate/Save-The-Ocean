@@ -20,11 +20,11 @@ local subMod = require( "scenes.game.submarine" )
 local bgMod = require( "scenes.game.background" )
 
 -- initialize variables -------------------------------------------------------
+composer.setVariable(variableName,value)
 
 local lives = 3
 local score = 0
 local died = false
-local gameSpeed = 1
  
 local pickableObjectTable = {}
  
@@ -32,14 +32,33 @@ local gameLoopTimer
 local livesText
 local scoreText
 
+local gameSpeedUpdateTimer
+
 -- display groups
 local bgGroup
 local mainGroup
 local uiGroup
 
+
 -- ----------------------------------------------------------------------------
 -- game functions
 -- ----------------------------------------------------------------------------
+
+-- update game speed
+local function gameSpeedUpdate()
+
+	local gs = composer.getVariable( "gameSpeed" )
+
+	-- limit game speed to 7
+	if ( gs < 7 ) then 
+
+		local st = composer.getVariable( "startTime" )
+		gs = 1 + ( (os.time() - st) / 100 )
+		composer.setVariable( "gameSpeed", gs )
+	end
+
+	print( gs ) -- TEST
+end
 
 -- UI text updater
 local function updateText()
@@ -47,20 +66,6 @@ local function updateText()
     scoreText.text = "Score: " .. score
 end
 
--- game loop
-local function gameLoop()
- 
-    -- Create new objects
- 
-    -- Remove objects which have drifted off screen
-    
-end
-
-local function testScreen() -- TEST
-
-	print( "display.contentWidth", display.contentWidth, "display.contentHeight", display.contentHeight )
-	print( "display.pixelHeight", display.pixelHeight, "display.pixelWidth", display.pixelWidth ) -- this is relative to PORTRAIT ORIENTATION
-end
 
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
@@ -72,14 +77,16 @@ function scene:create( event )
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
 
-	-- TEST
-	timer.performWithDelay( 5000, testScreen, 0 )
-
 	physics.pause()  -- Temporarily pause the physics engine (we don't want the game to really start yet)
- 
-	-- Set up display groups --------------------------------------------------
-	-- NOTE: here we use the Group vars initialized earlier
 
+
+	-- set composer game vars
+	composer.setVariable( "startTime", os.time() )
+	composer.setVariable( "gameSpeed", 1 )
+
+
+	-- Set up display groups
+	-- NOTE: here we use the Group vars initialized earlier
     bgGroup = display.newGroup()  -- display group for background
     sceneGroup:insert( bgGroup )  -- insert into the scene's view group
  
@@ -89,6 +96,9 @@ function scene:create( event )
     uiGroup = display.newGroup()    -- display group for UI
 	sceneGroup:insert( uiGroup )    -- insert into the scene's view group
 
+
+	--set event listener to update game speed
+	gameSpeedUpdateTimer = timer.performWithDelay(1000, gameSpeedUpdate, 0)
 
 	-- load and set background
 	bgMod.init( bgGroup )
@@ -129,10 +139,14 @@ function scene:hide( event )
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
 
+		-- clear Runtime listeners
+
+		-- clear timers
+		timer.cancel( gameSpeedUpdateTimer )
+
 		-- clear loaded modules
 		bgMod.clear()
 		subMod.clear()
-
 	end
 end
 

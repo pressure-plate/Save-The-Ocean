@@ -18,7 +18,10 @@ local uiGroup
 
 local bgLayerGroupTable = {}
 
--- define functions -----------------------------------------------------------
+
+-- ----------------------------------------------------------------------------
+-- menu functions
+-- ----------------------------------------------------------------------------
 
 local function gotoGame()
     composer.gotoScene( "scenes.game", { time=800, effect="crossFade" } )
@@ -28,17 +31,6 @@ local function gotoHighScores()
     --composer.gotoScene( "scenes.highscores", { time=800, effect="crossFade" } )
 end
 
-local function scaleDisplayObject( object )
-
-	-- calculate scaling factor to fit
-	local scaleFact = math.max( (display.contentWidth / object.width), (display.contentHeight / object.height) )
-
-	print(scaleFact, display.contentWidth, object.width, display.contentHeight, object.height) -- TEST
-
-	-- set scale
-	object.xScale = scaleFact
-	object.yScale = scaleFact
-end
 
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
