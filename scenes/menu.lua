@@ -97,45 +97,6 @@ function scene:create( event )
 	bgLayerGroupTable[5].x = bgLayerGroupTable[5].x - 200
 	bgLayerGroupTable[4].x = bgLayerGroupTable[4].x - 230
 
-	--[[
-	local background -- here we will not need to keep a reference to the background layers, so we recycle the same var
-
-	background = display.newImageRect( bgGroup, bgDir.."1.png", 1920, 1080 )
-	background.x = display.contentCenterX
-	background.y = display.contentCenterY
-	scaleDisplayObject( background ) -- scale image to fit
-
-	background = display.newImageRect( bgGroup, bgDir.."2.png", 1920, 1080 )
-	background.x = display.contentCenterX
-	background.y = display.contentCenterY
-	scaleDisplayObject( background ) -- scale image to fit
-
-	background = display.newImageRect( bgGroup, bgDir.."3.png", 1920, 1080 )
-	background.x = display.contentCenterX
-	background.y = display.contentCenterY
-	scaleDisplayObject( background ) -- scale image to fit
-	
-	background = display.newImageRect( bgGroup, bgDir.."4.png", 1920, 1080 )
-	background.x = display.contentCenterX
-	background.y = display.contentCenterY
-	scaleDisplayObject( background ) -- scale image to fit
-	
-	background = display.newImageRect( bgGroup, bgDir.."6.png", 1920, 1080 )
-	background.x = display.contentCenterX
-	background.y = display.contentCenterY
-	scaleDisplayObject( background ) -- scale image to fit
-	
-	background = display.newImageRect( bgGroup, bgDir.."7.png", 1920, 1080 )
-	background.x = display.contentCenterX
-	background.y = display.contentCenterY
-	scaleDisplayObject( background ) -- scale image to fit
-	
-	background = display.newImageRect( bgGroup, bgDir.."8.png", 1920, 1080 )
-	background.x = display.contentCenterX
-	background.y = display.contentCenterY
-	scaleDisplayObject( background ) -- scale image to fit
-	--]]
-
 	-- set button to play game
 	local playButton = display.newText( uiGroup, "Play", display.contentCenterX+75, display.contentCenterY-70, native.systemFontBold, 40 )
 	playButton:setFillColor( 0.20, 0.63, 0.92 )
