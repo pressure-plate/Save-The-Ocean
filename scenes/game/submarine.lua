@@ -11,7 +11,7 @@ local submarineRisingSpeed
 M.submarineSkin = "submarine_default"
 
 -- submarine assets dir
-local submarineDir = "assets/game/submarine/"
+local submarineDir = "assets/submarine/"
 
 
 -- ----------------------------------------------------------------------------

@@ -90,7 +90,7 @@ function scene:create( event )
 	bgLayerGroupTable[4].x = bgLayerGroupTable[4].x - 230
 
 	-- set mask
-	local maskImmage = display.newImageRect(uiGroup, "assets/background/home.png", display.contentWidth, display.contentHeight) -- set mask
+	local maskImmage = display.newImageRect(bgGroup, bgDir .. "menu.png", display.contentWidth, display.contentHeight) -- set mask
 	maskImmage.x = display.contentCenterX
 	maskImmage.y = display.contentCenterY
 
