@@ -8,7 +8,7 @@ local scene = composer.newScene()
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
 -- -----------------------------------------------------------------------------------
 
--- initialize variables -------------------------
+-- initialize variables -------------------------------------------------------
 
 local bgLayerNum = 7 -- num of the background layers to load from the assets folder
 
@@ -18,7 +18,10 @@ local uiGroup
 
 local bgLayerGroupTable = {}
 
--- define functions -----------------------------
+
+-- ----------------------------------------------------------------------------
+-- menu functions
+-- ----------------------------------------------------------------------------
 
 local function gotoGame()
     composer.gotoScene( "scenes.game", { time=800, effect="crossFade" } )
@@ -28,17 +31,6 @@ local function gotoHighScores()
     --composer.gotoScene( "scenes.highscores", { time=800, effect="crossFade" } )
 end
 
-local function scaleDisplayObject( object )
-
-	-- calculate scaling factor to fit
-	local scaleFact = math.max( (display.contentWidth / object.width), (display.contentHeight / object.height) )
-
-	print(scaleFact, display.contentWidth, object.width, display.contentHeight, object.height) -- TEST
-
-	-- set scale
-	object.xScale = scaleFact
-	object.yScale = scaleFact
-end
 
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
@@ -96,45 +88,6 @@ function scene:create( event )
 	-- manually refine layer positions for the menu
 	bgLayerGroupTable[5].x = bgLayerGroupTable[5].x - 200
 	bgLayerGroupTable[4].x = bgLayerGroupTable[4].x - 230
-
-	--[[
-	local background -- here we will not need to keep a reference to the background layers, so we recycle the same var
-
-	background = display.newImageRect( bgGroup, bgDir.."1.png", 1920, 1080 )
-	background.x = display.contentCenterX
-	background.y = display.contentCenterY
-	scaleDisplayObject( background ) -- scale image to fit
-
-	background = display.newImageRect( bgGroup, bgDir.."2.png", 1920, 1080 )
-	background.x = display.contentCenterX
-	background.y = display.contentCenterY
-	scaleDisplayObject( background ) -- scale image to fit
-
-	background = display.newImageRect( bgGroup, bgDir.."3.png", 1920, 1080 )
-	background.x = display.contentCenterX
-	background.y = display.contentCenterY
-	scaleDisplayObject( background ) -- scale image to fit
-	
-	background = display.newImageRect( bgGroup, bgDir.."4.png", 1920, 1080 )
-	background.x = display.contentCenterX
-	background.y = display.contentCenterY
-	scaleDisplayObject( background ) -- scale image to fit
-	
-	background = display.newImageRect( bgGroup, bgDir.."6.png", 1920, 1080 )
-	background.x = display.contentCenterX
-	background.y = display.contentCenterY
-	scaleDisplayObject( background ) -- scale image to fit
-	
-	background = display.newImageRect( bgGroup, bgDir.."7.png", 1920, 1080 )
-	background.x = display.contentCenterX
-	background.y = display.contentCenterY
-	scaleDisplayObject( background ) -- scale image to fit
-	
-	background = display.newImageRect( bgGroup, bgDir.."8.png", 1920, 1080 )
-	background.x = display.contentCenterX
-	background.y = display.contentCenterY
-	scaleDisplayObject( background ) -- scale image to fit
-	--]]
 
 	-- set button to play game
 	local playButton = display.newText( uiGroup, "Play", display.contentCenterX+75, display.contentCenterY-70, native.systemFontBold, 40 )

@@ -7,8 +7,10 @@ application =
 {
 	content =
 	{
-		width = 320,
-		height = 480, 
+		-- Set content area width/height settings for 1080p resolution here
+		-- Note that even for landscape-oriented apps, width should be the "short" side for Corona's purposes
+		width = 1080,
+		height = 1920,
 		scale = "letterbox",
 		fps = 60,
 		
