@@ -45,6 +45,6 @@ end
 -- ------------------------------------------------------------------------------------------------
 
 -- Go to the menu screen
---composer.gotoScene( "scenes.menu" )
+composer.gotoScene( "scenes.menu" )
 
-composer.gotoScene( "scenes.game" ) -- TEST scene
+-- composer.gotoScene( "scenes.game" ) -- TEST scene
