@@ -19,6 +19,9 @@ local subMod = require( "scenes.game.submarine" )
 -- load background module
 local bgMod = require( "scenes.game.background" )
 
+-- load pickable module
+local pickMod = require( "scenes.game.pickable" )
+
 -- initialize variables -------------------------------------------------------
 composer.setVariable(variableName,value)
 
@@ -28,11 +31,11 @@ local died = false
  
 local pickableObjectTable = {}
  
-local gameLoopTimer
 local livesText
 local scoreText
 
 local gameSpeedUpdateTimer
+local clearObjectsTimer
 
 -- display groups
 local bgGroup
@@ -50,20 +53,92 @@ local function gameSpeedUpdate()
 	local gs = composer.getVariable( "gameSpeed" )
 
 	-- limit game speed to 7
-	if ( gs < 7 ) then 
+	if ( gs < 4 ) then 
 
 		local st = composer.getVariable( "startTime" )
 		gs = 1 + ( (os.time() - st) / 100 )
+		--gs = 1 + ( (os.time() - st) / 1 ) -- TEST
 		composer.setVariable( "gameSpeed", gs )
 	end
 
-	print( gs ) -- TEST
+	print( "gameSpeed: ", gs ) -- TEST
 end
 
--- UI text updater
-local function updateText()
-    livesText.text = "Lives: " .. lives
-    scoreText.text = "Score: " .. score
+-- collision handler
+local function onCollision( event )
+ 
+    -- detect "began" phase of collision
+    if ( event.phase == "began" ) then
+ 
+        -- rename for simplicity
+        local obj1 = event.object1
+        local obj2 = event.object2
+
+        -- handle "submarine" and "groundObject" collision
+        -- no way to determine who is who, so we write both conditions
+        if ( ( obj1.myName == "submarine" and obj2.myName == "groundObject" ) or
+             ( obj1.myName == "groundObject" and obj2.myName == "submarine" ) )
+		then
+			-- Remove groundObject from display
+			if ( obj1.myName == "groundObject" ) then
+				display.remove( obj1 )
+
+			else
+				display.remove( obj2 )
+			end
+
+            -- remove asteroid reference from "asteroidsTable"
+            for i = #pickMod.pickableObjectsTable, 1, -1 do
+                if ( pickMod.pickableObjectsTable[i] == obj1 or pickMod.pickableObjectsTable[i] == obj2 ) then
+                    table.remove( pickMod.pickableObjectsTable, i )
+                    break
+                end
+            end
+
+            -- update score
+            score = score + 100
+            scoreText.text = "Score: " .. score
+
+		--[[
+        -- handle "submarine" and "obstacle" collision
+        elseif ( ( obj1.myName == "submarine" and obj2.myName == "obstacle" ) or
+                 ( obj1.myName == "obstacle" and obj2.myName == "submarine" ) )
+        then
+            if ( died == false ) then
+                died = true    
+
+                -- Update lives
+                lives = lives - 1
+                livesText.text = "Lives: " .. lives
+
+                -- check lives
+                if ( lives == 0 ) then
+					display.remove( ship )
+					timer.performWithDelay( 2000, endGame )
+
+                else
+                    ship.alpha = 0
+                    timer.performWithDelay( 1000, restoreShip )
+                end
+			end
+		--]]
+        end
+    end
+end
+
+local function clearObjects()
+ 
+	-- remove objects which have drifted off screen
+	
+	for i = #pickMod.pickableObjectsTable, 1, -1 do
+		
+		local thisObject = pickMod.pickableObjectsTable[i]
+		
+        if ( thisObject.x < -400 ) then
+            display.remove( thisObject )
+            table.remove( pickMod.pickableObjectsTable, i )
+        end
+    end
 end
 
 
@@ -97,15 +172,33 @@ function scene:create( event )
 	sceneGroup:insert( uiGroup )    -- insert into the scene's view group
 
 
-	--set event listener to update game speed
+	-- set event listener to update game speed
 	gameSpeedUpdateTimer = timer.performWithDelay(1000, gameSpeedUpdate, 0)
 
 	-- load and set background
-	bgMod.init( bgGroup )
+	bgMod.init( bgGroup )	
+
+	-- load and set pickable objects spawner
+	pickMod.init( mainGroup )
 
 	-- load and set submarine
 	subMod.init( mainGroup )
 
+	-- global collision listener
+	Runtime:addEventListener( "collision", onCollision )
+
+	-- display score
+	scoreText = display.newText( uiGroup, "Score: " .. score, 50, 40, native.systemFontBold, 45 )
+	scoreText.anchorX = 0 -- align
+	scoreText:setFillColor( 0, 0, 0 ) -- black
+
+	-- display lives
+	livesText = display.newText( uiGroup, "Lives: " .. lives, display.contentWidth - 50, 40, native.systemFontBold, 45 )
+	livesText.anchorX = 1 -- align	
+	livesText:setFillColor( 0, 0, 0 ) -- black
+
+	-- set timer to trigger the clear objects function at regular intervals
+	clearObjectsTimer = timer.performWithDelay( 2000, clearObjects, 0 ) 
 end
 
 
@@ -140,13 +233,16 @@ function scene:hide( event )
 		-- Code here runs immediately after the scene goes entirely off screen
 
 		-- clear Runtime listeners
+		Runtime:removeEventListener( "collision", onCollision )
 
 		-- clear timers
 		timer.cancel( gameSpeedUpdateTimer )
+		timer.cancel( clearObjectsTimer )
 
 		-- clear loaded modules
 		bgMod.clear()
 		subMod.clear()
+		pickMod.clear()
 	end
 end
 

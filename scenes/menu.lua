@@ -104,7 +104,7 @@ function scene:create( event )
 	local highScoresButton = display.newText( uiGroup, "High Scores", display.contentCenterX-75, display.contentCenterY, native.systemFontBold, 40 )
 	highScoresButton:setFillColor( 0.20, 0.63, 0.92 )
 	highScoresButton:addEventListener( "tap", gotoHighScores ) -- tap listener
-	]]--
+	--]]
 end
 
 
