@@ -9,7 +9,7 @@ M.bgLayerNum = 6 -- num of the background layers to load from the assets folder
 local bgLayerGroupTable = {}
 
 -- background assets dir
-local bgDir = "assets/game/background/layers/" -- bg assets dir
+local bgDir = "assets/background/worlds/1/" -- bg assets dir
 
 
 -- ----------------------------------------------------------------------------

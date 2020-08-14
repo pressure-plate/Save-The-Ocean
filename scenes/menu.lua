@@ -58,7 +58,7 @@ function scene:create( event )
 	end
 
 	-- load background ---------------------------------------------------
-	local bgDir = "assets/menu/background/layers/" -- bg assets dir
+	local bgDir = "assets/background/menu/" -- bg assets dir
 
 	-- load all bgLayer groups
 	for i=1, bgLayerNum do
@@ -89,15 +89,22 @@ function scene:create( event )
 	bgLayerGroupTable[5].x = bgLayerGroupTable[5].x - 200
 	bgLayerGroupTable[4].x = bgLayerGroupTable[4].x - 230
 
+	-- set mask
+	local maskImmage = display.newImageRect(bgGroup, bgDir .. "menu.png", display.contentWidth, display.contentHeight) -- set mask
+	maskImmage.x = display.contentCenterX
+	maskImmage.y = display.contentCenterY
+
+	--[[
 	-- set button to play game
-	local playButton = display.newText( uiGroup, "Play", display.contentCenterX+75, display.contentCenterY-70, native.systemFontBold, 40 )
+	local playButton = display.newText( uiGroup, "Play", display.contentCenterX-75, display.contentCenterY-70, native.systemFontBold, 40 )
 	playButton:setFillColor( 0.20, 0.63, 0.92 )
 	playButton:addEventListener( "tap", gotoGame ) -- tap listener
 
 	-- set button to display highscores
-	local highScoresButton = display.newText( uiGroup, "High Scores", display.contentCenterX+75, display.contentCenterY, native.systemFontBold, 40 )
+	local highScoresButton = display.newText( uiGroup, "High Scores", display.contentCenterX-75, display.contentCenterY, native.systemFontBold, 40 )
 	highScoresButton:setFillColor( 0.20, 0.63, 0.92 )
 	highScoresButton:addEventListener( "tap", gotoHighScores ) -- tap listener
+	--]]
 end
 
 
