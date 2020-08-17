@@ -33,7 +33,7 @@ local function spawnGroundObjects()
     lastSpawnGroundObjects = os.time()
 
     -- generate a random number of pickable items
-    local randNum = math.random( 2, math.floor(gameSpeed)+2 ) 
+    local randNum = math.random( 2, math.floor(gameSpeed)+1 ) 
     for i=1, randNum do
 
         -- select random asset
@@ -44,7 +44,7 @@ local function spawnGroundObjects()
         }
         
         -- create object
-        local newPickable = display.newRect( group, display.contentWidth + math.random(400, 1000), display.contentHeight, 512*0.15, 752*0.15 )
+        local newPickable = display.newRect( group, display.contentWidth + math.random(400, 1200), display.contentHeight, 512*0.15, 752*0.15 )
         newPickable.fill = paint
         newPickable.anchorY = 1
         newPickable.myName = "groundObject"
@@ -77,7 +77,7 @@ local function spawnFloatingObjects()
     lastSpawnFloatingObjects = os.time()
 
     -- generate a random number of pickable items
-    local randNum = math.random( 2, math.floor(gameSpeed)+2 ) 
+    local randNum = math.random( 2, math.floor(gameSpeed)+3 ) 
     for i=1, randNum do
 
         -- select random asset
@@ -88,7 +88,7 @@ local function spawnFloatingObjects()
         }
         
         -- create object
-        local newPickable = display.newRect( group, display.contentWidth + math.random(400, 1000), math.random(100, display.contentHeight-100), 85, 85 )
+        local newPickable = display.newRect( group, display.contentWidth + math.random(400, 1500), math.random(100, display.contentHeight-100), 85, 85 )
         newPickable.fill = paint
         newPickable.anchorY = 1
         newPickable.myName = "floatingObject"
@@ -121,7 +121,7 @@ function M.init( displayGroup )
     lastSpawnFloatingObjects = os.time()
 
     -- set spawn timers
-    spawnGroundObjectsTimer = timer.performWithDelay( 2000, spawnGroundObjects, 0 )
+    spawnGroundObjectsTimer = timer.performWithDelay( 3000, spawnGroundObjects, 0 )
     spawnFloatingObjectsTimer = timer.performWithDelay( 2000, spawnFloatingObjects, 0 )
 
 end

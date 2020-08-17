@@ -27,12 +27,11 @@ local lives = 3
 local score = 0
 local died = false
  
-local pickableObjectTable = {}
- 
 local livesText
 local scoreText
 
 local maxGameSpeed = 4
+
 local gameSpeedUpdateTimer
 local clearObjectsTimer
 
