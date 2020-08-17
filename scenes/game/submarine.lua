@@ -1,14 +1,19 @@
 local M = {}
 
+local composer = require( "composer" )
+
 local physics = require( "physics" )
 
 -- submarine vars
 M.submarine = nil
 local submarineIsRising
-local submarineRisingSpeed
+local touchActive
+local group
+local bubbleGroup
 
 -- submarine skin set
 M.submarineSkin = "submarine_default"
+M.bubbleSkin = "bubble1"
 
 -- submarine assets dir
 local submarineDir = "assets/submarine/"
@@ -21,49 +26,40 @@ local submarineDir = "assets/submarine/"
 
 
 local function moveSubmarine( self, event )
-
-	local transRot -- var to hold the rotation transition reference
-	local minRaiseRotation = 5 -- rotation degree
-	local rotDeg = 35 -- rotation degree
-	local rotTime = 500 -- rotation time
+	
+	local rotDeg = 15 -- rotation degree
+	local rotTimeUp = 800 -- rotation time up
+	local rotTimeDown = 1100-- rotation time down
 
 	-- start of touch
-    if ( event.phase == "began" ) then
-        
+    if ( event.phase == "began" ) then 
 		 -- Set touch focus on the submarine (this means that the submarine object will "own" the touch event throughout its duration)
 		display.currentStage:setFocus( self )
 		
 
-		-- rise listener of submarine
-		local function raiseListener( obj )
-			submarineIsRising = true
-			self:setLinearVelocity( 0, -submarineRisingSpeed )	
-		end
+		-- set touch as active
+		touchActive = true
 
-		-- rotate submarine, and on complete call the raise listener
-		transition.cancel( transRot )
-		transRot = transition.to( self, {rotation = -minRaiseRotation, time = rotTime/2, onComplete = raiseListener} )
-		
-		-- complete the raise rotation to the max degree
-		transRot = transition.to( self, {rotation = -rotDeg, time = rotTime} )
+		-- rise of submarine
+		submarineIsRising = true
 
-		
+		-- rotate submarine
+		transition.cancel( self )
+		transRot = transition.to( self, { rotation = -rotDeg, time = rotTimeUp } )
+	
 	elseif ( event.phase == "ended" or event.phase == "cancelled" ) then
 		-- Release touch focus on the ship
 		display.currentStage:setFocus( nil )
 
-		-- fall listener of submarine
-		local function fallListener( obj )
-			submarineIsRising = false
-			self:setLinearVelocity( 0, submarineRisingSpeed )	
-		end
+		-- set touch as inactive
+		touchActive = false
+
+		-- fall of submarine
+		submarineIsRising = false
 
 		-- change rotation
-		transition.cancel( transRot )
-		transRot = transition.to( self, {rotation = minRaiseRotation, time = rotTime/2, onComplete = fallListener} )
-	
-		-- complete the fall rotation to the max degree	
-		transRot = transition.to( self, {rotation = rotDeg, time = rotTime} )
+		transition.cancel( self )
+		transRot = transition.to( self, { rotation = rotDeg, time = rotTimeDown } )
 	end
 	
     return true  -- Prevents touch propagation to underlying objects
@@ -71,21 +67,50 @@ end
 
 local function onEnterFrame( self, event ) 
 
-	local rotTime = 500 -- rotation time
-
-	-- check bounds of submarine rotation -------------------------------------
-	if (submarineIsRising == true and self.y < 70) then
+	-- apply force to move the submarine
+	if ( touchActive ) then
+		self:applyForce( 0, -12, self.x, self.y )
+	end
+	
+	-- check bounds of submarine rotation
+	if (submarineIsRising == true and self.y < 75) then
 		submarineIsRising = false
-		self:setLinearVelocity( 0, 0 )
 		transition.cancel( self )
 		transition.to( self, {rotation = 0, time = rotTime} )
 	
-	elseif (submarineIsRising == false and self.y > display.contentHeight-70) then
+	elseif (submarineIsRising == false and self.y > display.contentHeight-75) then
 		submarineIsRising = true
-		self:setLinearVelocity( 0, 0 )
 		transition.cancel( self )
 		transition.to( self, {rotation = 0, time = rotTime} )
 	end
+end
+
+local function spawnBubble()
+
+	local gameSpeed = composer.getVariable( "gameSpeed" )
+
+	-- load bubble skin
+	local bubblePaint = {
+		type = "image",
+		filename = submarineDir .. M.bubbleSkin .. ".png"
+	}
+
+	-- create bubble
+	newBubble = display.newRect( bubbleGroup, M.submarine.x-100, M.submarine.y+20, 85, 85 )
+	newBubble.fill = bubblePaint
+	physics.addBody( newBubble, "kinematic", {isSensor=true} )
+	
+	-- set random scale
+	local randScale = math.random( 10, 55 ) / 100
+	newBubble.xScale = randScale
+	newBubble.yScale = randScale
+
+	-- add to table
+	table.insert( composer.getVariable( "screenObjectsTable" ), newBubble )
+
+	-- set speed and random y direction --TODO
+	local randY = math.random( -100, 100 )
+	newBubble:setLinearVelocity( -350*gameSpeed, randY )	
 end
 
 
@@ -94,12 +119,14 @@ end
 -- ----------------------------------------------------------------------------
 
 -- init function
-function M.init( group )
+function M.init( submarineGroup, mainGroup )
     
     -- init vars
     M.submarine = nil
-    submarineIsRising = false
-    submarineRisingSpeed = 400
+	submarineIsRising = false
+	touchActive = false
+	group = submarineGroup
+	bubbleGroup = mainGroup
 
 	-- load submarine skin
 	local submarinePaint = {
@@ -115,8 +142,11 @@ function M.init( group )
 	M.submarine.fill = submarinePaint
 
 	-- set physics
-	physics.addBody( M.submarine, { radius=30, isSensor=true } )
+	physics.addBody( M.submarine, { radius=70, bounce=0 } )
 	M.submarine.myName = "submarine"
+
+	-- set gravity scale
+	M.submarine.gravityScale = 2.7
 	
     -- set event listener to move the submarine
     M.submarine.touch = moveSubmarine
@@ -124,7 +154,21 @@ function M.init( group )
     
     -- set event listener onEnterFrame function
     M.submarine.enterFrame = onEnterFrame
-    Runtime:addEventListener( "enterFrame", M.submarine )
+	Runtime:addEventListener( "enterFrame", M.submarine )
+	
+	-- set bubble spawner
+	bubbleSpawnTimer = timer.performWithDelay( 100, spawnBubble, 0 )
+
+	-- create physical bodies as bounds for the submarine
+	-- no need to access these vars elsewhere in the code so we keep them local here
+	local floor = display.newRect( group, M.submarine.x, display.contentHeight, 300, 1 )
+	floor.isVisible = false
+	physics.addBody( floor, "static", { bounce=0 } )
+
+	local ceiling = display.newRect( group, M.submarine.x, 0, 300, 1 )
+	ceiling.isVisible = false
+	physics.addBody( ceiling, "static", { bounce=0 } )
+
 end
 
 -- clear function
@@ -135,7 +179,10 @@ function M.clear()
     Runtime:removeEventListener( "enterFrame", M.submarine )
 
     -- remove object references
-    M.submarine = nil
+	M.submarine = nil
+	
+	-- remove timers
+	timer.remove( bubbleSpawnTimer )
 end
 
 

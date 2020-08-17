@@ -15,7 +15,7 @@ math.randomseed( os.time() )
  
 -- @DEBUG -----------------------------------------------------------------------------------------
 
-local debugMode = false
+local debugMode = true
 
 -- monitor Memory Usage
 local function printMemUsage()  

@@ -11,7 +11,6 @@ local scene = composer.newScene()
 -- set up physics
 local physics = require( "physics" )
 physics.start()
-physics.setGravity( 0, 0 )
 
 -- load submarine module
 local subMod = require( "scenes.game.submarine" )
@@ -23,16 +22,15 @@ local bgMod = require( "scenes.game.background" )
 local pickMod = require( "scenes.game.pickable" )
 
 -- initialize variables -------------------------------------------------------
-composer.setVariable(variableName,value)
 
 local lives = 3
 local score = 0
 local died = false
  
-local pickableObjectTable = {}
- 
 local livesText
 local scoreText
+
+local maxGameSpeed = 4
 
 local gameSpeedUpdateTimer
 local clearObjectsTimer
@@ -40,6 +38,8 @@ local clearObjectsTimer
 -- display groups
 local bgGroup
 local mainGroup
+local obstacleGroup
+local submarineGroup
 local uiGroup
 
 
@@ -52,8 +52,8 @@ local function gameSpeedUpdate()
 
 	local gs = composer.getVariable( "gameSpeed" )
 
-	-- limit game speed to 7
-	if ( gs < 4 ) then 
+	-- limit game speed to 4
+	if ( gs < maxGameSpeed ) then 
 
 		local st = composer.getVariable( "startTime" )
 		gs = 1 + ( (os.time() - st) / 100 )
@@ -87,17 +87,44 @@ local function onCollision( event )
 				display.remove( obj2 )
 			end
 
-            -- remove asteroid reference from "asteroidsTable"
-            for i = #pickMod.pickableObjectsTable, 1, -1 do
-                if ( pickMod.pickableObjectsTable[i] == obj1 or pickMod.pickableObjectsTable[i] == obj2 ) then
-                    table.remove( pickMod.pickableObjectsTable, i )
+			-- remove "groundObject" reference from "screenObjectsTable"
+			local screenObjectsTable = composer.getVariable( "screenObjectsTable" )
+            for i = #screenObjectsTable, 1, -1 do
+                if ( screenObjectsTable[i] == obj1 or screenObjectsTable[i] == obj2 ) then
+                    table.remove( screenObjectsTable, i )
                     break
                 end
             end
 
             -- update score
             score = score + 100
-            scoreText.text = "Score: " .. score
+			scoreText.text = "Score: " .. score
+			 
+		-- handle "submarine" and "floatingObject" collision
+        -- no way to determine who is who, so we write both conditions
+		elseif ( ( obj1.myName == "submarine" and obj2.myName == "floatingObject" ) or
+             	 ( obj1.myName == "floatingObject" and obj2.myName == "submarine" ) )
+		then
+			-- Remove groundObject from display
+			if ( obj1.myName == "floatingObject" ) then
+				display.remove( obj1 )
+
+			else
+				display.remove( obj2 )
+			end
+
+            -- remove "floatingObject" reference from "screenObjectsTable"
+			local screenObjectsTable = composer.getVariable( "screenObjectsTable" )
+            for i = #screenObjectsTable, 1, -1 do
+                if ( screenObjectsTable[i] == obj1 or screenObjectsTable[i] == obj2 ) then
+                    table.remove( screenObjectsTable, i )
+                    break
+                end
+            end
+
+            -- update score
+            score = score + 50
+			scoreText.text = "Score: " .. score
 
 		--[[
         -- handle "submarine" and "obstacle" collision
@@ -129,14 +156,16 @@ end
 local function clearObjects()
  
 	-- remove objects which have drifted off screen
+
+	local screenObjectsTable = composer.getVariable( "screenObjectsTable" )
 	
-	for i = #pickMod.pickableObjectsTable, 1, -1 do
+	for i = #screenObjectsTable, 1, -1 do
 		
-		local thisObject = pickMod.pickableObjectsTable[i]
+		local thisObject = screenObjectsTable[i]
 		
         if ( thisObject.x < -400 ) then
             display.remove( thisObject )
-            table.remove( pickMod.pickableObjectsTable, i )
+            table.remove( screenObjectsTable, i )
         end
     end
 end
@@ -156,8 +185,9 @@ function scene:create( event )
 
 
 	-- set composer game vars
-	composer.setVariable( "startTime", os.time() )
-	composer.setVariable( "gameSpeed", 1 )
+	composer.setVariable( "startTime", os.time() ) -- save game start time
+	composer.setVariable( "gameSpeed", 1 ) -- set initial game speed
+	composer.setVariable( "screenObjectsTable", {} ) -- keep a table of screen objects to clear during game
 
 
 	-- Set up display groups
@@ -165,8 +195,14 @@ function scene:create( event )
     bgGroup = display.newGroup()  -- display group for background
     sceneGroup:insert( bgGroup )  -- insert into the scene's view group
  
-    mainGroup = display.newGroup()  -- display group for the main game objects (like the submarine)
-    sceneGroup:insert( mainGroup )  -- insert into the scene's view group
+    mainGroup = display.newGroup()  -- display group for the game objects
+	sceneGroup:insert( mainGroup )  -- insert into the scene's view group
+
+	obstacleGroup = display.newGroup()  -- display group for the obstacles objects
+	sceneGroup:insert( obstacleGroup )  -- insert into the scene's view group
+
+	submarineGroup = display.newGroup()  -- display group for the submarine object
+	sceneGroup:insert( submarineGroup )  -- insert into the scene's view group
  
     uiGroup = display.newGroup()    -- display group for UI
 	sceneGroup:insert( uiGroup )    -- insert into the scene's view group
@@ -182,7 +218,7 @@ function scene:create( event )
 	pickMod.init( mainGroup )
 
 	-- load and set submarine
-	subMod.init( mainGroup )
+	subMod.init( submarineGroup, mainGroup )
 
 	-- global collision listener
 	Runtime:addEventListener( "collision", onCollision )
