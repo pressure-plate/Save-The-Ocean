@@ -19,7 +19,7 @@ local subMod = require( "scenes.game.submarine" )
 local bgMod = require( "scenes.game.background" )
 
 -- load pickable module
-local pickMod = require( "scenes.game.pickable" )
+local spawnMod = require( "scenes.game.spawner" )
 
 -- initialize variables -------------------------------------------------------
 
@@ -57,7 +57,7 @@ local function gameSpeedUpdate()
 
 		local st = composer.getVariable( "startTime" )
 		gs = 1 + ( (os.time() - st) / 100 )
-		--gs = 1 + ( (os.time() - st) / 1 ) -- TEST
+		--gs = 2 -- TEST
 		composer.setVariable( "gameSpeed", gs )
 	end
 
@@ -214,8 +214,8 @@ function scene:create( event )
 	-- load and set background
 	bgMod.init( bgGroup )	
 
-	-- load and set pickable objects spawner
-	pickMod.init( mainGroup )
+	-- load and set the objects spawner
+	spawnMod.init( mainGroup )
 
 	-- load and set submarine
 	subMod.init( submarineGroup, mainGroup )
@@ -278,7 +278,7 @@ function scene:hide( event )
 		-- clear loaded modules
 		bgMod.clear()
 		subMod.clear()
-		pickMod.clear()
+		spawnMod.clear()
 	end
 end
 
