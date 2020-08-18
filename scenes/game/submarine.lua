@@ -23,6 +23,8 @@ local submarineDir = "assets/submarine/"
 -- functions
 -- ----------------------------------------------------------------------------
 
+
+
 local function moveSubmarine( self, event )
 	
 	local rotDeg = 15 -- rotation degree
@@ -33,6 +35,7 @@ local function moveSubmarine( self, event )
     if ( event.phase == "began" ) then 
 		 -- Set touch focus on the submarine (this means that the submarine object will "own" the touch event throughout its duration)
 		display.currentStage:setFocus( self )
+		
 
 		-- set touch as active
 		touchActive = true
@@ -73,12 +76,12 @@ local function onEnterFrame( self, event )
 	if (submarineIsRising == true and self.y < 75) then
 		submarineIsRising = false
 		transition.cancel( self )
-		transition.to( self, {rotation = 0, time = 150} )
+		transition.to( self, {rotation = 0, time = rotTime} )
 	
 	elseif (submarineIsRising == false and self.y > display.contentHeight-75) then
 		submarineIsRising = true
 		transition.cancel( self )
-		transition.to( self, {rotation = 0, time = 150} )
+		transition.to( self, {rotation = 0, time = rotTime} )
 	end
 end
 
