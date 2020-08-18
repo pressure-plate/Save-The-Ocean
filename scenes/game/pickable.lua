@@ -37,10 +37,10 @@ local function spawnGroundObjects()
     for i=1, randNum do
 
         -- select random asset
-        local randAsset = math.random( 2 )
+        local randAsset = math.random( 5 )
         local paint = {
             type = "image",
-            filename = pickDir .. "barrel" .. randAsset .. ".png"
+            filename = pickDir .. "/barrel/" .. randAsset .. ".png"
         }
         
         -- create object
@@ -81,11 +81,20 @@ local function spawnFloatingObjects()
     for i=1, randNum do
 
         -- select random asset
-        local randAsset = math.random( 2 )
+        local randAsset = math.random( 4 )
         local paint = {
             type = "image",
-            filename = pickDir .. "bubble" .. randAsset .. ".png"
+            filename = pickDir .. "/bag/" .. randAsset .. ".png"
         }
+
+        local paint1 = {
+            type = "image",
+            filename = pickDir .. "/bottle/" .. randAsset .. ".png"
+        }
+
+        if(math.random( 2 ) == 1) then
+            paint = paint1
+        end
         
         -- create object
         local newPickable = display.newRect( group, display.contentWidth + math.random(400, 1500), math.random(100, display.contentHeight-100), 85, 85 )
