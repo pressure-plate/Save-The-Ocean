@@ -94,17 +94,15 @@ function scene:create( event )
 	maskImmage.x = display.contentCenterX
 	maskImmage.y = display.contentCenterY
 
-	--[[
 	-- set button to play game
-	local playButton = display.newText( uiGroup, "Play", display.contentCenterX-75, display.contentCenterY-70, native.systemFontBold, 40 )
-	playButton:setFillColor( 0.20, 0.63, 0.92 )
+	local playButton = display.newText( uiGroup, "Play", display.contentCenterX-300, display.contentCenterY-100, "fonts/AlloyInk", 100 )
+	playButton:setFillColor( 0, 0.7, 1 )
 	playButton:addEventListener( "tap", gotoGame ) -- tap listener
 
 	-- set button to display highscores
-	local highScoresButton = display.newText( uiGroup, "High Scores", display.contentCenterX-75, display.contentCenterY, native.systemFontBold, 40 )
-	highScoresButton:setFillColor( 0.20, 0.63, 0.92 )
+	local highScoresButton = display.newText( uiGroup, "High Scores", display.contentCenterX-300, display.contentCenterY+100, "fonts/PermanentMarker.ttf", 100 )
+	highScoresButton:setFillColor( 0, 0, 0 )
 	highScoresButton:addEventListener( "tap", gotoHighScores ) -- tap listener
-	--]]
 end
 
 

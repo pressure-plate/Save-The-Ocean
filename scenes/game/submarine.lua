@@ -12,11 +12,12 @@ local group
 local bubbleGroup
 
 -- submarine skin set
-M.submarineSkin = "submarine_default"
-M.bubbleSkin = "bubble1"
+M.submarineSkin = "1"
+M.bubbleSkin = "1"
 
 -- submarine assets dir
 local submarineDir = "assets/submarine/"
+local bubbleDir = "assets/submarine/bubble/"
 
 
 -- ----------------------------------------------------------------------------
@@ -91,7 +92,7 @@ local function spawnBubble()
 	-- load bubble skin
 	local bubblePaint = {
 		type = "image",
-		filename = submarineDir .. M.bubbleSkin .. ".png"
+		filename = bubbleDir .. M.bubbleSkin .. ".png"
 	}
 
 	-- create bubble
@@ -137,7 +138,7 @@ function M.init( submarineGroup, mainGroup )
 	local scaleFact = 0.45
 
 	-- create submarine obj
-	M.submarine = display.newRect( group, display.contentCenterX - (display.contentWidth*0.34), display.contentCenterY, 512*scaleFact, 234*scaleFact )
+	M.submarine = display.newRect( group, display.contentCenterX - (display.contentWidth*0.34), display.contentCenterY, 512*scaleFact, 265*scaleFact )
 	M.submarine.fill = submarinePaint
 
 	-- set physics
@@ -181,7 +182,7 @@ function M.clear()
 	M.submarine = nil
 	
 	-- remove timers
-	timer.remove( bubbleSpawnTimer )
+	timer.cancel( bubbleSpawnTimer )
 end
 
 

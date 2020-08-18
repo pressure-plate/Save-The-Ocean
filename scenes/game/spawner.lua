@@ -97,7 +97,6 @@ local function spawnFloatingObjects()
         local scaleFact = 0.18
         local newPickable = display.newRect( group, display.contentWidth + math.random(400, 1500), math.random(100, display.contentHeight-100), 233*scaleFact, 512*scaleFact )
         newPickable.fill = paint
-        newPickable.anchorY = 1
         newPickable.myName = "floatingObject"
         physics.addBody( newPickable, { radius=50, isSensor=true } )
         newPickable.gravityScale = 0
@@ -114,14 +113,13 @@ local function spawnFloatingObjects()
     end
 end
 
-local function spawnObstacle( assetPath, location, xPos, yPos, width, height, linearVelocity )
+local function spawnObstacle( assetPath, location, xPos, yPos, linearVelocity, scaleFact )
 
     -- outline asset image
     local assetOutline = graphics.newOutline( 2, assetPath )
     
     -- create object
-    local scaleFact = 0.18
-    local newObstacle = display.newImage( group, assetPath )
+    local newObstacle = display.newImage( group, assetPath, xPos, yPos )
     newObstacle.myName = "obstacle"
     newObstacle.xScale = scaleFact
     newObstacle.yScale = scaleFact
@@ -131,8 +129,8 @@ local function spawnObstacle( assetPath, location, xPos, yPos, width, height, li
         newObstacle.anchorY = 1
 
     elseif ( location == "ceiling" ) then
-        newObstacle.anchorY = 0
         newObstacle.rotation = 180
+        newObstacle.anchorY = 1
     end
     
     -- set physics
@@ -158,14 +156,18 @@ local function spawnHandler()
 
     -- set random obstlacle properties
     local assetPath = obsDir .. "stone/" .. 2 .. ".png"
-    local location, xPos, yPos, width, height, linearVelocity
+    local linearVelocity = -450 * gameSpeed
+    local xPos = display.contentCenterX
+    local scaleFact = 1.2
+    local location
     if ( math.random( 2 ) == 1 ) then
         location = "floor"
+        spawnObstacle( assetPath, location, xPos, display.contentHeight+20, linearVelocity, scaleFact )
     else
         location = "ceiling"
+        spawnObstacle( assetPath, location, xPos, -20, linearVelocity, scaleFact )
     end
-    --spawnObstacle( assetPath, location, xPos, yPos, width, height, linearVelocity )
-    spawnObstacle( assetPath, "ceiling", display.contentCenterX, display.contentCenterY, width, height, -450*gameSpeed )
+    
 
 end
 
@@ -199,8 +201,8 @@ function M.clear()
     M.pickableObjectsTable = {}
 
     -- remove timers
-    timer.cancel( spawnGroundObjectsTimer )
-    timer.cancel( spawnFloatingObjectsTimer )
+    --timer.cancel( spawnGroundObjectsTimer )
+    --timer.cancel( spawnFloatingObjectsTimer )
     timer.cancel( spawnHandlerTimer )
 end
 
