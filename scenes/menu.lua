@@ -12,11 +12,28 @@ local scene = composer.newScene()
 
 local bgLayerNum = 7 -- num of the background layers to load from the assets folder
 
+-- load background module
+local bgMod = require( "scenes.game.background" )
+
+-- assets directory
+local bgDir = "assets/background/menu/" -- user interface assets dir
+local uiDir = "assets/ui/" -- user interface assets dir
+
 -- display groups
 local bgGroup
 local uiGroup
 
-local bgLayerGroupTable = {}
+local gameSpeedUpdateTimer = 0.1
+local backgroundScrollDirection = 1
+local backgroundmaxVel = 0.1
+
+-- buttons scale
+local buttosWidthScaleRateo = 0.125
+local buttosHeightScaleRateo = 0.1
+
+-- buttons grid formatting
+local buttonColOffset = -75 -- the offet to alligh the buttons to the same col
+local buttonRowOffset = 120 -- the offet between each button on the same row
 
 
 -- ----------------------------------------------------------------------------
@@ -28,7 +45,7 @@ local function gotoGame()
 end
 
 local function gotoHighScores()
-    --composer.gotoScene( "scenes.highscores", { time=800, effect="crossFade" } )
+    --composer.gotoScene( "scenes.highscores", { time=200, effect="crossFade" } )
 end
 
 
@@ -36,14 +53,26 @@ end
 -- Scene event functions
 -- -----------------------------------------------------------------------------------
 
+-- update game speed
+local function BackgroundSpeedUpdate()
+
+	local gs = composer.getVariable( "gameSpeed" )
+
+	if ( math.abs(gs) >= backgroundmaxVel ) then 
+		backgroundScrollDirection = backgroundScrollDirection * -1
+	end
+	gs = gs + (0.01) * backgroundScrollDirection
+
+	composer.setVariable( "gameSpeed", gs )
+end
+
+
 -- create()
 function scene:create( event )
 
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
-
-	-- NOTE add all display objects to "sceneGroup"
-
+	
 	-- set up groups for display objects
 	bgGroup = display.newGroup() -- display group for background
 	sceneGroup:insert( bgGroup ) -- insert into the scene's view group
@@ -51,60 +80,29 @@ function scene:create( event )
 	uiGroup = display.newGroup() -- display group for UI
 	sceneGroup:insert( uiGroup ) -- insert into the scene's view group
 
-	-- set display groups for background
-	for i=1, bgLayerNum do
-		bgLayerGroupTable[i] = display.newGroup() -- define new group
-		bgGroup:insert( bgLayerGroupTable[i] ) -- insert in bgGroup
-	end
+	-- set event listener to update game speed
+	composer.setVariable( "gameSpeed", 0.1 ) -- set initial game speed
+	menuBackgroundSpeedUpdateTimer = timer.performWithDelay(400, BackgroundSpeedUpdate, 0)
 
-	-- load background ---------------------------------------------------
-	local bgDir = "assets/background/menu/" -- bg assets dir
+	-- load and set background
+	bgMod.init( bgGroup )
 
-	-- load all bgLayer groups
-	for i=1, bgLayerNum do
-
-		local leftImage, midImage, rightImage -- temp vars to fill the bgLayer groups
-
-		-- set painting
-		local bgLayerPaint = {
-			type = "image",
-			filename = bgDir .. i .. ".png"
-		}
-
-		-- set the 3 images inside the bgLayerGroupTable[i]
-		leftImage = display.newRect(bgLayerGroupTable[i], display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight) -- set rect
-		leftImage.fill = bgLayerPaint -- fill
-		leftImage.anchorX = 1 -- align
-
-		midImage = display.newRect(bgLayerGroupTable[i], display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight) -- set rect
-		midImage.fill = bgLayerPaint -- fill
-		midImage.anchorX = 0 -- align
-
-		rightImage = display.newRect(bgLayerGroupTable[i], display.contentCenterX+display.contentWidth, display.contentCenterY, display.contentWidth, display.contentHeight) -- set rect
-		rightImage.fill = bgLayerPaint -- fill
-		rightImage.anchorX = 0 -- align
-	end
-
-	-- manually refine layer positions for the menu
-	bgLayerGroupTable[5].x = bgLayerGroupTable[5].x - 200
-	bgLayerGroupTable[4].x = bgLayerGroupTable[4].x - 230
-
-	-- set mask
-	local maskImmage = display.newImageRect(bgGroup, bgDir .. "menu.png", display.contentWidth, display.contentHeight) -- set mask
-	maskImmage.x = display.contentCenterX
-	maskImmage.y = display.contentCenterY
-
-	--[[
+	-- set title on the menu
+	local titleImmage = display.newImageRect(uiGroup, bgDir .. "menu.png", display.contentWidth, display.contentHeight) -- set title
+	titleImmage.x = display.contentCenterX
+	titleImmage.y = display.contentCenterY
+	
 	-- set button to play game
-	local playButton = display.newText( uiGroup, "Play", display.contentCenterX-75, display.contentCenterY-70, native.systemFontBold, 40 )
-	playButton:setFillColor( 0.20, 0.63, 0.92 )
+	local playButton = display.newImageRect(uiGroup, uiDir .. "play.png", display.contentWidth*buttosWidthScaleRateo, display.contentHeight*buttosHeightScaleRateo) -- set mask
+	playButton.x = display.contentCenterX + buttonColOffset
+	playButton.y = display.contentCenterY + buttonRowOffset * 1
 	playButton:addEventListener( "tap", gotoGame ) -- tap listener
 
 	-- set button to display highscores
-	local highScoresButton = display.newText( uiGroup, "High Scores", display.contentCenterX-75, display.contentCenterY, native.systemFontBold, 40 )
-	highScoresButton:setFillColor( 0.20, 0.63, 0.92 )
+	local highScoresButton = display.newImageRect(uiGroup, uiDir .. "scores.png", display.contentWidth*buttosWidthScaleRateo, display.contentHeight*buttosHeightScaleRateo) -- set mask
+	highScoresButton.x = display.contentCenterX + buttonColOffset
+	highScoresButton.y = display.contentCenterY + buttonRowOffset * 2  -- increment the counter for each new button in the column
 	highScoresButton:addEventListener( "tap", gotoHighScores ) -- tap listener
-	--]]
 end
 
 
@@ -133,9 +131,14 @@ function scene:hide( event )
 	if ( phase == "will" ) then
 		-- Code here runs when the scene is on screen (but is about to go off screen)
 
+		-- Before the transition remove the updaters, cause thet will be recreated in the next scene
+		-- clear timers
+		timer.cancel( menuBackgroundSpeedUpdateTimer )
+		-- clear background
+		bgMod.clear()
+
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
-
 	end
 end
 
