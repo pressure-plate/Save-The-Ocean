@@ -108,7 +108,7 @@ local function spawnBubble()
 	-- add to table
 	table.insert( composer.getVariable( "screenObjectsTable" ), newBubble )
 
-	-- set speed and random y direction --TODO
+	-- set speed and random y direction
 	local randY = math.random( -100, 100 )
 	newBubble:setLinearVelocity( -350*gameSpeed, randY )	
 end
@@ -134,7 +134,7 @@ function M.init( submarineGroup, mainGroup )
 		filename = submarineDir .. M.submarineSkin .. ".png"
 	}
 
-	-- set submarine Rect size related to contentWidth
+	-- set submarine image scale factor
 	local scaleFact = 0.45
 
 	-- create submarine obj

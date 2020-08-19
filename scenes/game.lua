@@ -23,11 +23,7 @@ local spawnMod = require( "scenes.game.spawner" )
 
 -- initialize variables -------------------------------------------------------
 
-local lives = 3
 local score = 0
-local died = false
- 
-local livesText
 local scoreText
 
 local maxGameSpeed = 4
@@ -91,7 +87,7 @@ local function onCollision( event )
         if ( ( obj1.myName == "submarine" and obj2.myName == "groundObject" ) or
              ( obj1.myName == "groundObject" and obj2.myName == "submarine" ) )
 		then
-			-- Remove groundObject from display
+			-- remove groundObject from display
 			if ( obj1.myName == "groundObject" ) then
 				display.remove( obj1 )
 
@@ -117,7 +113,7 @@ local function onCollision( event )
 		elseif ( ( obj1.myName == "submarine" and obj2.myName == "floatingObject" ) or
              	 ( obj1.myName == "floatingObject" and obj2.myName == "submarine" ) )
 		then
-			-- Remove groundObject from display
+			-- remove floatingObject from display
 			if ( obj1.myName == "floatingObject" ) then
 				display.remove( obj1 )
 
@@ -137,6 +133,33 @@ local function onCollision( event )
             -- update score
             score = score + 50
 			scoreText.text = "Score: " .. score
+			
+		-- handle "obstacle" and ("floatingObject" or "groundObject") collision
+		-- no way to determine who is who, so we write all conditions
+		-- this check is done to avoid losing score on objects that are impossible to pick
+		elseif ( ( obj1.myName == "obstacle" and obj2.myName == "floatingObject" ) or
+				 ( obj1.myName == "floatingObject" and obj2.myName == "obstacle" ) or
+				 ( obj1.myName == "obstacle" and obj2.myName == "groundObject" ) or
+				 ( obj1.myName == "groundObject" and obj2.myName == "obstacle" ) )
+		then
+			-- Remove "ground/floatingObject" from display
+			if ( obj1.myName == "floatingObject" or obj1.myName == "groundObject" ) then
+				display.remove( obj1 )
+
+			else
+				display.remove( obj2 )
+			end
+
+            -- remove "ground/floatingObject" reference from "screenObjectsTable"
+			local screenObjectsTable = composer.getVariable( "screenObjectsTable" )
+            for i = #screenObjectsTable, 1, -1 do
+				if ( (screenObjectsTable[i] == obj1 or screenObjectsTable[i] == obj2 ) and
+				     ( screenObjectsTable[i].myName == "floatingObject" or screenObjectsTable[i].myName == "groundObject" ) )
+				then
+                    table.remove( screenObjectsTable, i )
+                    break
+                end
+            end
 
 		-- handle "submarine" and "obstacle" collision
 		-- no way to determine who is who, so we write both conditions
@@ -147,20 +170,20 @@ local function onCollision( event )
 			-- stop screen objects movement
 			bgMod.stopBackground = true
 			physics.pause()
-			transition.cancel(subMod.submarine )
+			transition.cancel( subMod.submarine )
 
 			-- set fading black screen
 			local blackScreen = display.newRect( uiGroup, display.contentCenterX, display.contentCenterY, 3000, 1080 )
-			blackScreen.alpha = 0.5
+			blackScreen.alpha = 0.6
 			blackScreen:setFillColor( 0, 0, 0 ) -- black
 
 			-- display game over
 			local gameOverText = display.newText( uiGroup, "GAME OVER", display.contentCenterX, display.contentCenterY-200, "fonts/AlloyInk", 140 )
-			gameOverText:setFillColor( 0, 0.7, 1 )
+			gameOverText:setFillColor( 0.9, 0.5, 0.1 )
 
 			-- display score
-			local gameOverText = display.newText( uiGroup, "SCORED: " .. score, display.contentCenterX, display.contentCenterY+100, "fonts/AlloyInk", 140 )
-			gameOverText:setFillColor( 0, 0.7, 1 )
+			local scoredText = display.newText( uiGroup, "SCORED: " .. score, display.contentCenterX, display.contentCenterY+100, "fonts/AlloyInk", 120 )
+			scoredText:setFillColor( 0.9, 0.5, 0.1 )
 
 			-- call endgame function after a short delay
 			timer.performWithDelay( 4000, endGame )
@@ -239,9 +262,9 @@ function scene:create( event )
 	Runtime:addEventListener( "collision", onCollision )
 
 	-- display score
-	scoreText = display.newText( uiGroup, "Score: " .. score, 50, 40, native.systemFontBold, 45 )
-	scoreText.anchorX = 0 -- align
-	scoreText:setFillColor( 0, 0, 0 ) -- black
+	scoreText = display.newText( uiGroup, "SCORE: " .. score, display.contentWidth-50, 40, "fonts/AlloyInk", 70 )
+	scoreText.anchorX = 1 -- align
+	scoreText:setFillColor( 0.9, 0.5, 0.1 )
 
 	-- set timer to trigger the clear objects function at regular intervals
 	clearObjectsTimer = timer.performWithDelay( 2000, clearObjects, 0 ) 
