@@ -83,9 +83,9 @@ local function spawnFloatingObjects()
     lastSpawnFloatingObjects = os.time()
 
     -- generate a random number of pickable items
-    local randNum = math.random( 2, math.floor(gameSpeed)+3 ) 
+    local randNum = math.random( 2, math.floor(gameSpeed*2)+2 ) 
     for i=1, randNum do
-
+        
         -- select random asset
         local randAsset = math.random( 5 )
         local paint = {
@@ -210,7 +210,7 @@ local function spawnHandler()
 
     elseif ( randEvent <= 100 ) then -- 15% prob of obstacle sequence
         -- check cooldowns
-        local obsSeqSpawnCooldown = 30/gameSpeed -- cooldown seconds
+        local obsSeqSpawnCooldown = 24/gameSpeed -- cooldown seconds
         if ( (os.time() - lastSpawnObsSeq) < obsSeqSpawnCooldown ) then
             return
         end
