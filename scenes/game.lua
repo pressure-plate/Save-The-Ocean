@@ -19,7 +19,7 @@ local subMod = require( "scenes.game.submarine" )
 local bgMod = require( "scenes.game.background" )
 
 -- load pickable module
-local pickMod = require( "scenes.game.pickable" )
+local spawnMod = require( "scenes.game.spawner" )
 
 -- initialize variables -------------------------------------------------------
 
@@ -57,11 +57,23 @@ local function gameSpeedUpdate()
 
 		local st = composer.getVariable( "startTime" )
 		gs = 1 + ( (os.time() - st) / 100 )
-		--gs = 1 + ( (os.time() - st) / 1 ) -- TEST
+		--gs = 2 -- TEST
 		composer.setVariable( "gameSpeed", gs )
 	end
 
 	print( "gameSpeed: ", gs ) -- TEST
+end
+
+-- end game
+local function endGame()
+
+    -- set variable to be accessed from the composer
+    --composer.setVariable( "finalScore", score )
+
+    -- go to highscores scene
+	--composer.gotoScene( "highscores", { time=800, effect="crossFade" } )
+	
+	composer.gotoScene( "scenes.menu", { time=800, effect="crossFade" } )
 end
 
 -- collision handler
@@ -126,29 +138,32 @@ local function onCollision( event )
             score = score + 50
 			scoreText.text = "Score: " .. score
 
-		--[[
-        -- handle "submarine" and "obstacle" collision
+		-- handle "submarine" and "obstacle" collision
+		-- no way to determine who is who, so we write both conditions
         elseif ( ( obj1.myName == "submarine" and obj2.myName == "obstacle" ) or
                  ( obj1.myName == "obstacle" and obj2.myName == "submarine" ) )
         then
-            if ( died == false ) then
-                died = true    
+			
+			-- stop screen objects movement
+			bgMod.stopBackground = true
+			physics.pause()
+			transition.cancel(subMod.submarine )
 
-                -- Update lives
-                lives = lives - 1
-                livesText.text = "Lives: " .. lives
+			-- set fading black screen
+			local blackScreen = display.newRect( uiGroup, display.contentCenterX, display.contentCenterY, 3000, 1080 )
+			blackScreen.alpha = 0.5
+			blackScreen:setFillColor( 0, 0, 0 ) -- black
 
-                -- check lives
-                if ( lives == 0 ) then
-					display.remove( ship )
-					timer.performWithDelay( 2000, endGame )
+			-- display game over
+			local gameOverText = display.newText( uiGroup, "GAME OVER", display.contentCenterX, display.contentCenterY-200, "fonts/AlloyInk", 140 )
+			gameOverText:setFillColor( 0, 0.7, 1 )
 
-                else
-                    ship.alpha = 0
-                    timer.performWithDelay( 1000, restoreShip )
-                end
-			end
-		--]]
+			-- display score
+			local gameOverText = display.newText( uiGroup, "SCORED: " .. score, display.contentCenterX, display.contentCenterY+100, "fonts/AlloyInk", 140 )
+			gameOverText:setFillColor( 0, 0.7, 1 )
+
+			-- call endgame function after a short delay
+			timer.performWithDelay( 4000, endGame )
         end
     end
 end
@@ -214,8 +229,8 @@ function scene:create( event )
 	-- load and set background
 	bgMod.init( bgGroup )	
 
-	-- load and set pickable objects spawner
-	pickMod.init( mainGroup )
+	-- load and set the objects spawner
+	spawnMod.init( mainGroup )
 
 	-- load and set submarine
 	subMod.init( submarineGroup, mainGroup )
@@ -227,11 +242,6 @@ function scene:create( event )
 	scoreText = display.newText( uiGroup, "Score: " .. score, 50, 40, native.systemFontBold, 45 )
 	scoreText.anchorX = 0 -- align
 	scoreText:setFillColor( 0, 0, 0 ) -- black
-
-	-- display lives
-	livesText = display.newText( uiGroup, "Lives: " .. lives, display.contentWidth - 50, 40, native.systemFontBold, 45 )
-	livesText.anchorX = 1 -- align	
-	livesText:setFillColor( 0, 0, 0 ) -- black
 
 	-- set timer to trigger the clear objects function at regular intervals
 	clearObjectsTimer = timer.performWithDelay( 2000, clearObjects, 0 ) 
@@ -278,7 +288,13 @@ function scene:hide( event )
 		-- clear loaded modules
 		bgMod.clear()
 		subMod.clear()
-		pickMod.clear()
+		spawnMod.clear()
+
+		-- remove the scene from cache 
+		-- NOTE: this function entirely removes the scene and all the objects and variables inside,
+		--			in particular it takes care of display.remove() all display objects inside sceneGroup hierarchy
+		--			but NOTE that it doesn't remove things like timers or listeners attached to the "Runtime" object (so we took care of them manually)
+		composer.removeScene( "scenes.game" )
 	end
 end
 

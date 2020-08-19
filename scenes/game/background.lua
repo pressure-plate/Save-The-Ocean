@@ -6,7 +6,8 @@ local physics = require( "physics" )
 
 -- background vars
 M.bgLayerNum = 6 -- num of the background layers to load from the assets folder
-local bgLayerGroupTable = {}
+M.stopBackground = false -- stops the background movement
+local bgLayerGroupTable
 
 -- background assets dir
 local bgDir = "assets/background/worlds/1/" -- bg assets dir
@@ -17,6 +18,11 @@ local bgDir = "assets/background/worlds/1/" -- bg assets dir
 -- ----------------------------------------------------------------------------
 
 local function backgroundScroller( self, event )
+
+    -- check if background should stop
+    if ( M.stopBackground ) then
+        return
+    end
 
 	local speed = 1 -- default speed per frame
 
@@ -44,6 +50,8 @@ end
 function M.init( bgGroup )
     
     -- init vars
+    M.stopBackground = false
+    bgLayerGroupTable = {}
 
     -- set display groups for background scrolling
 	for i=1, M.bgLayerNum do
@@ -92,7 +100,7 @@ function M.clear()
     end
 
     -- remove object references
-    bgLayerGroupTable = {}
+    bgLayerGroupTable = nil
 end
 
 
