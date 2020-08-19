@@ -7,8 +7,6 @@ local physics = require( "physics" )
 -- define vars
 M.pickableObjectsTable = nil
 
-local spawnGroundObjectsTimer
-local spawnFloatingObjectsTimer
 local spawnHandlerTimer
 
 local group
@@ -16,6 +14,7 @@ local group
 local lastSpawnGroundObjects
 local lastSpawnFloatingObjects
 local lastSpawnObstacle
+local lastSpawnObsSeq
 
 -- assets dir
 local pickDir = "assets/items/pickables/" -- pickables dir
@@ -54,7 +53,8 @@ local function spawnGroundObjects()
         newPickable.fill = paint
         newPickable.anchorY = 1
         newPickable.myName = "groundObject"
-        physics.addBody( newPickable, "kinematic", { radius=50, isSensor=true } )
+        physics.addBody( newPickable, { radius=50, isSensor=true } )
+        newPickable.gravityScale = 0 -- remove gravity from this
 
         -- rand rotation
         local randRot = math.random( 2 )
@@ -75,7 +75,7 @@ local function spawnFloatingObjects()
 
     local gameSpeed = composer.getVariable( "gameSpeed" )
 
-    -- spawn cooldown
+    -- check spawn cooldown
     local spawnCooldown = 6/gameSpeed -- cooldown seconds
     if ( (os.time() - lastSpawnFloatingObjects) < spawnCooldown ) then
         return
@@ -99,7 +99,7 @@ local function spawnFloatingObjects()
         newPickable.fill = paint
         newPickable.myName = "floatingObject"
         physics.addBody( newPickable, { radius=50, isSensor=true } )
-        newPickable.gravityScale = 0
+        newPickable.gravityScale = 0 -- remove gravity from this
 
         -- rand spin
         local randRot = math.random( -8, 8 )
@@ -113,16 +113,19 @@ local function spawnFloatingObjects()
     end
 end
 
-local function spawnObstacle( assetPath, location, xPos, yPos, linearVelocity, scaleFact )
+local function spawnObstacle( assetPath, location, xPos, yPos, linearVelocity )
 
-    -- outline asset image
-    local assetOutline = graphics.newOutline( 2, assetPath )
+    -- select asset with random scale
+    -- NOTE: here we use assets already scaled because outline function works on
+    --          the real dimension in pixels of the asset to be outlined
+    local assetPathScaled = assetPath .. "x" .. math.random( 11, 15 ) .. ".png"
     
-    -- create object
-    local newObstacle = display.newImage( group, assetPath, xPos, yPos )
+    -- outline asset image
+    local assetOutline = graphics.newOutline( 2, assetPathScaled )
+    
+    -- create object and select the right scale
+    local newObstacle = display.newImage( group, assetPathScaled, xPos, yPos )
     newObstacle.myName = "obstacle"
-    newObstacle.xScale = scaleFact
-    newObstacle.yScale = scaleFact
 
     -- adapt to location
     if ( location == "floor" ) then
@@ -143,32 +146,90 @@ local function spawnObstacle( assetPath, location, xPos, yPos, linearVelocity, s
     newObstacle:setLinearVelocity( linearVelocity, 0 ) 
 end
 
+local function spawnObstacleSequence ( length, location ) 
+
+    local gameSpeed = composer.getVariable( "gameSpeed" )
+
+    for i=1, length do
+        -- set random obstlacle properties and spawn it
+        local assetPath = obsDir .. "stone/" .. 1
+        local linearVelocity = -450 * gameSpeed
+        local xPos = display.contentWidth + (320 * i)
+        if ( location == "mix" ) then
+            if ( math.random( 2 ) == 1 ) then
+                spawnObstacle( assetPath, "floor", xPos, display.contentHeight+20, linearVelocity )
+            else
+                spawnObstacle( assetPath, "ceiling", xPos, -20, linearVelocity )
+            end
+        elseif ( location == "floor" ) then
+            spawnObstacle( assetPath, "floor", xPos, display.contentHeight+20, linearVelocity )
+        else
+            spawnObstacle( assetPath, "ceiling", xPos, -20, linearVelocity )
+        end
+    end
+end
+
 local function spawnHandler()
 
     local gameSpeed = composer.getVariable( "gameSpeed" )
 
-    -- handle cooldowns
-    local obstacleSpawnCooldown = 2/gameSpeed -- cooldown seconds
-    if ( (os.time() - lastSpawnObstacle) < obstacleSpawnCooldown ) then
-        return
-    end
-    lastSpawnObstacle = os.time()
+    -- select random spawn event based on probabilities
+    local randEvent = math.random( 100 )
 
-    -- set random obstlacle properties
-    local assetPath = obsDir .. "stone/" .. 2 .. ".png"
-    local linearVelocity = -450 * gameSpeed
-    local xPos = display.contentCenterX
-    local scaleFact = 1.2
-    local location
-    if ( math.random( 2 ) == 1 ) then
-        location = "floor"
-        spawnObstacle( assetPath, location, xPos, display.contentHeight+20, linearVelocity, scaleFact )
-    else
-        location = "ceiling"
-        spawnObstacle( assetPath, location, xPos, -20, linearVelocity, scaleFact )
-    end
+    if ( randEvent <= 85 ) then -- 85% prob of floating obj
+        -- select random spawn object based on probabilities
+        local randObj = math.random( 100 )
+
+        if ( randObj <= 45 ) then -- 45% prob of floating obj
+            spawnFloatingObjects()
+
+        elseif ( randObj <= 80 ) then -- 35% prob of ground obj
+            spawnGroundObjects()
     
+        elseif ( randObj <= 100 ) then -- 20% prob of obstacle
+            -- check cooldowns
+            local obstacleSpawnCooldown = 8/gameSpeed -- cooldown seconds
+            if ( (os.time() - lastSpawnObstacle) < obstacleSpawnCooldown ) then
+                return
+            end
+            lastSpawnObstacle = os.time()
 
+            -- set random obstlacle properties and spawn it
+            local assetPath = obsDir .. "stone/" .. math.random(2, 4)
+            local linearVelocity = -450 * gameSpeed
+            local xPos = display.contentWidth + 400
+            local location
+            if ( math.random( 2 ) == 1 ) then
+                location = "floor"
+                spawnObstacle( assetPath, location, xPos, display.contentHeight+20, linearVelocity )
+            else
+                location = "ceiling"
+                spawnObstacle( assetPath, location, xPos, -20, linearVelocity )
+            end
+        end
+
+    elseif ( randEvent <= 100 ) then -- 15% prob of obstacle sequence
+        -- check cooldowns
+        local obsSeqSpawnCooldown = 30/gameSpeed -- cooldown seconds
+        if ( (os.time() - lastSpawnObsSeq) < obsSeqSpawnCooldown ) then
+            return
+        end
+        lastSpawnObsSeq = os.time()
+
+        -- select rand seq kind
+        local randSeqKind = math.random( 3 ) 
+        local randSeqLen = math.random( 7, 14 ) -- length of seq in pieces
+
+        if ( randSeqKind == 1 ) then
+            spawnObstacleSequence ( randSeqLen, "floor" )
+
+        elseif ( randSeqKind == 2 ) then
+            spawnObstacleSequence ( randSeqLen, "ceiling" )
+
+        else
+            spawnObstacleSequence ( randSeqLen, "mix" )
+        end
+    end
 end
 
 
@@ -177,14 +238,15 @@ end
 -- ----------------------------------------------------------------------------
 
 -- init function
-function M.init( displayGroup )
+function M.init( mainGroup )
     
     -- init vars
     M.pickableObjectsTable = {}
-    group = displayGroup
+    group = mainGroup
     lastSpawnGroundObjects = os.time()
     lastSpawnFloatingObjects = os.time()
     lastSpawnObstacle = os.time()
+    lastSpawnObsSeq = os.time()
 
     -- set spawn timers
     --spawnGroundObjectsTimer = timer.performWithDelay( 3000, spawnGroundObjects, 0 )

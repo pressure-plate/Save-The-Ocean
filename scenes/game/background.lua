@@ -5,12 +5,13 @@ local composer = require( "composer" )
 local physics = require( "physics" )
 
 -- background vars
+M.bgWorld = 1 -- world selector
 M.bgLayerNum = 6 -- num of the background layers to load from the assets folder
 M.stopBackground = false -- stops the background movement
 local bgLayerGroupTable
 
 -- background assets dir
-local bgDir = "assets/background/worlds/1/" -- bg assets dir
+local bgDir -- this will be setted every time .init() function is called to allow world change
 
 
 -- ----------------------------------------------------------------------------
@@ -52,7 +53,8 @@ function M.init( bgGroup )
     -- init vars
     M.stopBackground = false
     bgLayerGroupTable = {}
-
+    bgDir = "assets/background/worlds/" .. M.bgWorld .. "/"  -- refresh assets dir to change between worlds
+    
     -- set display groups for background scrolling
 	for i=1, M.bgLayerNum do
 		bgLayerGroupTable[i] = display.newGroup() -- define new group

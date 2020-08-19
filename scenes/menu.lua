@@ -103,6 +103,14 @@ function scene:create( event )
 	local highScoresButton = display.newText( uiGroup, "High Scores", display.contentCenterX-300, display.contentCenterY+100, "fonts/PermanentMarker.ttf", 100 )
 	highScoresButton:setFillColor( 0, 0, 0 )
 	highScoresButton:addEventListener( "tap", gotoHighScores ) -- tap listener
+
+	-- TEST show polygon
+	-- outline asset image
+	local assetOutline = graphics.newOutline( 5, "assets/items/obstacles/stone/1.png" )
+	local testPoly = display.newPolygon( uiGroup, display.contentCenterX, display.contentCenterY, assetOutline )
+	testPoly:setFillColor( 0, 0, 0 )
+	--testPoly.
+
 end
 
 
