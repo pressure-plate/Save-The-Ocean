@@ -11,7 +11,7 @@ local scene = composer.newScene()
 -- initialize variables -------------------------------------------------------
 
 -- load background module
-local bgMod = require( "scenes.game.background" )
+local bgMod = require( "scenes.menu.background" )
 
 -- load background module
 local windowMod = require( "scenes.menu.window" )
@@ -75,14 +75,14 @@ end
 -- update game speed
 local function BackgroundSpeedUpdate()
 
-	local gs = composer.getVariable( "gameSpeed" )
+	local gs = composer.getVariable( "backgroundSpeed" )
 
 	if ( math.abs(gs) >= backgroundmaxVel ) then 
 		backgroundScrollDirection = backgroundScrollDirection * -1
 	end
 	gs = gs + (0.01) * backgroundScrollDirection
 
-	composer.setVariable( "gameSpeed", gs )
+	composer.setVariable( "backgroundSpeed", gs )
 end
 
 
@@ -100,7 +100,7 @@ function scene:create( event )
 	sceneGroup:insert( uiGroup ) -- insert into the scene's view group
 
 	-- set event listener to update game speed
-	composer.setVariable( "gameSpeed", 0.1 ) -- set initial game speed
+	composer.setVariable( "backgroundSpeed", 0.1 ) -- set initial game speed
 	menuBackgroundSpeedUpdateTimer = timer.performWithDelay(400, BackgroundSpeedUpdate, 0)
 
 	-- load and set background
@@ -178,13 +178,20 @@ function scene:hide( event )
 		-- Code here runs when the scene is on screen (but is about to go off screen)
 
 		-- Before the transition remove the updaters, cause thet will be recreated in the next scene
+
+	elseif ( phase == "did" ) then
+		-- Code here runs immediately after the scene goes entirely off screen
+		
 		-- clear timers
 		timer.cancel( menuBackgroundSpeedUpdateTimer )
 		-- clear background
 		bgMod.clear()
 
-	elseif ( phase == "did" ) then
-		-- Code here runs immediately after the scene goes entirely off screen
+		-- remove the scene from cache 
+		-- NOTE: this function entirely removes the scene and all the objects and variables inside,
+		--		in particular it takes care of display.remove() all display objects inside sceneGroup hierarchy
+		--		but NOTE that it doesn't remove things like timers or listeners attached to the "Runtime" object (so we took care of them manually)
+		composer.removeScene( "scenes.menu" )
 	end
 end
 
