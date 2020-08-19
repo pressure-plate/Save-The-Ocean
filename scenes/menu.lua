@@ -10,8 +10,6 @@ local scene = composer.newScene()
 
 -- initialize variables -------------------------------------------------------
 
-local bgLayerNum = 7 -- num of the background layers to load from the assets folder
-
 -- load background module
 local bgMod = require( "scenes.game.background" )
 
@@ -126,7 +124,7 @@ end
 function scene:hide( event )
 
 	local sceneGroup = self.view
-	local phase = event.phase
+	local phase = _event.phase
 
 	if ( phase == "will" ) then
 		-- Code here runs when the scene is on screen (but is about to go off screen)
@@ -135,7 +133,7 @@ function scene:hide( event )
 		-- clear timers
 		timer.cancel( menuBackgroundSpeedUpdateTimer )
 		-- clear background
-		bgMod.clear()
+		--bgMod.clear()
 
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
