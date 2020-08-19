@@ -49,10 +49,22 @@ local function gotoHighScores()
     --composer.gotoScene( "scenes.highscores", { time=200, effect="crossFade" } )
 end
 
-local function showSubmarineSelector()
+local function showWorldsSelector()
 	-- destroy everything before open cause the user can click other buttons on the ui
     -- set title on the menu
-	windowMod.openWindow()
+	windowMod.openWorldsMenu()
+end
+
+local function showSubmarineSelector()
+	-- destroy everything before open cause the user can click other buttons on the ui
+	-- set title on the menu
+	windowMod.openSubmarinesMenu()
+end
+
+local function showAboutSelector()
+	-- destroy everything before open cause the user can click other buttons on the ui
+    -- set title on the menu
+	windowMod.openAboutMenu()
 end
 
 
@@ -114,10 +126,28 @@ function scene:create( event )
 	highScoresButton.y = display.contentCenterY + buttonRowOffset * 2  -- increment the counter for each new button in the column
 	highScoresButton:addEventListener( "tap", gotoHighScores ) -- tap listener
 
-	-- open sumbmarines windows
+	-- open about windows
 	local submarinesButton = display.newImageRect(uiGroup, uiDir .. "about.png", display.contentWidth*buttosWidthScaleRateo, display.contentHeight*buttosHeightScaleRateo) -- set mask
 	submarinesButton.x = display.contentCenterX + buttonColOffset
 	submarinesButton.y = display.contentCenterY + buttonRowOffset * 3  -- increment the counter for each new button in the column
+	submarinesButton:addEventListener( "tap", showAboutSelector ) -- tap listener
+	
+	--------------------------------------------------
+	-- top right bagdes -------------------------------
+
+	local badgesRes = 512/(display.contentWidth/600)
+	local buttonRowOffset = 200 -- the offet between each button on the same ro
+
+	-- open worlds window
+	local submarinesButton = display.newImageRect(uiGroup, uiDir .. "editBadge.png", badgesRes, badgesRes) -- set mask
+	submarinesButton.x = display.contentCenterX + display.contentWidth/2.3
+	submarinesButton.y = display.contentCenterY - display.contentHeight/2.5
+	submarinesButton:addEventListener( "tap", showWorldsSelector ) -- tap listener
+
+	-- open sumbmarines window
+	local submarinesButton = display.newImageRect(uiGroup, uiDir .. "submarineBadge.png", badgesRes, badgesRes) -- set mask
+	submarinesButton.x = display.contentCenterX + display.contentWidth/2.3 - buttonRowOffset
+	submarinesButton.y = display.contentCenterY - display.contentHeight/2.5
 	submarinesButton:addEventListener( "tap", showSubmarineSelector ) -- tap listener
 end
 
