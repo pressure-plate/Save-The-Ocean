@@ -49,7 +49,7 @@ local function spawnGroundObjects()
         
         -- create object
         local scaleFact = 0.18
-        local newPickable = display.newRect( group, display.contentWidth + math.random(400, 1200), display.contentHeight, 359*scaleFact, 512*scaleFact )
+        local newPickable = display.newRect( group, display.contentWidth + math.random(400, 1200), display.contentHeight, 349*scaleFact, 512*scaleFact )
         newPickable.fill = paint
         newPickable.anchorY = 1
         newPickable.myName = "groundObject"
@@ -85,7 +85,7 @@ local function spawnFloatingObjects()
     -- generate a random number of pickable items
     local randNum = math.random( 2, math.floor(gameSpeed*2)+2 ) 
     for i=1, randNum do
-        
+
         -- select random asset
         local randAsset = math.random( 5 )
         local paint = {
@@ -217,17 +217,17 @@ local function spawnHandler()
         lastSpawnObsSeq = os.time()
 
         -- select rand seq kind
-        local randSeqKind = math.random( 3 ) 
+        local randSeqKind = math.random( 6 ) 
         local randSeqLen = math.random( 7, 14 ) -- length of seq in pieces
 
         if ( randSeqKind == 1 ) then
-            spawnObstacleSequence ( randSeqLen, "floor" )
+            spawnObstacleSequence ( randSeqLen, "floor" ) -- 1/6 prob
 
         elseif ( randSeqKind == 2 ) then
-            spawnObstacleSequence ( randSeqLen, "ceiling" )
+            spawnObstacleSequence ( randSeqLen, "ceiling" ) -- 1/6 prob
 
         else
-            spawnObstacleSequence ( randSeqLen, "mix" )
+            spawnObstacleSequence ( randSeqLen, "mix" ) -- 4/6 prob
         end
     end
 end
