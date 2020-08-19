@@ -12,8 +12,8 @@ local group
 local bubbleGroup
 
 -- submarine skin set
-M.submarineSkin = "1"
-M.bubbleSkin = "1"
+M.submarineSkin = 1
+M.bubbleSkin = 1
 
 -- submarine assets dir
 local submarineDir = "assets/submarine/"
