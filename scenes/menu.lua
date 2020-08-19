@@ -13,6 +13,9 @@ local scene = composer.newScene()
 -- load background module
 local bgMod = require( "scenes.game.background" )
 
+-- load background module
+local windowMod = require( "scenes.menu.window" )
+
 -- assets directory
 local bgDir = "assets/background/menu/" -- user interface assets dir
 local uiDir = "assets/ui/" -- user interface assets dir
@@ -44,6 +47,12 @@ end
 
 local function gotoHighScores()
     --composer.gotoScene( "scenes.highscores", { time=200, effect="crossFade" } )
+end
+
+local function showSubmarineSelector()
+	-- destroy everything before open cause the user can click other buttons on the ui
+    -- set title on the menu
+	windowMod.openWindow()
 end
 
 
@@ -85,6 +94,9 @@ function scene:create( event )
 	-- load and set background
 	bgMod.init( bgGroup )
 
+	-- load and set settings window manager
+	windowMod.init( uiGroup )
+
 	-- set title on the menu
 	local titleImmage = display.newImageRect(uiGroup, bgDir .. "menu.png", display.contentWidth, display.contentHeight) -- set title
 	titleImmage.x = display.contentCenterX
@@ -101,6 +113,12 @@ function scene:create( event )
 	highScoresButton.x = display.contentCenterX + buttonColOffset
 	highScoresButton.y = display.contentCenterY + buttonRowOffset * 2  -- increment the counter for each new button in the column
 	highScoresButton:addEventListener( "tap", gotoHighScores ) -- tap listener
+
+	-- open sumbmarines windows
+	local submarinesButton = display.newImageRect(uiGroup, uiDir .. "about.png", display.contentWidth*buttosWidthScaleRateo, display.contentHeight*buttosHeightScaleRateo) -- set mask
+	submarinesButton.x = display.contentCenterX + buttonColOffset
+	submarinesButton.y = display.contentCenterY + buttonRowOffset * 3  -- increment the counter for each new button in the column
+	submarinesButton:addEventListener( "tap", showSubmarineSelector ) -- tap listener
 end
 
 
@@ -124,7 +142,7 @@ end
 function scene:hide( event )
 
 	local sceneGroup = self.view
-	local phase = _event.phase
+	local phase = event.phase
 
 	if ( phase == "will" ) then
 		-- Code here runs when the scene is on screen (but is about to go off screen)
@@ -133,7 +151,7 @@ function scene:hide( event )
 		-- clear timers
 		timer.cancel( menuBackgroundSpeedUpdateTimer )
 		-- clear background
-		--bgMod.clear()
+		bgMod.clear()
 
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
