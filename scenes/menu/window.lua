@@ -69,7 +69,7 @@ local function openWindow(exitCallback, title)
         title, 
         display.contentCenterX, 
         display.contentCenterY - yTitleBar, 
-        "fonts/PermanentMarker.ttf", 
+        "fonts/CooperBlack.ttf", 
         100 
     )
     table.insert(windowObjects, windowTitle)
@@ -113,7 +113,7 @@ function M.openAboutMenu()
         display.remove( text )
     end
     openWindow(destroy, "About")
-    text = display.newText( group, "Scemo chi Legge", display.contentCenterX-300, display.contentCenterY+100, "fonts/PermanentMarker.ttf", 100 )
+    text = display.newText( group, "Scemo chi Legge", display.contentCenterX-300, display.contentCenterY+100, "fonts/CooperBlack.ttf", 100 )
 end
 
 

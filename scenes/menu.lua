@@ -87,12 +87,12 @@ function scene:create( event )
 	windowMod.init( uiGroup )
 
 	-- set title on the menu
-	local titleImmage = display.newImageRect(uiGroup, bgDir .. "menu.png", display.contentWidth, display.contentHeight) -- set title
+	local titleImmage = display.newImageRect(uiGroup, bgDir .. "menu2.png", display.contentWidth, display.contentHeight) -- set title
 	titleImmage.x = display.contentCenterX
 	titleImmage.y = display.contentCenterY
 	
 	-- set button to play the game
-	local playButton = display.newImage(uiGroup, uiDir .. "buttonPlay2.png")
+	local playButton = display.newImage(uiGroup, uiDir .. "buttonPlay3.png")
 	playButton:scale(buttonScaleFactor, buttonScaleFactor)
 	playButton.x = display.contentCenterX
 	playButton.y = display.contentCenterY
