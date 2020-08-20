@@ -17,7 +17,7 @@ local bgMod = require( "scenes.menu.background" )
 local windowMod = require( "scenes.menu.window" )
 
 -- assets directory
-local bgDir = "assets/background/menu/" -- user interface assets dir
+local bgDir = "assets/menu/" -- user interface assets dir
 local uiDir = "assets/ui/" -- user interface assets dir
 
 -- display groups
@@ -28,44 +28,12 @@ local gameSpeedUpdateTimer = 0.1
 local backgroundScrollDirection = 1
 local backgroundmaxVel = 0.1
 
--- buttons scale
-local buttosWidthScaleRateo = 0.125
-local buttosHeightScaleRateo = 0.1
+-- scale
+local buttonScaleFactor = 0.6
+local badgesScaleFactor = 0.3
 
--- buttons grid formatting
-local buttonColOffset = -75 -- the offet to alligh the buttons to the same col
-local buttonRowOffset = 120 -- the offet between each button on the same row
-
-
--- ----------------------------------------------------------------------------
--- menu functions
--- ----------------------------------------------------------------------------
-
-local function gotoGame()
-    composer.gotoScene( "scenes.game", { time=800, effect="crossFade" } )
-end
-
-local function gotoHighScores()
-    --composer.gotoScene( "scenes.highscores", { time=200, effect="crossFade" } )
-end
-
-local function showWorldsSelector()
-	-- destroy everything before open cause the user can click other buttons on the ui
-    -- set title on the menu
-	windowMod.openWorldsMenu()
-end
-
-local function showSubmarineSelector()
-	-- destroy everything before open cause the user can click other buttons on the ui
-	-- set title on the menu
-	windowMod.openSubmarinesMenu()
-end
-
-local function showAboutSelector()
-	-- destroy everything before open cause the user can click other buttons on the ui
-    -- set title on the menu
-	windowMod.openAboutMenu()
-end
+-- buttons grid formatting, set on init
+local buttonRowOffset -- the offet between each button on the same row
 
 
 -- -----------------------------------------------------------------------------------
@@ -83,6 +51,15 @@ local function BackgroundSpeedUpdate()
 	gs = gs + (0.01) * backgroundScrollDirection
 
 	composer.setVariable( "backgroundSpeed", gs )
+end
+
+
+-- ----------------------------------------------------------------------------
+-- menu functions
+-- ----------------------------------------------------------------------------
+
+local function gotoGame()
+    composer.gotoScene( "scenes.game", { time=800, effect="crossFade" } )
 end
 
 
@@ -110,45 +87,60 @@ function scene:create( event )
 	windowMod.init( uiGroup )
 
 	-- set title on the menu
-	local titleImmage = display.newImageRect(uiGroup, bgDir .. "menu.png", display.contentWidth, display.contentHeight) -- set title
+	local titleImmage = display.newImageRect(uiGroup, bgDir .. "menu2.png", display.contentWidth, display.contentHeight) -- set title
 	titleImmage.x = display.contentCenterX
 	titleImmage.y = display.contentCenterY
 	
-	-- set button to play game
-	local playButton = display.newImageRect(uiGroup, uiDir .. "play.png", display.contentWidth*buttosWidthScaleRateo, display.contentHeight*buttosHeightScaleRateo) -- set mask
-	playButton.x = display.contentCenterX + buttonColOffset
-	playButton.y = display.contentCenterY + buttonRowOffset * 1
+	-- set button to play the game
+	local playButton = display.newImage(uiGroup, uiDir .. "buttonPlay3.png")
+	playButton:scale(buttonScaleFactor, buttonScaleFactor)
+	playButton.x = display.contentCenterX
+	playButton.y = display.contentCenterY
 	playButton:addEventListener( "tap", gotoGame ) -- tap listener
 
+	-- set offsets based on the dimensions of the button
+	-- based on the play button that is on the center of the screen
+	buttonRowOffset = playButton.height*buttonScaleFactor*1.1
+
 	-- set button to display highscores
-	local highScoresButton = display.newImageRect(uiGroup, uiDir .. "scores.png", display.contentWidth*buttosWidthScaleRateo, display.contentHeight*buttosHeightScaleRateo) -- set mask
-	highScoresButton.x = display.contentCenterX + buttonColOffset
-	highScoresButton.y = display.contentCenterY + buttonRowOffset * 2  -- increment the counter for each new button in the column
-	highScoresButton:addEventListener( "tap", gotoHighScores ) -- tap listener
+	local highScoresButton = display.newImage(uiGroup, uiDir .. "buttonScores.png")
+	highScoresButton:scale(buttonScaleFactor, buttonScaleFactor)
+	highScoresButton.x = display.contentCenterX
+	highScoresButton.y = display.contentCenterY + buttonRowOffset * 1  -- increment the counter for each new button in the column
+	highScoresButton:addEventListener( "tap", windowMod.openHighscoresMenu ) -- tap listener
 
-	-- open about windows
-	local submarinesButton = display.newImageRect(uiGroup, uiDir .. "about.png", display.contentWidth*buttosWidthScaleRateo, display.contentHeight*buttosHeightScaleRateo) -- set mask
-	submarinesButton.x = display.contentCenterX + buttonColOffset
-	submarinesButton.y = display.contentCenterY + buttonRowOffset * 3  -- increment the counter for each new button in the column
-	submarinesButton:addEventListener( "tap", showAboutSelector ) -- tap listener
+	-- set button to open about windows
+	local aboutButton = display.newImage(uiGroup, uiDir .. "buttonAbout.png")
+	aboutButton:scale(buttonScaleFactor, buttonScaleFactor)
+	aboutButton.x = display.contentCenterX
+	aboutButton.y = display.contentCenterY + buttonRowOffset * 2  -- increment the counter for each new button in the column
+	aboutButton:addEventListener( "tap", windowMod.openAboutMenu ) -- tap listener
 	
-	--------------------------------------------------
-	-- top right bagdes -------------------------------
-
-	local badgesRes = 512/(display.contentWidth/600)
-	local buttonRowOffset = 200 -- the offet between each button on the same ro
+	-- ----------------------------------------------------------------------------
+	-- top right bagdes
+	-- ----------------------------------------------------------------------------
+	local buttonRowOffset = 200 -- the offet between each button on the same row
 
 	-- open worlds window
-	local submarinesButton = display.newImageRect(uiGroup, uiDir .. "editBadge.png", badgesRes, badgesRes) -- set mask
-	submarinesButton.x = display.contentCenterX + display.contentWidth/2.3
-	submarinesButton.y = display.contentCenterY - display.contentHeight/2.5
-	submarinesButton:addEventListener( "tap", showWorldsSelector ) -- tap listener
+	local worldsBadge = display.newImage(uiGroup, uiDir .. "badgeEdit.png") -- set mask
+	worldsBadge:scale( badgesScaleFactor, badgesScaleFactor )
+	worldsBadge.x = display.contentCenterX + display.contentWidth/2.3
+	worldsBadge.y = display.contentCenterY - display.contentHeight/2.5
+	worldsBadge:addEventListener( "tap", windowMod.openWorldsMenu ) -- tap listener
 
 	-- open sumbmarines window
-	local submarinesButton = display.newImageRect(uiGroup, uiDir .. "submarineBadge.png", badgesRes, badgesRes) -- set mask
-	submarinesButton.x = display.contentCenterX + display.contentWidth/2.3 - buttonRowOffset
-	submarinesButton.y = display.contentCenterY - display.contentHeight/2.5
-	submarinesButton:addEventListener( "tap", showSubmarineSelector ) -- tap listener
+	local sumbmarinesBadge = display.newImage(uiGroup, uiDir .. "badgeSubmarine.png") -- set mask
+	sumbmarinesBadge:scale( badgesScaleFactor, badgesScaleFactor )
+	sumbmarinesBadge.x = display.contentCenterX + display.contentWidth/2.3 - buttonRowOffset * 1
+	sumbmarinesBadge.y = display.contentCenterY - display.contentHeight/2.5
+	sumbmarinesBadge:addEventListener( "tap", windowMod.openSubmarinesMenu ) -- tap listener
+
+	-- open bubbles window
+	local bubblesBadge = display.newImage(uiGroup, uiDir .. "badgeBubbles.png") -- set mask
+	bubblesBadge:scale( badgesScaleFactor, badgesScaleFactor )
+	bubblesBadge.x = display.contentCenterX + display.contentWidth/2.3 - buttonRowOffset * 2
+	bubblesBadge.y = display.contentCenterY - display.contentHeight/2.5
+	bubblesBadge:addEventListener( "tap", windowMod.openBubblesMenu ) -- tap listener
 end
 
 

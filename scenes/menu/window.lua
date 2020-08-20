@@ -14,62 +14,117 @@ local uiDir = "assets/ui/" -- user interface assets di
 local group
 local isOpen = false
 local onExitCallback -- function called to close all the objects in the window
-local settingsWindow
-local closeButton
+
+local windowObjects = {} -- to store the objest used to create the window
+
 local closeButtonScaleRateo = 3
 
 
 local function closeWindow()
-    display.remove( settingsWindow )
-    display.remove( closeButton )
+
+    -- remove oll the objects used to create the window
+    for i=0, table.getn(windowObjects) do
+        display.remove( windowObjects[i] )
+    end
+    windowObjects = {} -- removing reference to let garbage colletcor do its job
+
     isOpen = false
-    onExitCallback()
+    if onExitCallback ~= null then
+        onExitCallback()
+    end
+    return true
 end
 
 
-local function openWindow()
+local function openWindow(exitCallback, title)
+
+    local settingsWindow
+    local settingsWindow
+    local closeButton
+
+    local yTitleBar -- the level of the title bar in the window
 
     -- if a windows is already open, close it
     if isOpen == true then
-        M.closeWindow()
+        closeWindow()
     end
 
-    -- set title on the menu
-	settingsWindow = display.newImageRect(group, uiDir .. "window.png", display.contentWidth/1.2, display.contentHeight/1.2) -- set title
+    -- show the menu window
+    settingsWindow = display.newImage(group, uiDir .. "window2.png") -- set title
+    settingsWindow:scale(1.5,1.2)
 	settingsWindow.x = display.contentCenterX
     settingsWindow.y = display.contentCenterY
-    
-    -- set the close button
-	closeButton = display.newImageRect(group, uiDir .. "closeBadge.png", 512/closeButtonScaleRateo, 512/closeButtonScaleRateo) -- set mask
-	closeButton.x = display.contentCenterX - settingsWindow.x/1.5
-	closeButton.y = display.contentCenterY - settingsWindow.y/1.6
-    closeButton:addEventListener( "tap", closeWindow ) -- tap listener
+    settingsWindow:addEventListener( "tap", function () return true end )
+    table.insert(windowObjects, settingsWindow)
 
-    isOpen = true
-end
+    yTitleBar = settingsWindow.y/1.6
 
--- load submarines function
-function M.openSubmarinesMenu()
-    onExitCallback = loadMod.destroySubmarines
-    openWindow()
-    loadMod.loadSubmarines()
-end
-
-function M.openAboutMenu()
-    local text
-
-    local function destroy()
-        display.remove( text )
+    if title == null then
+        title = "Title"
     end
 
-    onExitCallback = destroy
-    openWindow()
-    text = display.newText( group, "Scemo chi Legge", display.contentCenterX-300, display.contentCenterY+100, "fonts/PermanentMarker.ttf", 100 )
+    -- set the window title
+    windowTitle = display.newText( 
+        group, 
+        title, 
+        display.contentCenterX, 
+        display.contentCenterY - yTitleBar, 
+        "fonts/CooperBlack.ttf", 
+        100 
+    )
+    table.insert(windowObjects, windowTitle)
+
+    -- set the close button
+    closeButton = display.newImage(group, uiDir .. "badgeClose.png") -- set mask
+    closeButton:scale(0.3, 0.3)
+	closeButton.x = display.contentCenterX - settingsWindow.x/1.5
+	closeButton.y = display.contentCenterY - yTitleBar
+    closeButton:addEventListener( "tap", closeWindow ) -- tap listener
+    table.insert(windowObjects, closeButton)
+
+    isOpen = true
+    onExitCallback = exitCallback -- set the exit call back
 end
 
 
 function M.openWorldsMenu()
-    openWindow()
+    openWindow(loadMod.destroyTable, "Worls")
+    loadMod.loadWorlds()
+end
+
+
+-- load submarines function
+function M.openSubmarinesMenu()
+    openWindow(loadMod.destroyTable, "Submarines")
+    loadMod.loadSubmarines()
+end
+
+
+function M.openBubblesMenu()
+    openWindow(loadMod.destroyTable, "Bubbles")
+    loadMod.loadBubbles()
+end
+
+
+function M.openAboutMenu()
+    local aboutText
+
+    local function destroy()
+        display.remove( aboutText )
+    end
+    openWindow(destroy, "About")
+    aboutText = display.newImage(group, "assets/menu/about1.png") -- set title
+	aboutText.x = display.contentCenterX
+    aboutText.y = display.contentCenterY + display.contentHeight/15
+    aboutText:addEventListener( 
+        "tap",
+        function () system.openURL( 'https://github.com/pressure-plate/SaveTheOcean' ) end 
+    )
+end
+
+
+function M.openHighscoresMenu()
+    openWindow(null, "High Scores")
 end
 
 
