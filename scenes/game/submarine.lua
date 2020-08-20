@@ -135,7 +135,7 @@ function M.init( submarineGroup, mainGroup )
 	}
 
 	-- set submarine image scale factor
-	local scaleFact = 0.45
+	local scaleFact = 0.47
 
 	-- create submarine obj
 	M.submarine = display.newRect( group, display.contentCenterX - (display.contentWidth*0.34), display.contentCenterY, 512*scaleFact, 265*scaleFact )
@@ -177,9 +177,6 @@ function M.clear()
     -- clear Runtime listeners
     Runtime:removeEventListener( "touch", M.submarine )
     Runtime:removeEventListener( "enterFrame", M.submarine )
-
-    -- remove object references
-	M.submarine = nil
 	
 	-- remove timers
 	timer.cancel( bubbleSpawnTimer )

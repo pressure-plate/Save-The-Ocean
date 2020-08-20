@@ -12,7 +12,16 @@ display.setStatusBar( display.HiddenStatusBar )
  
 -- Seed the random number generator
 math.randomseed( os.time() )
- 
+
+-- set default font params on the composer
+local fontParams = {}
+fontParams.path = "fonts/AlloyInk"
+fontParams.colorR = 0.9
+fontParams.colorG = 0.5
+fontParams.colorB = 0.1
+composer.setVariable( "defaultFontParams", fontParams )
+
+
 -- @DEBUG -----------------------------------------------------------------------------------------
 
 local debugMode = false
@@ -44,6 +53,7 @@ end
 
 -- ------------------------------------------------------------------------------------------------
 
+
 -- Go to the menu screen
-composer.gotoScene( "scenes.menu" )
--- composer.gotoScene( "scenes.game" ) -- TEST scene
+--composer.gotoScene( "scenes.menu" )
+composer.gotoScene( "scenes.game" ) -- TEST scene

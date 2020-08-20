@@ -262,12 +262,15 @@ function scene:create( event )
 	Runtime:addEventListener( "collision", onCollision )
 
 	-- display score
-	scoreText = display.newText( uiGroup, "SCORE: " .. score, display.contentWidth-50, 40, "fonts/AlloyInk", 70 )
+	local font = composer.getVariable( "defaultFontParams" )
+	scoreText = display.newText( uiGroup, "SCORE: " .. score, display.contentWidth-50, 40, font.path, 70 )
 	scoreText.anchorX = 1 -- align
-	scoreText:setFillColor( 0.9, 0.5, 0.1 )
+	scoreText:setFillColor( font.colorR, font.colorG, font.colorB )
 
 	-- set timer to trigger the clear objects function at regular intervals
-	clearObjectsTimer = timer.performWithDelay( 2000, clearObjects, 0 ) 
+	clearObjectsTimer = timer.performWithDelay( 2000, clearObjects, 0 ) -- TODO reduce time
+
+	-- display sea life bar
 end
 
 
