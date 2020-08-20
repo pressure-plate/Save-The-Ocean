@@ -107,13 +107,19 @@ end
 
 
 function M.openAboutMenu()
-    local text
+    local aboutText
 
     local function destroy()
-        display.remove( text )
+        display.remove( aboutText )
     end
     openWindow(destroy, "About")
-    text = display.newText( group, "Scemo chi Legge", display.contentCenterX-300, display.contentCenterY+100, "fonts/CooperBlack.ttf", 100 )
+    aboutText = display.newImage(group, "assets/menu/about1.png") -- set title
+	aboutText.x = display.contentCenterX
+    aboutText.y = display.contentCenterY + display.contentHeight/15
+    aboutText:addEventListener( 
+        "tap",
+        function () system.openURL( 'https://github.com/pressure-plate/SaveTheOcean' ) end 
+    )
 end
 
 

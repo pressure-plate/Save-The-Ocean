@@ -17,7 +17,7 @@ local bgMod = require( "scenes.menu.background" )
 local windowMod = require( "scenes.menu.window" )
 
 -- assets directory
-local bgDir = "assets/background/menu/" -- user interface assets dir
+local bgDir = "assets/menu/" -- user interface assets dir
 local uiDir = "assets/ui/" -- user interface assets dir
 
 -- display groups
