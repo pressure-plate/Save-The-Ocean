@@ -4,6 +4,7 @@ local composer = require( "composer" )
 
 -- load submarine module
 local subMod = require( "scenes.game.submarine" )
+local bgMod = require( "scenes.game.background" )
 
 -- initialize variables -------------------------------------------------------
 
@@ -12,6 +13,7 @@ local group
 
 -- assets directory
 local submarineDir = "assets/submarine/" -- submarine assets
+local backgroundDir = "assets/background/" -- background assets
 
 
 -- default table configuration
@@ -30,15 +32,23 @@ local function highlightItem( x, y )
     highlightSelected.y = y
 end
 
+
 -- called on screen tap on the item
 local function onSubmarineSelection( event )
     subMod.submarineSkin = event.target.itemId
     highlightItem(event.target.x, event.target.y)
 end
 
+
 -- called on screen tap on the item
 local function onBoubleSelection( event )
     subMod.bubbleSkin = event.target.itemId
+    highlightItem(event.target.x, event.target.y)
+end
+
+
+local function onWorldStikerSelection( event )
+    bgMod.bgWorld = event.target.itemId
     highlightItem(event.target.x, event.target.y)
 end
 
@@ -50,6 +60,7 @@ function M.destroyTable()
     inTableItems = {}
     display.remove( highlightSelected )
 end
+
 
 local function createTable(objectGenerationFunction, itemCount)
     
@@ -74,53 +85,79 @@ end
 
 function M.loadSubmarines()
 
-    local submarinesCount = 6
-    local submarineScaleFactor = 0.8
+    local itemsCount = 6
+    local scaleFactor = 0.8
     local originX = display.contentCenterX - display.contentWidth/4
     local originY = display.contentCenterY - display.contentHeight/4
     
     local function objectGenerationFunction(i, row, col)
-        local submarine = display.newImage(group, submarineDir .. i .. ".png") -- set title
-        submarine:scale( submarineScaleFactor, submarineScaleFactor )
-        submarine.x = originX + submarine.width*submarineScaleFactor * col * 1.2
-        submarine.y = originY + submarine.height*submarineScaleFactor * row * 1.2
-        submarine.itemId = i
-        submarine:addEventListener( "tap", onSubmarineSelection ) -- tap listener
+        local item = display.newImage(group, submarineDir .. i .. ".png") -- set title
+        item:scale( scaleFactor, scaleFactor )
+        item.x = originX + item.width*scaleFactor * col * 1.2
+        item.y = originY + item.height*scaleFactor * row * 1.2
+        item.itemId = i
+        item:addEventListener( "tap", onSubmarineSelection ) -- tap listener
         
         -- if the submarine is the current loaded then highlight it
-        if subMod.submarineSkin == i then
-            highlightItem(submarine.x, submarine.y)
+        if subMod.submarineSkin == i then -- check the loaded item
+            highlightItem(item.x, item.y)
         end
-        return submarine
+        return item
     end
     -- create te table based on the global configuration
-    createTable(objectGenerationFunction, submarinesCount)
+    createTable(objectGenerationFunction, itemsCount)
 end
 
 
 function M.loadBubbles()
 
-    local bubblesCount = 3
-    local bubblesScaleFactor = 2
+    local itemsCount = 3
+    local scaleFactor = 2
     local originX = display.contentCenterX - display.contentWidth/4
     local originY = display.contentCenterY - display.contentHeight/4.9
     
     local function objectGenerationFunction(i, row, col)
-        local boubble = display.newImage(group, submarineDir .. "bubble/" .. i .. ".png") -- set title
-        boubble:scale( bubblesScaleFactor, bubblesScaleFactor )
-        boubble.x = originX + boubble.width*bubblesScaleFactor * col * 2.8
-        boubble.y = originY + boubble.height*bubblesScaleFactor * row * 1.2
-        boubble.itemId = i
-        boubble:addEventListener( "tap", onBoubleSelection ) -- tap listener
+        local item = display.newImage(group, submarineDir .. "bubble/" .. i .. ".png")
+        item:scale( scaleFactor, scaleFactor )
+        item.x = originX + item.width*scaleFactor * col * 2.8
+        item.y = originY + item.height*scaleFactor * row * 1.2
+        item.itemId = i
+        item:addEventListener( "tap", onBoubleSelection ) -- tap listener
         
         -- if the bubble is the current loaded then highlight it
-        if subMod.bubbleSkin == i then
-            highlightItem(boubble.x, boubble.y)
+        if subMod.bubbleSkin == i then  -- check the loaded item
+            highlightItem(item.x, item.y)
         end
-        return boubble
+        return item
     end
     -- create te table based on the global configuration
-    createTable(objectGenerationFunction, bubblesCount)
+    createTable(objectGenerationFunction, itemsCount)
+end
+
+
+function M.loadWorlds()
+
+    local itemsCount = 4
+    local scaleFactor = 0.8
+    local originX = display.contentCenterX - display.contentWidth/4
+    local originY = display.contentCenterY - display.contentHeight/3.3
+    
+    local function objectGenerationFunction(i, row, col)
+        local item = display.newImage(group, backgroundDir .. i .. ".png")
+        item:scale( scaleFactor, scaleFactor )
+        item.x = originX + item.width*scaleFactor * col * 1.17
+        item.y = originY + item.height*scaleFactor * row * 1.2
+        item.itemId = i
+        item:addEventListener( "tap", onWorldStikerSelection ) -- tap listener
+        
+        -- if the works is the current loaded then highlight it
+        if bgMod.bgWorld == i then -- check the loaded item
+            highlightItem(item.x, item.y)
+        end
+        return item
+    end
+    -- create te table based on the global configuration
+    createTable(objectGenerationFunction, itemsCount)
 end
 
 

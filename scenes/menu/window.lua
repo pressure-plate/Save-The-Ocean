@@ -86,16 +86,25 @@ local function openWindow(exitCallback, title)
     onExitCallback = exitCallback -- set the exit call back
 end
 
+
+function M.openWorldsMenu()
+    openWindow(loadMod.destroyTable, "Worls")
+    loadMod.loadWorlds()
+end
+
+
 -- load submarines function
 function M.openSubmarinesMenu()
     openWindow(loadMod.destroyTable, "Submarines")
     loadMod.loadSubmarines()
 end
 
+
 function M.openBubblesMenu()
     openWindow(loadMod.destroyTable, "Bubbles")
     loadMod.loadBubbles()
 end
+
 
 function M.openAboutMenu()
     local text
@@ -105,11 +114,6 @@ function M.openAboutMenu()
     end
     openWindow(destroy, "About")
     text = display.newText( group, "Scemo chi Legge", display.contentCenterX-300, display.contentCenterY+100, "fonts/PermanentMarker.ttf", 100 )
-end
-
-
-function M.openWorldsMenu()
-    openWindow(null, "Worls")
 end
 
 
