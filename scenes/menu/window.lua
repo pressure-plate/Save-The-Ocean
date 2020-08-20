@@ -14,14 +14,20 @@ local uiDir = "assets/ui/" -- user interface assets di
 local group
 local isOpen = false
 local onExitCallback -- function called to close all the objects in the window
-local settingsWindow
-local closeButton
+
+local windowObjects = {} -- to store the objest used to create the window
+
 local closeButtonScaleRateo = 3
 
 
 local function closeWindow()
-    display.remove( settingsWindow )
-    display.remove( closeButton )
+
+    -- remove oll the objects used to create the window
+    for i=0, table.getn(windowObjects) do
+        display.remove( windowObjects[i] )
+    end
+    windowObjects = {} -- removing reference to let garbage colletcor do its job
+
     isOpen = false
     if onExitCallback ~= null then
         onExitCallback()
@@ -30,7 +36,13 @@ local function closeWindow()
 end
 
 
-local function openWindow(exitCallback)
+local function openWindow(exitCallback, title)
+
+    local settingsWindow
+    local settingsWindow
+    local closeButton
+
+    local yTitleBar -- the level of the title bar in the window
 
     -- if a windows is already open, close it
     if isOpen == true then
@@ -43,13 +55,32 @@ local function openWindow(exitCallback)
 	settingsWindow.x = display.contentCenterX
     settingsWindow.y = display.contentCenterY
     settingsWindow:addEventListener( "tap", function () return true end )
-    
+    table.insert(windowObjects, settingsWindow)
+
+    yTitleBar = settingsWindow.y/1.6
+
+    if title == null then
+        title = "Title"
+    end
+
+    -- set the window title
+    windowTitle = display.newText( 
+        group, 
+        title, 
+        display.contentCenterX, 
+        display.contentCenterY - yTitleBar, 
+        "fonts/PermanentMarker.ttf", 
+        100 
+    )
+    table.insert(windowObjects, windowTitle)
+
     -- set the close button
-    closeButton = display.newImage(group, uiDir .. "closeBadge.png") -- set mask
+    closeButton = display.newImage(group, uiDir .. "badgeClose.png") -- set mask
     closeButton:scale(0.3, 0.3)
 	closeButton.x = display.contentCenterX - settingsWindow.x/1.5
-	closeButton.y = display.contentCenterY - settingsWindow.y/1.6
+	closeButton.y = display.contentCenterY - yTitleBar
     closeButton:addEventListener( "tap", closeWindow ) -- tap listener
+    table.insert(windowObjects, closeButton)
 
     isOpen = true
     onExitCallback = exitCallback -- set the exit call back
@@ -57,8 +88,13 @@ end
 
 -- load submarines function
 function M.openSubmarinesMenu()
-    openWindow(loadMod.destroySubmarines)
+    openWindow(loadMod.destroyTable, "Submarines")
     loadMod.loadSubmarines()
+end
+
+function M.openBubblesMenu()
+    openWindow(loadMod.destroyTable, "Bubbles")
+    loadMod.loadBubbles()
 end
 
 function M.openAboutMenu()
@@ -67,13 +103,18 @@ function M.openAboutMenu()
     local function destroy()
         display.remove( text )
     end
-    openWindow(destroy)
+    openWindow(destroy, "About")
     text = display.newText( group, "Scemo chi Legge", display.contentCenterX-300, display.contentCenterY+100, "fonts/PermanentMarker.ttf", 100 )
 end
 
 
 function M.openWorldsMenu()
-    openWindow(null)
+    openWindow(null, "Worls")
+end
+
+
+function M.openHighscoresMenu()
+    openWindow(null, "High Scores")
 end
 
 

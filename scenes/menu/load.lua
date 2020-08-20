@@ -7,76 +7,122 @@ local subMod = require( "scenes.game.submarine" )
 
 -- initialize variables -------------------------------------------------------
 
--- assets directory
-local submarineDir = "assets/submarine/" -- user interface assets di
-
-local submarinesCount = 6
-local submarineScaleFactor = 0.8
-local submarineWidth = 512/(display.contentWidth/(16*80))
-local submarineHeight = 265/(display.contentHeight/(9*80))
-
+-- init vars
 local group
-local submarines = {}
-local highlightSelectedSubmarine
 
-local originX = display.contentCenterX - display.contentWidth/4
-local originY = display.contentCenterY - display.contentHeight/4
+-- assets directory
+local submarineDir = "assets/submarine/" -- submarine assets
 
+
+-- default table configuration
 local colCount = 3
 local rowCount = 2
+local inTableItems = {}
+local highlightSelected
 
 
-local function highlightSubmarine( x, y )
-    display.remove( highlightSelectedSubmarine )
+local function highlightItem( x, y )
+    display.remove( highlightSelected )
 
-    highlightSelectedSubmarine = display.newImage(group, submarineDir .. "hightlight.png") -- set title
-    highlightSelectedSubmarine:scale( 0.4, 0.4 )
-    highlightSelectedSubmarine.x = x
-    highlightSelectedSubmarine.y = y
+    highlightSelected = display.newImage(group, submarineDir .. "hightlight.png") -- set title
+    highlightSelected:scale( 0.4, 0.4 )
+    highlightSelected.x = x
+    highlightSelected.y = y
+end
+
+-- called on screen tap on the item
+local function onSubmarineSelection( event )
+    subMod.submarineSkin = event.target.itemId
+    highlightItem(event.target.x, event.target.y)
+end
+
+-- called on screen tap on the item
+local function onBoubleSelection( event )
+    subMod.bubbleSkin = event.target.itemId
+    highlightItem(event.target.x, event.target.y)
 end
 
 
-local function selectSubmarine( event )
-    subMod.submarineSkin = event.target.submarineId
-    highlightSubmarine(event.target.x, event.target.y)
-end
-
-
-function M.destroySubmarines()
-    for i=0, submarinesCount+1 do 
-        display.remove( submarines[i] )
+function M.destroyTable()
+    for i=0, table.getn(inTableItems) do 
+        display.remove( inTableItems[i] )
     end
-    submarines = {}
-    display.remove( highlightSelectedSubmarine )
+    inTableItems = {}
+    display.remove( highlightSelected )
 end
 
-
-function M.loadSubmarines()
-
-    -- load submarines as grid
+local function createTable(objectGenerationFunction, itemCount)
+    
+    local isBreak = false
+    -- load items as grid
     local i = 1
     -- loop row
     for row = 1, rowCount do
         -- loop col
         for col = 0, colCount - 1 do
-            -- generate submarine
-            local submarine = display.newImage(group, submarineDir .. (i) .. ".png") -- set title
-            submarine:scale( submarineScaleFactor, submarineScaleFactor )
-            submarine.x = originX + submarine.width*submarineScaleFactor * col * 1.2
-            submarine.y = originY + submarine.height*submarineScaleFactor * row * 1.2
-            submarine.submarineId = i
-            submarine:addEventListener( "tap", selectSubmarine ) -- tap listener
-            table.insert(submarines, submarine) -- save the submarine to remove it later
-            
-            -- if the submarine is the current loaded then highlight it
-            if subMod.submarineSkin == i then
-                highlightSubmarine(submarine.x, submarine.y)
-            end
+            -- generate object
+            local item = objectGenerationFunction(i, row, col)
+            table.insert(inTableItems, item) -- save the submarine to remove it later
+
             i = i+1
-            if i > submarinesCount then break end
+            if i > itemCount then isBreak=true break end
         end
+        if isBreak == true then break end
     end
 end
+
+
+function M.loadSubmarines()
+
+    local submarinesCount = 6
+    local submarineScaleFactor = 0.8
+    local originX = display.contentCenterX - display.contentWidth/4
+    local originY = display.contentCenterY - display.contentHeight/4
+    
+    local function objectGenerationFunction(i, row, col)
+        local submarine = display.newImage(group, submarineDir .. i .. ".png") -- set title
+        submarine:scale( submarineScaleFactor, submarineScaleFactor )
+        submarine.x = originX + submarine.width*submarineScaleFactor * col * 1.2
+        submarine.y = originY + submarine.height*submarineScaleFactor * row * 1.2
+        submarine.itemId = i
+        submarine:addEventListener( "tap", onSubmarineSelection ) -- tap listener
+        
+        -- if the submarine is the current loaded then highlight it
+        if subMod.submarineSkin == i then
+            highlightItem(submarine.x, submarine.y)
+        end
+        return submarine
+    end
+    -- create te table based on the global configuration
+    createTable(objectGenerationFunction, submarinesCount)
+end
+
+
+function M.loadBubbles()
+
+    local bubblesCount = 3
+    local bubblesScaleFactor = 2
+    local originX = display.contentCenterX - display.contentWidth/4
+    local originY = display.contentCenterY - display.contentHeight/4.9
+    
+    local function objectGenerationFunction(i, row, col)
+        local boubble = display.newImage(group, submarineDir .. "bubble/" .. i .. ".png") -- set title
+        boubble:scale( bubblesScaleFactor, bubblesScaleFactor )
+        boubble.x = originX + boubble.width*bubblesScaleFactor * col * 2.8
+        boubble.y = originY + boubble.height*bubblesScaleFactor * row * 1.2
+        boubble.itemId = i
+        boubble:addEventListener( "tap", onBoubleSelection ) -- tap listener
+        
+        -- if the bubble is the current loaded then highlight it
+        if subMod.bubbleSkin == i then
+            highlightItem(boubble.x, boubble.y)
+        end
+        return boubble
+    end
+    -- create te table based on the global configuration
+    createTable(objectGenerationFunction, bubblesCount)
+end
+
 
 -- init function
 function M.init( displayGroup )
