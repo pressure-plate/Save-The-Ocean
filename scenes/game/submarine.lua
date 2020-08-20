@@ -12,11 +12,12 @@ local group
 local bubbleGroup
 
 -- submarine skin set
-M.submarineSkin = "submarine_default"
-M.bubbleSkin = "bubble1"
+M.submarineSkin = 1
+M.bubbleSkin = 1
 
 -- submarine assets dir
 local submarineDir = "assets/submarine/"
+local bubbleDir = "assets/submarine/bubble/"
 
 
 -- ----------------------------------------------------------------------------
@@ -62,7 +63,9 @@ local function moveSubmarine( self, event )
     return true  -- Prevents touch propagation to underlying objects
 end
 
-local function onEnterFrame( self, event ) 
+local function onEnterFrame( self, event )
+
+	local rotTime = 150
 
 	-- apply force to move the submarine
 	if ( touchActive ) then
@@ -73,12 +76,12 @@ local function onEnterFrame( self, event )
 	if (submarineIsRising == true and self.y < 75) then
 		submarineIsRising = false
 		transition.cancel( self )
-		transition.to( self, {rotation = 0, time = 150} )
+		transition.to( self, { rotation = 0, time = rotTime } )
 	
 	elseif (submarineIsRising == false and self.y > display.contentHeight-75) then
 		submarineIsRising = true
 		transition.cancel( self )
-		transition.to( self, {rotation = 0, time = 150} )
+		transition.to( self, { rotation = 0, time = rotTime } )
 	end
 end
 
@@ -89,23 +92,23 @@ local function spawnBubble()
 	-- load bubble skin
 	local bubblePaint = {
 		type = "image",
-		filename = submarineDir .. M.bubbleSkin .. ".png"
+		filename = bubbleDir .. M.bubbleSkin .. ".png"
 	}
 
 	-- create bubble
-	newBubble = display.newRect( bubbleGroup, M.submarine.x-100, M.submarine.y+20, 85, 85 )
+	newBubble = display.newRect( bubbleGroup, M.submarine.x-120, M.submarine.y+15, 85, 85 )
 	newBubble.fill = bubblePaint
 	physics.addBody( newBubble, "kinematic", {isSensor=true} )
 	
 	-- set random scale
-	local randScale = math.random( 10, 55 ) / 100
+	local randScale = math.random( 10, 50 ) / 100
 	newBubble.xScale = randScale
 	newBubble.yScale = randScale
 
 	-- add to table
 	table.insert( composer.getVariable( "screenObjectsTable" ), newBubble )
 
-	-- set speed and random y direction --TODO
+	-- set speed and random y direction
 	local randY = math.random( -100, 100 )
 	newBubble:setLinearVelocity( -350*gameSpeed, randY )	
 end
@@ -131,11 +134,11 @@ function M.init( submarineGroup, mainGroup )
 		filename = submarineDir .. M.submarineSkin .. ".png"
 	}
 
-	-- set submarine Rect size related to contentWidth
-	local submarineRectSize = display.contentWidth * 0.12
+	-- set submarine image scale factor
+	local scaleFact = 0.45
 
 	-- create submarine obj
-	M.submarine = display.newRect( group, display.contentCenterX - (display.contentWidth*0.34), display.contentCenterY, submarineRectSize, submarineRectSize )
+	M.submarine = display.newRect( group, display.contentCenterX - (display.contentWidth*0.34), display.contentCenterY, 512*scaleFact, 265*scaleFact )
 	M.submarine.fill = submarinePaint
 
 	-- set physics
@@ -179,7 +182,7 @@ function M.clear()
 	M.submarine = nil
 	
 	-- remove timers
-	timer.remove( bubbleSpawnTimer )
+	timer.cancel( bubbleSpawnTimer )
 end
 
 

@@ -15,7 +15,7 @@ math.randomseed( os.time() )
  
 -- @DEBUG -----------------------------------------------------------------------------------------
 
-local debugMode = true
+local debugMode = false
 
 -- monitor Memory Usage
 local function printMemUsage()  
@@ -45,6 +45,5 @@ end
 -- ------------------------------------------------------------------------------------------------
 
 -- Go to the menu screen
---composer.gotoScene( "scenes.menu" )
-
-composer.gotoScene( "scenes.game" ) -- TEST scene
+composer.gotoScene( "scenes.menu" )
+-- composer.gotoScene( "scenes.game" ) -- TEST scene

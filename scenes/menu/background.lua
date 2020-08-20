@@ -30,7 +30,7 @@ local function backgroundScroller( self, event )
 	-- set a different speed for each layer
 	for i=1, M.bgLayerNum do
 		if ( self == bgLayerGroupTable[i] ) then
-            speed = i * composer.getVariable( "gameSpeed" )
+            speed = i * composer.getVariable( "backgroundSpeed" )
 		end
 	end
 
