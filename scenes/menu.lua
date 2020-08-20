@@ -28,13 +28,12 @@ local gameSpeedUpdateTimer = 0.1
 local backgroundScrollDirection = 1
 local backgroundmaxVel = 0.1
 
--- buttons scale
-local buttosWidthScaleRateo = 0.125
-local buttosHeightScaleRateo = 0.1
+-- scale
+local ButtonScaleFactor = 0.6
+local badgesScaleFactor = 0.3
 
--- buttons grid formatting
-local buttonColOffset = -75 -- the offet to alligh the buttons to the same col
-local buttonRowOffset = 120 -- the offet between each button on the same row
+-- buttons grid formatting, set on init
+local buttonRowOffset -- the offet between each button on the same row
 
 
 -- ----------------------------------------------------------------------------
@@ -50,19 +49,16 @@ local function gotoHighScores()
 end
 
 local function showWorldsSelector()
-	-- destroy everything before open cause the user can click other buttons on the ui
     -- set title on the menu
 	windowMod.openWorldsMenu()
 end
 
 local function showSubmarineSelector()
-	-- destroy everything before open cause the user can click other buttons on the ui
 	-- set title on the menu
 	windowMod.openSubmarinesMenu()
 end
 
 local function showAboutSelector()
-	-- destroy everything before open cause the user can click other buttons on the ui
     -- set title on the menu
 	windowMod.openAboutMenu()
 end
@@ -115,40 +111,47 @@ function scene:create( event )
 	titleImmage.y = display.contentCenterY
 	
 	-- set button to play game
-	local playButton = display.newImageRect(uiGroup, uiDir .. "play.png", display.contentWidth*buttosWidthScaleRateo, display.contentHeight*buttosHeightScaleRateo) -- set mask
-	playButton.x = display.contentCenterX + buttonColOffset
-	playButton.y = display.contentCenterY + buttonRowOffset * 1
+	local playButton = display.newImage(uiGroup, uiDir .. "play.png")
+	playButton:scale(ButtonScaleFactor, ButtonScaleFactor)
+	playButton.x = display.contentCenterX
+	playButton.y = display.contentCenterY
 	playButton:addEventListener( "tap", gotoGame ) -- tap listener
 
+	-- set offsets based on the dimensions of the button
+	buttonRowOffset = playButton.height*ButtonScaleFactor*1.1
+
 	-- set button to display highscores
-	local highScoresButton = display.newImageRect(uiGroup, uiDir .. "scores.png", display.contentWidth*buttosWidthScaleRateo, display.contentHeight*buttosHeightScaleRateo) -- set mask
-	highScoresButton.x = display.contentCenterX + buttonColOffset
-	highScoresButton.y = display.contentCenterY + buttonRowOffset * 2  -- increment the counter for each new button in the column
+	local highScoresButton = display.newImage(uiGroup, uiDir .. "scores.png")
+	highScoresButton:scale(ButtonScaleFactor, ButtonScaleFactor)
+	highScoresButton.x = display.contentCenterX
+	highScoresButton.y = display.contentCenterY + buttonRowOffset * 1  -- increment the counter for each new button in the column
 	highScoresButton:addEventListener( "tap", gotoHighScores ) -- tap listener
 
 	-- open about windows
-	local submarinesButton = display.newImageRect(uiGroup, uiDir .. "about.png", display.contentWidth*buttosWidthScaleRateo, display.contentHeight*buttosHeightScaleRateo) -- set mask
-	submarinesButton.x = display.contentCenterX + buttonColOffset
-	submarinesButton.y = display.contentCenterY + buttonRowOffset * 3  -- increment the counter for each new button in the column
-	submarinesButton:addEventListener( "tap", showAboutSelector ) -- tap listener
+	local aboutButton = display.newImage(uiGroup, uiDir .. "about.png")
+	aboutButton:scale(ButtonScaleFactor, ButtonScaleFactor)
+	aboutButton.x = display.contentCenterX
+	aboutButton.y = display.contentCenterY + buttonRowOffset * 2  -- increment the counter for each new button in the column
+	aboutButton:addEventListener( "tap", showAboutSelector ) -- tap listener
 	
 	--------------------------------------------------
 	-- top right bagdes -------------------------------
 
-	local badgesRes = 512/(display.contentWidth/600)
-	local buttonRowOffset = 200 -- the offet between each button on the same ro
+	local buttonRowOffset = 200 -- the offet between each button on the same ro3
 
 	-- open worlds window
-	local submarinesButton = display.newImageRect(uiGroup, uiDir .. "editBadge.png", badgesRes, badgesRes) -- set mask
-	submarinesButton.x = display.contentCenterX + display.contentWidth/2.3
-	submarinesButton.y = display.contentCenterY - display.contentHeight/2.5
-	submarinesButton:addEventListener( "tap", showWorldsSelector ) -- tap listener
+	local worldsBadge = display.newImage(uiGroup, uiDir .. "editBadge.png") -- set mask
+	worldsBadge:scale( badgesScaleFactor, badgesScaleFactor )
+	worldsBadge.x = display.contentCenterX + display.contentWidth/2.3
+	worldsBadge.y = display.contentCenterY - display.contentHeight/2.5
+	worldsBadge:addEventListener( "tap", showWorldsSelector ) -- tap listener
 
 	-- open sumbmarines window
-	local submarinesButton = display.newImageRect(uiGroup, uiDir .. "submarineBadge.png", badgesRes, badgesRes) -- set mask
-	submarinesButton.x = display.contentCenterX + display.contentWidth/2.3 - buttonRowOffset
-	submarinesButton.y = display.contentCenterY - display.contentHeight/2.5
-	submarinesButton:addEventListener( "tap", showSubmarineSelector ) -- tap listener
+	local sumbmarinesBadge = display.newImage(uiGroup, uiDir .. "submarineBadge.png") -- set mask
+	sumbmarinesBadge:scale( badgesScaleFactor, badgesScaleFactor )
+	sumbmarinesBadge.x = display.contentCenterX + display.contentWidth/2.3 - buttonRowOffset
+	sumbmarinesBadge.y = display.contentCenterY - display.contentHeight/2.5
+	sumbmarinesBadge:addEventListener( "tap", showSubmarineSelector ) -- tap listener
 end
 
 

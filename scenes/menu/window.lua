@@ -23,35 +23,41 @@ local function closeWindow()
     display.remove( settingsWindow )
     display.remove( closeButton )
     isOpen = false
-    onExitCallback()
+    if onExitCallback ~= null then
+        onExitCallback()
+    end
+    return true
 end
 
 
-local function openWindow()
+local function openWindow(exitCallback)
 
     -- if a windows is already open, close it
     if isOpen == true then
-        M.closeWindow()
+        closeWindow()
     end
 
-    -- set title on the menu
-	settingsWindow = display.newImageRect(group, uiDir .. "window.png", display.contentWidth/1.2, display.contentHeight/1.2) -- set title
+    -- show the menu window
+    settingsWindow = display.newImage(group, uiDir .. "window2.png") -- set title
+    settingsWindow:scale(1.5,1.2)
 	settingsWindow.x = display.contentCenterX
     settingsWindow.y = display.contentCenterY
+    settingsWindow:addEventListener( "tap", function () return true end )
     
     -- set the close button
-	closeButton = display.newImageRect(group, uiDir .. "closeBadge.png", 512/closeButtonScaleRateo, 512/closeButtonScaleRateo) -- set mask
+    closeButton = display.newImage(group, uiDir .. "closeBadge.png") -- set mask
+    closeButton:scale(0.3, 0.3)
 	closeButton.x = display.contentCenterX - settingsWindow.x/1.5
 	closeButton.y = display.contentCenterY - settingsWindow.y/1.6
     closeButton:addEventListener( "tap", closeWindow ) -- tap listener
 
     isOpen = true
+    onExitCallback = exitCallback -- set the exit call back
 end
 
 -- load submarines function
 function M.openSubmarinesMenu()
-    onExitCallback = loadMod.destroySubmarines
-    openWindow()
+    openWindow(loadMod.destroySubmarines)
     loadMod.loadSubmarines()
 end
 
@@ -61,15 +67,13 @@ function M.openAboutMenu()
     local function destroy()
         display.remove( text )
     end
-
-    onExitCallback = destroy
-    openWindow()
+    openWindow(destroy)
     text = display.newText( group, "Scemo chi Legge", display.contentCenterX-300, display.contentCenterY+100, "fonts/PermanentMarker.ttf", 100 )
 end
 
 
 function M.openWorldsMenu()
-    openWindow()
+    openWindow(null)
 end
 
 

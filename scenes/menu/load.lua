@@ -17,6 +17,7 @@ local submarineHeight = 265/(display.contentHeight/(9*80))
 
 local group
 local submarines = {}
+local highlightSelectedSubmarine
 
 local originX = display.contentCenterX - display.contentWidth/4
 local originY = display.contentCenterY - display.contentHeight/4
@@ -25,9 +26,19 @@ local colCount = 3
 local rowCount = 2
 
 
-local function selectItem( event )
+local function highlightSubmarine( x, y )
+    display.remove( highlightSelectedSubmarine )
+
+    highlightSelectedSubmarine = display.newImage(group, submarineDir .. "hightlight.png") -- set title
+    highlightSelectedSubmarine:scale( 0.4, 0.4 )
+    highlightSelectedSubmarine.x = x
+    highlightSelectedSubmarine.y = y
+end
+
+
+local function selectSubmarine( event )
     subMod.submarineSkin = event.target.submarineId
-    print( "You touched the object ".. event.target.submarineId )
+    highlightSubmarine(event.target.x, event.target.y)
 end
 
 
@@ -36,6 +47,7 @@ function M.destroySubmarines()
         display.remove( submarines[i] )
     end
     submarines = {}
+    display.remove( highlightSelectedSubmarine )
 end
 
 
@@ -53,9 +65,13 @@ function M.loadSubmarines()
             submarine.x = originX + submarine.width*submarineScaleFactor * col * 1.2
             submarine.y = originY + submarine.height*submarineScaleFactor * row * 1.2
             submarine.submarineId = i
-            submarine:addEventListener( "tap", selectItem ) -- tap listener
+            submarine:addEventListener( "tap", selectSubmarine ) -- tap listener
             table.insert(submarines, submarine) -- save the submarine to remove it later
-
+            
+            -- if the submarine is the current loaded then highlight it
+            if subMod.submarineSkin == i then
+                highlightSubmarine(submarine.x, submarine.y)
+            end
             i = i+1
             if i > submarinesCount then break end
         end
