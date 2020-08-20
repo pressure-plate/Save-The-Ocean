@@ -5,7 +5,6 @@ local composer = require( "composer" )
 local physics = require( "physics" )
 
 -- define vars
-M.pickableObjectsTable = nil
 
 local spawnHandlerTimer
 
@@ -53,6 +52,7 @@ local function spawnGroundObjects()
         newPickable.fill = paint
         newPickable.anchorY = 1
         newPickable.myName = "groundObject"
+        newPickable.mySeaLife = true -- used in updateSeaLife() to avoid counting the same object more than 1 time
         physics.addBody( newPickable, { radius=50, isSensor=true } )
         newPickable.gravityScale = 0 -- remove gravity from this
 
@@ -98,6 +98,7 @@ local function spawnFloatingObjects()
         local newPickable = display.newRect( group, display.contentWidth + math.random(400, 1500), math.random(100, display.contentHeight-100), 233*scaleFact, 512*scaleFact )
         newPickable.fill = paint
         newPickable.myName = "floatingObject"
+        newPickable.mySeaLife = true -- used in updateSeaLife() to avoid counting the same object more than 1 time
         physics.addBody( newPickable, { radius=50, isSensor=true } )
         newPickable.gravityScale = 0 -- remove gravity from this
 
@@ -241,7 +242,6 @@ end
 function M.init( mainGroup )
     
     -- init vars
-    M.pickableObjectsTable = {}
     group = mainGroup
     lastSpawnGroundObjects = os.time()
     lastSpawnFloatingObjects = os.time()
@@ -249,8 +249,6 @@ function M.init( mainGroup )
     lastSpawnObsSeq = os.time()
 
     -- set spawn timers
-    --spawnGroundObjectsTimer = timer.performWithDelay( 3000, spawnGroundObjects, 0 )
-    --spawnFloatingObjectsTimer = timer.performWithDelay( 2000, spawnFloatingObjects, 0 )
     spawnHandlerTimer = timer.performWithDelay( 1000, spawnHandler, 0 )
 end
 
@@ -259,12 +257,7 @@ function M.clear()
 
     -- remove Runtime listeners (do before removing references to the objects to be removed)
 
-    -- remove object references
-    M.pickableObjectsTable = {}
-
     -- remove timers
-    --timer.cancel( spawnGroundObjectsTimer )
-    --timer.cancel( spawnFloatingObjectsTimer )
     timer.cancel( spawnHandlerTimer )
 end
 

@@ -135,7 +135,7 @@ function M.init( submarineGroup, mainGroup )
 	}
 
 	-- set submarine image scale factor
-	local scaleFact = 0.47
+	local scaleFact = 0.50
 
 	-- create submarine obj
 	M.submarine = display.newRect( group, display.contentCenterX - (display.contentWidth*0.34), display.contentCenterY, 512*scaleFact, 265*scaleFact )
