@@ -100,9 +100,6 @@ function M.clear()
     for i=1, M.bgLayerNum do
         Runtime:removeEventListener( "enterFrame", bgLayerGroupTable[i] )
     end
-
-    -- remove object references
-    bgLayerGroupTable = nil
 end
 
 
