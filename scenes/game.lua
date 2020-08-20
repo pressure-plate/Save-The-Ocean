@@ -28,7 +28,7 @@ local font = composer.getVariable( "defaultFontParams" )
 local score = 0
 local scoreText
 
-local seaLifeMax = 1000
+local seaLifeMax = 2000
 local seaLife = seaLifeMax
 local seaLifeProgressView
 
@@ -92,6 +92,9 @@ local function gameOver()
 	local blackScreen = display.newRect( uiGroup, display.contentCenterX, display.contentCenterY, 3000, 1080 )
 	blackScreen.alpha = 0.6
 	blackScreen:setFillColor( 0, 0, 0 ) -- black
+	
+	-- prevent further touch interactions with the game after the game over
+	blackScreen:addEventListener( "touch", function (event) return true end )
 
 	-- display game over
 	local gameOverText = display.newText( uiGroup, "GAME OVER", display.contentCenterX, display.contentCenterY-200, font.path, 140 )

@@ -11,6 +11,10 @@ local touchActive
 local group
 local bubbleGroup
 
+-- constant vars
+local submarineUpForce = 12
+local submarineGravityScale = 2.7
+
 -- submarine skin set
 M.submarineSkin = 1
 M.bubbleSkin = 1
@@ -69,7 +73,7 @@ local function onEnterFrame( self, event )
 
 	-- apply force to move the submarine
 	if ( touchActive ) then
-		self:applyForce( 0, -12, self.x, self.y )
+		self:applyForce( 0, -submarineUpForce, self.x, self.y )
 	end
 	
 	-- check bounds of submarine rotation
@@ -146,7 +150,7 @@ function M.init( submarineGroup, mainGroup )
 	M.submarine.myName = "submarine"
 
 	-- set gravity scale
-	M.submarine.gravityScale = 2.7
+	M.submarine.gravityScale = submarineGravityScale
 	
     -- set event listener to move the submarine
     M.submarine.touch = moveSubmarine
