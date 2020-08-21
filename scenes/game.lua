@@ -18,7 +18,7 @@ local subMod = require( "scenes.game.submarine" )
 -- load background module
 local bgMod = require( "scenes.game.background" )
 
--- load pickable module
+-- load spawner module
 local spawnMod = require( "scenes.game.spawner" )
 
 -- initialize variables -------------------------------------------------------
