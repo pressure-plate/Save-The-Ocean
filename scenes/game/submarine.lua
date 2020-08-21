@@ -12,8 +12,8 @@ local group
 local bubbleGroup
 
 -- constant vars
-local submarineUpForce = 12
-local submarineGravityScale = 2.7
+local submarineUpForce = 15
+local submarineGravityScale = 4
 
 -- submarine skin set
 M.submarineSkin = 1

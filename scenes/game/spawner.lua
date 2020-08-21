@@ -5,7 +5,6 @@ local composer = require( "composer" )
 local physics = require( "physics" )
 
 -- define vars
-
 local spawnHandlerTimer
 
 local group
@@ -36,7 +35,7 @@ local function spawnGroundObjects()
     lastSpawnGroundObjects = os.time()
 
     -- generate a random number of pickable items
-    local randNum = math.random( 2, math.floor(gameSpeed)+1 ) 
+    local randNum = math.random( 1, math.floor(gameSpeed)+1 ) 
     for i=1, randNum do
 
         -- select random asset
@@ -96,7 +95,7 @@ local function spawnFloatingObjects()
         
         -- create object
         local scaleFact = 0.18
-        local newPickable = display.newRect( group, display.contentWidth + math.random(400, 1500), math.random(100, display.contentHeight-100), 233*scaleFact, 512*scaleFact )
+        local newPickable = display.newRect( group, display.contentWidth + math.random(400, 1500), math.random(200, display.contentHeight-250), 233*scaleFact, 512*scaleFact )
         newPickable.fill = paint
         newPickable.myType = "pickableObject"
         newPickable.myName = "floatingObject"
@@ -158,10 +157,10 @@ local function spawnObstacleSequence ( length, location )
         -- set random obstlacle properties and spawn it
         local assetPath = obsDir .. "stone/" .. 1
         local linearVelocity = -450 * gameSpeed
-        local xPos = display.contentWidth + (320 * i)
+        local xPos = display.contentWidth + (350 * i)
         if ( location == "mix" ) then
             if ( math.random( 2 ) == 1 ) then
-                spawnObstacle( assetPath, "floor", xPos, display.contentHeight+20, linearVelocity )
+                spawnObstacle( assetPath, "floor", xPos, display.contentHeight+70, linearVelocity )
             else
                 spawnObstacle( assetPath, "ceiling", xPos, -20, linearVelocity )
             end
@@ -214,7 +213,7 @@ local function spawnHandler()
 
     elseif ( randEvent <= 100 ) then -- 15% prob of obstacle sequence
         -- check cooldowns
-        local obsSeqSpawnCooldown = 24/gameSpeed -- cooldown seconds
+        local obsSeqSpawnCooldown = 18/gameSpeed -- cooldown seconds
         if ( (os.time() - lastSpawnObsSeq) < obsSeqSpawnCooldown ) then
             return
         end
@@ -252,7 +251,7 @@ function M.init( mainGroup )
     lastSpawnObsSeq = os.time()
 
     -- set spawn timers
-    spawnHandlerTimer = timer.performWithDelay( 1000, spawnHandler, 0 )
+    spawnHandlerTimer = timer.performWithDelay( 500, spawnHandler, 0 )
 end
 
 -- clear function

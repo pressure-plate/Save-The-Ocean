@@ -28,11 +28,14 @@ local font = composer.getVariable( "defaultFontParams" )
 local score = 0
 local scoreText
 
-local seaLifeMax = 2000
+local scoreMultiplier = 1
+local scoreMultiplierText
+
+local seaLifeMax = 1500
 local seaLife = seaLifeMax
 local seaLifeProgressView
 
-local maxGameSpeed = 4
+local maxGameSpeed = 3
 
 local gameSpeedUpdateTimer
 local clearObjectsTimer
@@ -57,13 +60,44 @@ local function gameSpeedUpdate()
 
 	local gs = composer.getVariable( "gameSpeed" )
 
-	-- limit game speed to 4
+	-- limit game speed to maxGameSpeed
 	if ( gs < maxGameSpeed ) then 
 
 		local st = composer.getVariable( "startTime" )
 		gs = 1 + ( (os.time() - st) / 100 )
-		--gs = 2 -- TEST
+		--gs = 1 + ( (os.time() - st) / 10 ) -- TEST
+		--gs = 3 -- TEST
 		composer.setVariable( "gameSpeed", gs )
+	end
+
+	-- score multiplier update based on game speed
+	local oldMult = scoreMultiplier -- save to check if score multiplier changed
+	if ( gs >= math.floor( gs ) + 0.25 ) then 
+		scoreMultiplier = math.floor( gs ) + 0.25
+
+	elseif ( gs >= math.floor( gs ) + 0.5 ) then 
+		scoreMultiplier = math.floor( gs ) + 0.5
+
+	else
+		scoreMultiplier = math.floor( gs )
+	end
+
+	-- if score multiplier changed then update text, set visible and animate
+	if ( oldMult ~= scoreMultiplier ) then
+		-- update
+		scoreMultiplierText.text = "X" .. scoreMultiplier
+
+		-- set visible
+		scoreMultiplierText.isVisible = true
+
+		-- animate
+		scoreMultiplierText.xScale = 3
+		scoreMultiplierText.yScale = 3
+		local oldX = scoreMultiplierText.x
+		local oldY = scoreMultiplierText.y
+		scoreMultiplierText.x = scoreMultiplierText.x - 400
+		scoreMultiplierText.y = scoreMultiplierText.y + 400
+		transition.to( scoreMultiplierText, { timer = 200, xScale = 1, yScale = 1, x = oldX, y = oldY } )
 	end
 
 	print( "gameSpeed: ", gs ) -- TEST
@@ -132,14 +166,15 @@ local function onCollision( event )
 
 			-- handle collision with pickable object type ----------------------------------
 			if ( collidingObj.myType == "pickableObject" ) then
+
 				-- update score and sea life based on name of "collidingObj"
 				if ( collidingObj.myName == "groundObject" ) then
-					score = score + 100
+					score = math.floor( score + ( 100 * scoreMultiplier ) )
 					seaLife = seaLife + 200
 
 				elseif ( collidingObj.myName == "floatingObject" ) then
-					score = score + 50
-					seaLife = seaLife + 100
+					score = math.floor( score + ( 50 * scoreMultiplier ) )
+					seaLife = seaLife + 40
 				end
 
 				-- check bounds of sea life
@@ -316,7 +351,7 @@ function scene:create( event )
 	-- set composer game vars
 	composer.setVariable( "startTime", os.time() ) -- save game start time
 	composer.setVariable( "gameSpeed", 1 ) -- set initial game speed
-	composer.setVariable( "screenObjectsTable", {} ) -- keep a table of screen objects to clear during game
+	composer.setVariable( "screenObjectsTable", {} ) -- keep a table of screen objects to clear during game and other purposes
 
 
 	-- Set up display groups
@@ -340,9 +375,6 @@ function scene:create( event )
 	-- load and set background
 	bgMod.init( bgGroup )	
 
-	-- load and set the objects spawner
-	spawnMod.init( mainGroup )
-
 	-- load and set submarine
 	subMod.init( submarineGroup, mainGroup )
 
@@ -353,6 +385,12 @@ function scene:create( event )
 	scoreText = display.newText( uiGroup, "SCORE: " .. score, display.contentWidth-50, 40, font.path, 70 )
 	scoreText.anchorX = 1 -- align
 	scoreText:setFillColor( font.colorR, font.colorG, font.colorB )
+
+	-- display score multiplier
+	scoreMultiplierText = display.newText( uiGroup, "X" .. scoreMultiplier, display.contentWidth-50, 100, font.path, 80 )
+	scoreMultiplierText.anchorX = 1 -- align
+	scoreMultiplierText.isVisible = false
+	scoreMultiplierText:setFillColor( 1, 0, 0 )
 
 	-- display sea life bar (progress view)
 	seaLifeProgressView = newProgressView( 1, display.contentCenterX, 40 )
@@ -379,6 +417,9 @@ function scene:show( event )
 
 		-- re-start physics engine ( previously stopped in create() )
 		physics.start()
+
+		-- load and set the objects spawner
+		spawnMod.init( mainGroup )
 	end
 end
 
