@@ -173,12 +173,12 @@ local function onCollision( event )
 
 				-- update score and sea life based on name of "collidingObj"
 				if ( collidingObj.myName == "groundObject" ) then
-					score = math.floor( score + ( 100 * scoreMultiplier ) )
+					score = math.floor( score + ( 150 * scoreMultiplier ) )
 					seaLife = seaLife + 200
 
 				elseif ( collidingObj.myName == "floatingObject" ) then
 					score = math.floor( score + ( 50 * scoreMultiplier ) )
-					seaLife = seaLife + 40
+					seaLife = seaLife + 50
 				end
 
 				-- check bounds of sea life
@@ -277,9 +277,9 @@ local function updateSeaLife()
 				if ( thisObject.mySeaLife ) then
 					-- update sea life value based on missed item
 					if ( thisObject.myName == "groundObject" ) then
-						seaLife = seaLife - 100
+						seaLife = seaLife - 150
 					elseif ( thisObject.myName == "floatingObject" ) then
-						seaLife = seaLife - 50
+						seaLife = seaLife - 80
 					end
 
 					-- set the item as counted

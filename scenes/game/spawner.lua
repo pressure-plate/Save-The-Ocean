@@ -82,6 +82,9 @@ local function spawnFloatingObjects()
     end
     lastSpawnFloatingObjects = os.time()
 
+    -- set random spawn center on the Y axis
+    local spawnCenterY = math.random(400, display.contentHeight-400)
+
     -- generate a random number of pickable items
     local randNum = math.random( 2, math.floor(gameSpeed*2)+2 ) 
     for i=1, randNum do
@@ -95,7 +98,9 @@ local function spawnFloatingObjects()
         
         -- create object
         local scaleFact = 0.18
-        local newPickable = display.newRect( group, display.contentWidth + math.random(400, 1500), math.random(200, display.contentHeight-250), 233*scaleFact, 512*scaleFact )
+        local spawnPosY = math.random( spawnCenterY - 100, spawnCenterY + 100 )
+        local spawnPosX = display.contentWidth + 400 + (i * 150) + math.random( -50, 50 ) -- TODO random or fixed or a mix of the two?
+        local newPickable = display.newRect( group, spawnPosX, spawnPosY, 233*scaleFact, 512*scaleFact )
         newPickable.fill = paint
         newPickable.myType = "pickableObject"
         newPickable.myName = "floatingObject"
@@ -201,13 +206,10 @@ local function spawnHandler()
             local assetPath = obsDir .. "stone/" .. math.random(2, 4)
             local linearVelocity = -450 * gameSpeed
             local xPos = display.contentWidth + 400
-            local location
             if ( math.random( 2 ) == 1 ) then
-                location = "floor"
-                spawnObstacle( assetPath, location, xPos, display.contentHeight+20, linearVelocity )
-            else
-                location = "ceiling"
-                spawnObstacle( assetPath, location, xPos, -20, linearVelocity )
+                spawnObstacle( assetPath, "floor", xPos, display.contentHeight+20, linearVelocity )
+            else 
+                spawnObstacle( assetPath, "ceiling", xPos, -20, linearVelocity )
             end
         end
 
