@@ -221,7 +221,7 @@ local function spawnHandler()
 
         -- select rand seq kind
         local randSeqKind = math.random( 6 ) 
-        local randSeqLen = math.random( 7, 14 ) -- length of seq in pieces
+        local randSeqLen = math.random( 8, 16 ) -- length of seq in pieces
 
         if ( randSeqKind == 1 ) then
             spawnObstacleSequence ( randSeqLen, "floor" ) -- 1/6 prob

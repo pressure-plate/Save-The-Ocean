@@ -72,14 +72,18 @@ local function gameSpeedUpdate()
 
 	-- score multiplier update based on game speed
 	local oldMult = scoreMultiplier -- save to check if score multiplier changed
-	if ( gs >= math.floor( gs ) + 0.25 ) then 
+	
+	if ( gs < math.floor( gs ) + 0.25 ) then 
+		scoreMultiplier = math.floor( gs )
+
+	elseif ( ( gs >= math.floor( gs ) + 0.25 ) and ( gs < math.floor( gs ) + 0.5 ) ) then
 		scoreMultiplier = math.floor( gs ) + 0.25
 
-	elseif ( gs >= math.floor( gs ) + 0.5 ) then 
+	elseif ( ( gs >= math.floor( gs ) + 0.5 ) and ( gs < math.floor( gs ) + 0.75 ) ) then
 		scoreMultiplier = math.floor( gs ) + 0.5
 
 	else
-		scoreMultiplier = math.floor( gs )
+		scoreMultiplier = math.floor( gs ) + 0.75
 	end
 
 	-- if score multiplier changed then update text, set visible and animate
