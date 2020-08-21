@@ -51,6 +51,7 @@ local function spawnGroundObjects()
         local newPickable = display.newRect( group, display.contentWidth + math.random(400, 1200), display.contentHeight, 349*scaleFact, 512*scaleFact )
         newPickable.fill = paint
         newPickable.anchorY = 1
+        newPickable.myType = "pickableObject"
         newPickable.myName = "groundObject"
         newPickable.mySeaLife = true -- used in updateSeaLife() to avoid counting the same object more than 1 time
         physics.addBody( newPickable, { radius=50, isSensor=true } )
@@ -97,6 +98,7 @@ local function spawnFloatingObjects()
         local scaleFact = 0.18
         local newPickable = display.newRect( group, display.contentWidth + math.random(400, 1500), math.random(100, display.contentHeight-100), 233*scaleFact, 512*scaleFact )
         newPickable.fill = paint
+        newPickable.myType = "pickableObject"
         newPickable.myName = "floatingObject"
         newPickable.mySeaLife = true -- used in updateSeaLife() to avoid counting the same object more than 1 time
         physics.addBody( newPickable, { radius=50, isSensor=true } )
@@ -126,6 +128,7 @@ local function spawnObstacle( assetPath, location, xPos, yPos, linearVelocity )
     
     -- create object and select the right scale
     local newObstacle = display.newImage( group, assetPathScaled, xPos, yPos )
+    newObstacle.myType = "obstacleObject"
     newObstacle.myName = "obstacle"
 
     -- adapt to location
