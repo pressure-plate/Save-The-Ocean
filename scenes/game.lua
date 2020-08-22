@@ -122,7 +122,7 @@ end
 local function gameOver()
 
 	-- stop screen objects movement
-	bgMod.stopBackground = true
+	bgMod.setStopScrolling( true )
 	physics.pause()
 	subMod.cancAllSubTrans()
 
