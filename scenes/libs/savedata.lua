@@ -10,7 +10,7 @@ local gamedataTable = {}
 local scoresFilePath = system.pathForFile( "scores.json", system.DocumentsDirectory )
 local gamedataFilePath = system.pathForFile( "gamedata.json", system.DocumentsDirectory )
 
--- define the table containing the default game data
+-- DEFAULT game data
 local gamedataTableDefault = {
     submarineSkin = 1,
     bubbleSkin = 1
@@ -42,11 +42,6 @@ local function loadScores()
 end
 
 local function saveScores()
- 
-	-- remove all contents exceeding 10 elements
-    for i = #scoresTable, 11, -1 do
-        table.remove( scoresTable, i )
-    end
  
 	-- open file in write mode
     local file = io.open( scoresFilePath, "w" )
@@ -90,13 +85,25 @@ end
 
 
 -- ----------------------------------------------------------------------------
+-- module initialization 
+-- THIS IS EXECUTED ONLY ON THE FIRST require() OF THE MODULE,
+--  unless we explicitly unload the module
+-- ----------------------------------------------------------------------------
+
+-- cache data to avoid reading it from file every time
+
+-- read scores from file
+loadScores()
+
+-- read gamedata from file
+loadGamedata()
+
+
+-- ----------------------------------------------------------------------------
 -- module utility functions
 -- ----------------------------------------------------------------------------
 
 function M.addNewScore( newScore )
-
-    -- read scores from file
-    loadScores()
     
     -- insert the new score into the table
     table.insert( scoresTable, newScore )
@@ -109,39 +116,46 @@ function M.addNewScore( newScore )
     -- sort table
     table.sort( scoresTable, compare )
 
+    -- remove all contents exceeding 10 elements
+    for i = #scoresTable, 11, -1 do
+        table.remove( scoresTable, i )
+    end
+
     -- write scores to file
     saveScores()
 end
 
 function M.getScores()
-
-    -- read scores from file
-    loadScores()
     
     -- return the table reference
     return scoresTable
 end
 
-function M.setGamedata( table )
+function M.setGamedata( varName, newValue )
 
-    -- set "gamedataTable" reference to the specified "table"
-    -- NOTE: "table" should be the table returned by M.getGamedata() which will be the same object referenced by "gamedataTable",
-    --          the purposes of requiring the table to be passed are:
-    --                  1) avoids the misuse of this function, like calling it without first having loaded the gamedata
-    --                  2) permits you to set a new table as gamedataTable ( in this case you have to initialize it as done in gamedataTableDefault[1] )
-    gamedataTable = table
+    --[[ 
+    NOTE: 
+    In Lua doing table[ "foo" ] = 1
+        is the same as doing table.foo = 1
+    --]]
+
+    -- set variable 
+    gamedataTable[ varName ] = newValue
 
     -- write gamedata to file
     saveGamedata()
 end
 
-function M.getGamedata()
-
-    -- read gamedata from file
-    loadGamedata()
+function M.getGamedata( varName )
     
+    --[[ 
+    NOTE: 
+    In Lua table[ "foo" ]
+        is the same as table.foo
+    --]]
+
     -- return the table reference
-    return gamedataTable
+    return gamedataTable[ varName ]
 end
 
 

@@ -4,6 +4,8 @@ local composer = require( "composer" )
 
 local physics = require( "physics" )
 
+local savedata = require( "scenes.libs.savedata" )
+
 -- submarine vars
 M.submarine = nil
 local submarineIsRising
@@ -182,8 +184,13 @@ function M.clear()
     Runtime:removeEventListener( "touch", M.submarine )
     Runtime:removeEventListener( "enterFrame", M.submarine )
 	
-	-- remove timers
+	-- cancel timers
 	timer.cancel( bubbleSpawnTimer )
+
+    -- cancel transitions
+
+	-- dispose loaded audio
+	
 end
 
 

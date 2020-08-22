@@ -261,8 +261,13 @@ function M.clear()
 
     -- remove Runtime listeners (do before removing references to the objects to be removed)
 
-    -- remove timers
+    -- cancel timers
     timer.cancel( spawnHandlerTimer )
+
+    -- cancel transitions
+
+    -- dispose loaded audio
+
 end
 
 

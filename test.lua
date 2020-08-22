@@ -197,3 +197,103 @@ end
         then
 			gameOver()
         end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function M.setGamedata( varName, newValue )
+
+    --[[ 
+    NOTE: 
+    In Lua doing table[ "foo" ] = 1
+        is the same as doing table.foo = 1
+    --]]
+
+    -- set variable 
+    gamedataTable[ varName ] = newValue
+
+    -- write gamedata to file
+    saveGamedata()
+end
+
+
+function M.getGamedata( varName )
+    
+    --[[ 
+    NOTE: 
+    In Lua table[ "foo" ]
+        is the same as table.foo
+    --]]
+
+    -- return the table reference
+    return gamedataTable[ varName ]
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

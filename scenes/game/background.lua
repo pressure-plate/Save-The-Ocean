@@ -96,10 +96,17 @@ end
 -- clear function
 function M.clear()
 
-    -- clear Runtime listeners
+    -- remove Runtime listeners
     for i=1, M.bgLayerNum do
         Runtime:removeEventListener( "enterFrame", bgLayerGroupTable[i] )
     end
+
+    -- cancel timers
+
+    -- cancel transitions
+
+    -- dispose loaded audio
+
 end
 
 
