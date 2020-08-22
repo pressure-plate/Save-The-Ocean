@@ -124,7 +124,7 @@ local function gameOver()
 	-- stop screen objects movement
 	bgMod.stopBackground = true
 	physics.pause()
-	transition.cancel( subMod.submarine )
+	subMod.cancAllSubTrans()
 
 	-- set fading black screen
 	local blackScreen = display.newRect( uiGroup, display.contentCenterX, display.contentCenterY, 3000, 1080 )
