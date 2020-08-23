@@ -18,53 +18,109 @@ local subMod = require( "scenes.game.submarine" )
 -- load background module
 local bgMod = require( "scenes.game.background" )
 
--- load pickable module
-local pickMod = require( "scenes.game.pickable" )
+-- load spawner module
+local spawnMod = require( "scenes.game.spawner" )
+
+-- load savedata module
+local savedata = require( "scenes.libs.savedata" )
 
 -- initialize variables -------------------------------------------------------
 
-local lives = 3
+local font = composer.getVariable( "defaultFontParams" )
+
 local score = 0
-local died = false
- 
-local livesText
 local scoreText
 
-local maxGameSpeed = 4
+local scoreMultiplier = 1
+local scoreMultiplierText
 
-local gameSpeedUpdateTimer
+local seaLifeMax = 1500
+local seaLife = seaLifeMax
+local seaLifeProgressView
+
+local maxGameSpeed = 3
+
+local isGameOver = false
+
+local updateGameSpeedTimer
 local clearObjectsTimer
+local updateSeaLifeTimer
+local updateScoreMultiplierTimer
 
 -- display groups
 local bgGroup
 local mainGroup
-local obstacleGroup
 local submarineGroup
 local uiGroup
+
+-- assets dir
+local uiDir = "assets/ui/" -- user interface assets dir
 
 
 -- ----------------------------------------------------------------------------
 -- game functions
 -- ----------------------------------------------------------------------------
 
--- update game speed
-local function gameSpeedUpdate()
+local function updateGameSpeed()
 
 	local gs = composer.getVariable( "gameSpeed" )
 
-	-- limit game speed to 4
+	-- limit game speed to maxGameSpeed
 	if ( gs < maxGameSpeed ) then 
 
 		local st = composer.getVariable( "startTime" )
 		gs = 1 + ( (os.time() - st) / 100 )
-		--gs = 1 + ( (os.time() - st) / 1 ) -- TEST
+		--gs = 1 + ( (os.time() - st) / 10 ) -- TEST
+		--gs = 3 -- TEST
 		composer.setVariable( "gameSpeed", gs )
 	end
 
-	print( "gameSpeed: ", gs ) -- TEST
+	--print( "gameSpeed: ", gs ) -- TEST
 end
 
--- collision handler
+local function exitGame()
+	
+	composer.gotoScene( "scenes.menu", { time=800, effect="crossFade" } )
+end
+
+local function gameOver()
+
+	-- CRITICAL CHECK: check if the gameOver function has already been called
+	if ( isGameOver == true ) then
+		return -- abort gameOver call
+	end
+	
+	-- set gameOver as called
+	isGameOver = true
+
+	-- stop screen objects movement
+	bgMod.setStopScrolling( true )
+	physics.pause()
+	subMod.cancAllSubTrans()
+
+	-- set fading black screen
+	local blackScreen = display.newRect( uiGroup, display.contentCenterX, display.contentCenterY, 3000, 1080 )
+	blackScreen.alpha = 0.6
+	blackScreen:setFillColor( 0, 0, 0 ) -- black
+	
+	-- prevent further touch interactions with the game after the game over
+	blackScreen:addEventListener( "touch", function (event) return true end )
+
+	-- display game over
+	local gameOverText = display.newText( uiGroup, "GAME OVER", display.contentCenterX, display.contentCenterY-200, font.path, 140 )
+	gameOverText:setFillColor( font.colorR, font.colorG, font.colorB )
+
+	-- display score
+	local scoredText = display.newText( uiGroup, "SCORED: " .. score, display.contentCenterX, display.contentCenterY+100, font.path, 120 )
+	scoredText:setFillColor( font.colorR, font.colorG, font.colorB )
+
+	-- save score
+	savedata.addNewScore( score )
+
+	-- call exitGame function after a short delay
+	timer.performWithDelay( 4000, exitGame )
+end
+
 local function onCollision( event )
  
     -- detect "began" phase of collision
@@ -72,84 +128,89 @@ local function onCollision( event )
  
         -- rename for simplicity
         local obj1 = event.object1
-        local obj2 = event.object2
+		local obj2 = event.object2
 
-        -- handle "submarine" and "groundObject" collision
-        -- no way to determine who is who, so we write both conditions
-        if ( ( obj1.myName == "submarine" and obj2.myName == "groundObject" ) or
-             ( obj1.myName == "groundObject" and obj2.myName == "submarine" ) )
-		then
-			-- Remove groundObject from display
-			if ( obj1.myName == "groundObject" ) then
-				display.remove( obj1 )
+		-- handle collisions concerning the "submarine" name
+		-- no way to determine who is who, so we write both conditions
+		if ( obj1.myName == "submarine" or obj2.myName == "submarine" ) then
 
+			-- rename for convenience
+			local collidingObj
+			if ( obj1.myName == "submarine" ) then
+				collidingObj = obj2
 			else
-				display.remove( obj2 )
+				collidingObj = obj1
 			end
 
-			-- remove "groundObject" reference from "screenObjectsTable"
-			local screenObjectsTable = composer.getVariable( "screenObjectsTable" )
-            for i = #screenObjectsTable, 1, -1 do
-                if ( screenObjectsTable[i] == obj1 or screenObjectsTable[i] == obj2 ) then
-                    table.remove( screenObjectsTable, i )
-                    break
-                end
-            end
+			-- handle collision with pickable object type ----------------------------------
+			if ( collidingObj.myType == "pickableObject" ) then
 
-            -- update score
-            score = score + 100
-			scoreText.text = "Score: " .. score
-			 
-		-- handle "submarine" and "floatingObject" collision
-        -- no way to determine who is who, so we write both conditions
-		elseif ( ( obj1.myName == "submarine" and obj2.myName == "floatingObject" ) or
-             	 ( obj1.myName == "floatingObject" and obj2.myName == "submarine" ) )
-		then
-			-- Remove groundObject from display
-			if ( obj1.myName == "floatingObject" ) then
-				display.remove( obj1 )
+				-- update score and sea life based on name of "collidingObj"
+				if ( collidingObj.myName == "groundObject" ) then
+					score = math.floor( score + ( 150 * scoreMultiplier ) )
+					seaLife = seaLife + 200
 
+				elseif ( collidingObj.myName == "floatingObject" ) then
+					score = math.floor( score + ( 50 * scoreMultiplier ) )
+					seaLife = seaLife + 50
+				end
+
+				-- check bounds of sea life
+				if ( seaLife > seaLifeMax ) then
+					seaLife = seaLifeMax
+				end
+
+				-- update score text
+				scoreText.text = "Score: " .. score
+				
+				-- update sea life bar
+				seaLifeProgressView:setProgress( seaLife / seaLifeMax )
+
+				-- remove "collidingObj" reference from "screenObjectsTable"
+				local screenObjectsTable = composer.getVariable( "screenObjectsTable" )
+				for i = #screenObjectsTable, 1, -1 do
+					if ( screenObjectsTable[i] == collidingObj ) then
+						table.remove( screenObjectsTable, i )
+						break
+					end
+				end
+
+				-- remove "collidingObj" from display
+				display.remove( collidingObj )
+			
+			-- handle collision with "obstacleObject" type -----------------------------
+			elseif ( collidingObj.myType == "obstacleObject" ) then
+				gameOver()
+			end
+
+		-- handle collisions concerning the "obstacleObject" type
+		-- this check is done to avoid losing score on objects that are impossible to pick, deleting them from game
+		elseif ( obj1.myType == "obstacleObject" or obj2.myType == "obstacleObject" ) then
+
+			-- rename for convenience
+			local collidingObj
+			if ( obj1.myType == "obstacleObject" ) then
+				collidingObj = obj2
 			else
-				display.remove( obj2 )
+				collidingObj = obj1
 			end
 
-            -- remove "floatingObject" reference from "screenObjectsTable"
-			local screenObjectsTable = composer.getVariable( "screenObjectsTable" )
-            for i = #screenObjectsTable, 1, -1 do
-                if ( screenObjectsTable[i] == obj1 or screenObjectsTable[i] == obj2 ) then
-                    table.remove( screenObjectsTable, i )
-                    break
-                end
-            end
+			-- remove "pickableObject" type colliding with he "obstacleObject" type
+			if ( collidingObj.myType == "pickableObject" ) then
 
-            -- update score
-            score = score + 50
-			scoreText.text = "Score: " .. score
+				-- remove "collidingObj" reference from "screenObjectsTable"
+				local screenObjectsTable = composer.getVariable( "screenObjectsTable" )
+				for i = #screenObjectsTable, 1, -1 do
+					if ( screenObjectsTable[i] == collidingObj ) then
+						table.remove( screenObjectsTable, i )
+						break
+					end
+				end
 
-		--[[
-        -- handle "submarine" and "obstacle" collision
-        elseif ( ( obj1.myName == "submarine" and obj2.myName == "obstacle" ) or
-                 ( obj1.myName == "obstacle" and obj2.myName == "submarine" ) )
-        then
-            if ( died == false ) then
-                died = true    
-
-                -- Update lives
-                lives = lives - 1
-                livesText.text = "Lives: " .. lives
-
-                -- check lives
-                if ( lives == 0 ) then
-					display.remove( ship )
-					timer.performWithDelay( 2000, endGame )
-
-                else
-                    ship.alpha = 0
-                    timer.performWithDelay( 1000, restoreShip )
-                end
+				-- remove "collidingObj" from display
+				display.remove( collidingObj )
 			end
-		--]]
-        end
+		end
     end
 end
 
@@ -163,11 +224,121 @@ local function clearObjects()
 		
 		local thisObject = screenObjectsTable[i]
 		
-        if ( thisObject.x < -400 ) then
+		if ( thisObject.x < -600 ) then
+
             display.remove( thisObject )
             table.remove( screenObjectsTable, i )
         end
     end
+end
+
+local function updateSeaLife()
+ 
+	-- update sea life when you miss an item to pick
+
+	local screenObjectsTable = composer.getVariable( "screenObjectsTable" )
+	
+	for i = #screenObjectsTable, 1, -1 do
+		
+		local thisObject = screenObjectsTable[i]
+
+		-- the nil check is to avoid race conditions with clearObjects()
+		if ( thisObject ~= nil and thisObject.x < 0 ) then
+			
+			if ( thisObject.myName == "groundObject" or thisObject.myName == "floatingObject" ) then
+
+				-- check if the item is not already counted
+				if ( thisObject.mySeaLife ) then
+					-- update sea life value based on missed item
+					if ( thisObject.myName == "groundObject" ) then
+						seaLife = seaLife - 150
+					elseif ( thisObject.myName == "floatingObject" ) then
+						seaLife = seaLife - 80
+					end
+
+					-- set the item as counted
+					thisObject.mySeaLife = false
+				end
+
+				-- check if game over
+				if ( seaLife <= 0 ) then
+					gameOver()
+					break -- the game is over, no need to finish the for
+				end
+            end
+        end
+	end
+	
+	-- update sea life bar
+	seaLifeProgressView:setProgress( seaLife / seaLifeMax )
+end
+
+local function newProgressView( percent, xPos, yPos )
+	
+	local assetWidth = 200
+	local assetHeight = 40
+
+	-- create a new display group
+	local progressView = display.newGroup()
+
+	-- insert in the uiGroup
+	uiGroup:insert( progressView )
+	
+	-- set image and mask
+	progressView.backgound = display.newImageRect( progressView, uiDir .. "pvBackground.png", assetWidth, assetHeight )
+    local mask = graphics.newMask( uiDir .. "pvMask.png" )
+	progressView:setMask( mask )
+	
+	-- set a color filled Rect to progressively cover the bar
+    progressView.progress = display.newRect( progressView, assetWidth/2, 0, assetWidth, assetHeight )
+    progressView.progress:setFillColor( 0, 0.25, 0.5 )
+    progressView.progress.anchorX = 1 -- align
+    progressView.progress.width = assetWidth - ( percent * assetWidth ) -- set percent
+ 
+	-- add method to set the percent of the bar
+	function progressView:setProgress( percent )
+		
+		-- update without animation
+		--self.progress.width = assetWidth - ( percent * assetWidth )
+
+		-- update WITH animation
+		transition.cancel( self.progress )
+		transition.to( self.progress, { time = 200, width = assetWidth - ( percent * assetWidth ) } )
+	end
+
+	-- set position of progressView group
+	progressView.x = xPos
+	progressView.y = yPos
+	
+	-- return the obj created
+    return progressView
+end
+
+local function setScoreMultiplier( newValue )
+
+    if ( scoreMultiplier ~= newValue ) then
+
+        -- update value
+        scoreMultiplier = newValue
+
+		-- update visible text
+		scoreMultiplierText.text = "X" .. scoreMultiplier
+
+		-- set visible
+		scoreMultiplierText.isVisible = true
+
+		-- animate
+		local fromX = scoreMultiplierText.x - 500
+		local fromY = scoreMultiplierText.y + 400
+		local fromScaleX = 3
+		local fromScaleY = 3
+		transition.from( scoreMultiplierText, { timer = 500, xScale = fromScaleX, yScale = fromScaleY, x = fromX, y = fromY } )
+	end
+end
+
+local function updateScoreMultiplier()
+
+    setScoreMultiplier( scoreMultiplier + 0.25 )
 end
 
 
@@ -187,7 +358,7 @@ function scene:create( event )
 	-- set composer game vars
 	composer.setVariable( "startTime", os.time() ) -- save game start time
 	composer.setVariable( "gameSpeed", 1 ) -- set initial game speed
-	composer.setVariable( "screenObjectsTable", {} ) -- keep a table of screen objects to clear during game
+	composer.setVariable( "screenObjectsTable", {} ) -- keep a table of screen objects to clear during game and other purposes
 
 
 	-- Set up display groups
@@ -198,9 +369,6 @@ function scene:create( event )
     mainGroup = display.newGroup()  -- display group for the game objects
 	sceneGroup:insert( mainGroup )  -- insert into the scene's view group
 
-	obstacleGroup = display.newGroup()  -- display group for the obstacles objects
-	sceneGroup:insert( obstacleGroup )  -- insert into the scene's view group
-
 	submarineGroup = display.newGroup()  -- display group for the submarine object
 	sceneGroup:insert( submarineGroup )  -- insert into the scene's view group
  
@@ -209,13 +377,10 @@ function scene:create( event )
 
 
 	-- set event listener to update game speed
-	gameSpeedUpdateTimer = timer.performWithDelay(1000, gameSpeedUpdate, 0)
+	updateGameSpeedTimer = timer.performWithDelay( 1000, updateGameSpeed, 0 )
 
 	-- load and set background
 	bgMod.init( bgGroup )	
-
-	-- load and set pickable objects spawner
-	pickMod.init( mainGroup )
 
 	-- load and set submarine
 	subMod.init( submarineGroup, mainGroup )
@@ -224,17 +389,24 @@ function scene:create( event )
 	Runtime:addEventListener( "collision", onCollision )
 
 	-- display score
-	scoreText = display.newText( uiGroup, "Score: " .. score, 50, 40, native.systemFontBold, 45 )
-	scoreText.anchorX = 0 -- align
-	scoreText:setFillColor( 0, 0, 0 ) -- black
+	scoreText = display.newText( uiGroup, "SCORE: " .. score, display.contentWidth-50, 40, font.path, 70 )
+	scoreText.anchorX = 1 -- align
+	scoreText:setFillColor( font.colorR, font.colorG, font.colorB )
 
-	-- display lives
-	livesText = display.newText( uiGroup, "Lives: " .. lives, display.contentWidth - 50, 40, native.systemFontBold, 45 )
-	livesText.anchorX = 1 -- align	
-	livesText:setFillColor( 0, 0, 0 ) -- black
+	-- display score multiplier
+	scoreMultiplierText = display.newText( uiGroup, "X" .. scoreMultiplier, display.contentWidth-50, 100, font.path, 80 )
+	scoreMultiplierText.anchorX = 1 -- align
+	scoreMultiplierText.isVisible = false
+	scoreMultiplierText:setFillColor( 1, 0, 0 )
+
+	-- display sea life bar (progress view)
+	seaLifeProgressView = newProgressView( 1, display.contentCenterX, 40 )
+	
+	-- set timer to trigger the update sea life at regular intervals
+	updateSeaLifeTimer = timer.performWithDelay( 1000, updateSeaLife, 0 )
 
 	-- set timer to trigger the clear objects function at regular intervals
-	clearObjectsTimer = timer.performWithDelay( 2000, clearObjects, 0 ) 
+	clearObjectsTimer = timer.performWithDelay( 2100, clearObjects, 0 )
 end
 
 
@@ -247,11 +419,17 @@ function scene:show( event )
 	if ( phase == "will" ) then
 		-- Code here runs when the scene is still off screen (but is about to come on screen)
 
+		-- set timer to update the score multiplier (+0.25 every 30secs)
+		updateScoreMultiplierTimer = timer.performWithDelay( 30000, updateScoreMultiplier, 0)
+
 	elseif ( phase == "did" ) then
 		-- Code here runs when the scene is entirely on screen
 
 		-- re-start physics engine ( previously stopped in create() )
 		physics.start()
+
+		-- load and set the objects spawner
+		spawnMod.init( mainGroup )
 	end
 end
 
@@ -272,13 +450,21 @@ function scene:hide( event )
 		Runtime:removeEventListener( "collision", onCollision )
 
 		-- clear timers
-		timer.cancel( gameSpeedUpdateTimer )
+		timer.cancel( updateGameSpeedTimer )
 		timer.cancel( clearObjectsTimer )
+		timer.cancel( updateSeaLifeTimer )
+		timer.cancel( updateScoreMultiplierTimer )
 
 		-- clear loaded modules
 		bgMod.clear()
 		subMod.clear()
-		pickMod.clear()
+		spawnMod.clear()
+
+		-- remove the scene from cache 
+		-- NOTE: this function entirely removes the scene and all the objects and variables inside,
+		--			in particular it takes care of display.remove() all display objects inside sceneGroup hierarchy
+		--			but NOTE that it doesn't remove things like timers or listeners attached to the "Runtime" object (so we took care of them manually)
+		composer.removeScene( "scenes.game" )
 	end
 end
 

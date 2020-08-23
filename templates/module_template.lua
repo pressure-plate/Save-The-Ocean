@@ -26,11 +26,13 @@ end
 -- clear function
 function M.clear()
 
-    -- remove Runtime listeners (do before removing references to the objects to be removed)
+    -- remove Runtime listeners
 
-    -- remove object references
+    -- cancel timers
 
-    -- remove timers
+    -- cancel transitions
+
+    -- dispose loaded audio
 
 end
 

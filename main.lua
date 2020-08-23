@@ -12,10 +12,19 @@ display.setStatusBar( display.HiddenStatusBar )
  
 -- Seed the random number generator
 math.randomseed( os.time() )
- 
+
+-- set default font params on the composer
+local fontParams = {}
+fontParams.path = "fonts/AlloyInk"
+fontParams.colorR = 0.9
+fontParams.colorG = 0.5
+fontParams.colorB = 0.1
+composer.setVariable( "defaultFontParams", fontParams )
+
+
 -- @DEBUG -----------------------------------------------------------------------------------------
 
-local debugMode = true
+local debugMode = false
 
 -- monitor Memory Usage
 local function printMemUsage()  
@@ -39,12 +48,12 @@ if (system.getInfo("environment") == "simulator" and debugMode == true) then
     --Runtime:addEventListener( "enterFrame", printMemUsage) -- print memory usage for every frame
 
     -- continuosly print mem and launch garbage collector
-    timer.performWithDelay(1000, collectAndPrint, 0)
+    timer.performWithDelay(4000, collectAndPrint, 0)
 end
 
 -- ------------------------------------------------------------------------------------------------
 
--- Go to the menu screen
---composer.gotoScene( "scenes.menu" )
 
-composer.gotoScene( "scenes.game" ) -- TEST scene
+-- Go to the menu screen
+composer.gotoScene( "scenes.menu" )
+--composer.gotoScene( "scenes.game" ) -- TEST scene

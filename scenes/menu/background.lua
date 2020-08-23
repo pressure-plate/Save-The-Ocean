@@ -4,15 +4,10 @@ local composer = require( "composer" )
 
 local physics = require( "physics" )
 
-local savedata = require( "scenes.libs.savedata" )
-
 -- background vars
-M.bgWorld = 1 -- world selector -- TODO DEPRECATED
-M.bgLayerNum = 6 -- num of the background layers to load from the assets folder -- TODO DEPRECATED
-
-local backgroundWorld
-local backgroundLayerNum
-local stopScrolling
+M.bgWorld = 1 -- world selector
+M.bgLayerNum = 6 -- num of the background layers to load from the assets folder
+M.stopBackground = false -- stops the background movement
 local bgLayerGroupTable
 
 -- background assets dir
@@ -26,16 +21,16 @@ local bgDir -- this will be setted every time .init() function is called to allo
 local function backgroundScroller( self, event )
 
     -- check if background should stop
-    if ( stopScrolling ) then
+    if ( M.stopBackground ) then
         return
     end
 
 	local speed = 1 -- default speed per frame
 
 	-- set a different speed for each layer
-	for i=1, backgroundLayerNum do
+	for i=1, M.bgLayerNum do
 		if ( self == bgLayerGroupTable[i] ) then
-            speed = i * composer.getVariable( "gameSpeed" )
+            speed = i * composer.getVariable( "backgroundSpeed" )
 		end
 	end
 
@@ -56,21 +51,18 @@ end
 function M.init( bgGroup )
     
     -- init vars
-    backgroundWorld = savedata.getGamedata( "backgroundWorld" )
-    backgroundLayerNum = savedata.getGamedata( "backgroundLayerNum" )
-    stopScrolling = false
+    M.stopBackground = false
     bgLayerGroupTable = {}
-    
-    bgDir = "assets/background/worlds/" .. backgroundWorld .. "/"  -- refresh assets dir to change between worlds
+    bgDir = "assets/background/worlds/" .. M.bgWorld .. "/"  -- refresh assets dir to change between worlds
     
     -- set display groups for background scrolling
-	for i=1, backgroundLayerNum do
+	for i=1, M.bgLayerNum do
 		bgLayerGroupTable[i] = display.newGroup() -- define new group
 		bgGroup:insert( bgLayerGroupTable[i] ) -- insert in bgGroup
 	end
     
     -- load all bgLayer groups
-    for i=1, backgroundLayerNum do
+    for i=1, M.bgLayerNum do
 
         local leftImage, midImage, rightImage -- temp vars to fill the bgLayer groups
 
@@ -95,7 +87,7 @@ function M.init( bgGroup )
     end
 
     -- set all the listeners for the background layers scrolling
-    for i=1, backgroundLayerNum do
+    for i=1, M.bgLayerNum do
         bgLayerGroupTable[i].enterFrame = backgroundScroller
         Runtime:addEventListener( "enterFrame", bgLayerGroupTable[i] )
     end	
@@ -104,22 +96,10 @@ end
 -- clear function
 function M.clear()
 
-    -- remove Runtime listeners
-    for i=1, backgroundLayerNum do
+    -- clear Runtime listeners
+    for i=1, M.bgLayerNum do
         Runtime:removeEventListener( "enterFrame", bgLayerGroupTable[i] )
     end
-
-    -- cancel timers
-
-    -- cancel transitions
-
-    -- dispose loaded audio
-
-end
-
-function M.setStopScrolling( bool )
-    -- stops the background movement
-    stopScrolling = bool
 end
 
 
