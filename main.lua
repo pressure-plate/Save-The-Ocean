@@ -48,7 +48,7 @@ if (system.getInfo("environment") == "simulator" and debugMode == true) then
     --Runtime:addEventListener( "enterFrame", printMemUsage) -- print memory usage for every frame
 
     -- continuosly print mem and launch garbage collector
-    timer.performWithDelay(1000, collectAndPrint, 0)
+    timer.performWithDelay(4000, collectAndPrint, 0)
 end
 
 -- ------------------------------------------------------------------------------------------------

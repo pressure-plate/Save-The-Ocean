@@ -125,7 +125,7 @@ local function spawnObstacle( assetPath, location, xPos, yPos, linearVelocity )
     -- select asset with random scale
     -- NOTE: here we use assets already scaled because outline function works on
     --          the real dimension in pixels of the asset to be outlined
-    local assetPathScaled = assetPath .. "x" .. math.random( 11, 15 ) .. ".png"
+    local assetPathScaled = assetPath .. "x" .. math.random( 12, 15 ) .. ".png"
     
     -- outline asset image
     local assetOutline = graphics.newOutline( 2, assetPathScaled )
@@ -160,12 +160,12 @@ local function spawnObstacleSequence ( length, location )
 
     for i=1, length do
         -- set random obstlacle properties and spawn it
-        local assetPath = obsDir .. "stone/" .. 1
+        local assetPath = obsDir .. "stone/" .. math.random( 1, 2 )
         local linearVelocity = -450 * gameSpeed
-        local xPos = display.contentWidth + (350 * i)
+        local xPos = display.contentWidth + 100 + (350 * i)
         if ( location == "mix" ) then
             if ( math.random( 2 ) == 1 ) then
-                spawnObstacle( assetPath, "floor", xPos, display.contentHeight+70, linearVelocity )
+                spawnObstacle( assetPath, "floor", xPos, display.contentHeight+30, linearVelocity )
             else
                 spawnObstacle( assetPath, "ceiling", xPos, -20, linearVelocity )
             end
@@ -203,19 +203,20 @@ local function spawnHandler()
             lastSpawnObstacle = os.time()
 
             -- set random obstlacle properties and spawn it
-            local assetPath = obsDir .. "stone/" .. math.random(2, 4)
             local linearVelocity = -450 * gameSpeed
-            local xPos = display.contentWidth + 400
+            local xPos = display.contentWidth + 500
             if ( math.random( 2 ) == 1 ) then
+                local assetPath = obsDir .. "stone/" .. math.random( 3, 4 )
                 spawnObstacle( assetPath, "floor", xPos, display.contentHeight+20, linearVelocity )
             else 
+                local assetPath = obsDir .. "stone/" .. math.random( 1, 2 )
                 spawnObstacle( assetPath, "ceiling", xPos, -20, linearVelocity )
             end
         end
 
     elseif ( randEvent <= 100 ) then -- 15% prob of obstacle sequence
         -- check cooldowns
-        local obsSeqSpawnCooldown = 18/gameSpeed -- cooldown seconds
+        local obsSeqSpawnCooldown = 17/gameSpeed -- cooldown seconds
         if ( (os.time() - lastSpawnObsSeq) < obsSeqSpawnCooldown ) then
             return
         end

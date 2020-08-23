@@ -69,8 +69,8 @@ local function updateGameSpeed()
 	if ( gs < maxGameSpeed ) then 
 
 		local st = composer.getVariable( "startTime" )
-		--gs = 1 + ( (os.time() - st) / 100 )
-		gs = 1 + ( (os.time() - st) / 10 ) -- TEST
+		gs = 1 + ( (os.time() - st) / 100 )
+		--gs = 1 + ( (os.time() - st) / 10 ) -- TEST
 		--gs = 3 -- TEST
 		composer.setVariable( "gameSpeed", gs )
 	end
@@ -335,7 +335,6 @@ local function setScoreMultiplier( newValue )
 		transition.from( scoreMultiplierText, { timer = 500, xScale = fromScaleX, yScale = fromScaleY, x = fromX, y = fromY } )
 	end
 end
-
 
 local function updateScoreMultiplier()
 
