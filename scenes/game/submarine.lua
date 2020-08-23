@@ -4,14 +4,25 @@ local composer = require( "composer" )
 
 local physics = require( "physics" )
 
+local savedata = require( "scenes.libs.savedata" )
+
 -- submarine vars
-M.submarine = nil
+local submarine
+
 local submarineIsRising
 local touchActive
+
 local group
 local bubbleGroup
 
--- submarine skin set
+local submarineSkin
+local bubbleSkin
+
+-- constant vars
+local submarineUpForce = 15
+local submarineGravityScale = 4
+
+-- submarine skin set -- TODO DEPRECATED
 M.submarineSkin = 1
 M.bubbleSkin = 1
 
@@ -69,7 +80,7 @@ local function onEnterFrame( self, event )
 
 	-- apply force to move the submarine
 	if ( touchActive ) then
-		self:applyForce( 0, -12, self.x, self.y )
+		self:applyForce( 0, -submarineUpForce, self.x, self.y )
 	end
 	
 	-- check bounds of submarine rotation
@@ -92,11 +103,11 @@ local function spawnBubble()
 	-- load bubble skin
 	local bubblePaint = {
 		type = "image",
-		filename = bubbleDir .. M.bubbleSkin .. ".png"
+		filename = bubbleDir .. bubbleSkin .. ".png"
 	}
 
 	-- create bubble
-	newBubble = display.newRect( bubbleGroup, M.submarine.x-120, M.submarine.y+15, 85, 85 )
+	newBubble = display.newRect( bubbleGroup, submarine.x-120, submarine.y+15, 85, 85 )
 	newBubble.fill = bubblePaint
 	physics.addBody( newBubble, "kinematic", {isSensor=true} )
 	
@@ -122,50 +133,52 @@ end
 function M.init( submarineGroup, mainGroup )
     
     -- init vars
-    M.submarine = nil
+    submarine = nil
 	submarineIsRising = false
 	touchActive = false
 	group = submarineGroup
 	bubbleGroup = mainGroup
+	submarineSkin = savedata.getGamedata( "submarineSkin" )
+	bubbleSkin = savedata.getGamedata( "bubbleSkin" )
 
 	-- load submarine skin
 	local submarinePaint = {
 		type = "image",
-		filename = submarineDir .. M.submarineSkin .. ".png"
+		filename = submarineDir .. submarineSkin .. ".png"
 	}
 
 	-- set submarine image scale factor
-	local scaleFact = 0.47
+	local scaleFact = 0.50
 
 	-- create submarine obj
-	M.submarine = display.newRect( group, display.contentCenterX - (display.contentWidth*0.34), display.contentCenterY, 512*scaleFact, 265*scaleFact )
-	M.submarine.fill = submarinePaint
+	submarine = display.newRect( group, display.contentCenterX - (display.contentWidth*0.34), display.contentCenterY, 512*scaleFact, 265*scaleFact )
+	submarine.fill = submarinePaint
 
 	-- set physics
-	physics.addBody( M.submarine, { radius=70, bounce=0 } )
-	M.submarine.myName = "submarine"
+	physics.addBody( submarine, { radius=70, bounce=0 } )
+	submarine.myName = "submarine"
 
 	-- set gravity scale
-	M.submarine.gravityScale = 2.7
+	submarine.gravityScale = submarineGravityScale
 	
     -- set event listener to move the submarine
-    M.submarine.touch = moveSubmarine
-    Runtime:addEventListener( "touch", M.submarine )
+    submarine.touch = moveSubmarine
+    Runtime:addEventListener( "touch", submarine )
     
     -- set event listener onEnterFrame function
-    M.submarine.enterFrame = onEnterFrame
-	Runtime:addEventListener( "enterFrame", M.submarine )
+    submarine.enterFrame = onEnterFrame
+	Runtime:addEventListener( "enterFrame", submarine )
 	
 	-- set bubble spawner
 	bubbleSpawnTimer = timer.performWithDelay( 100, spawnBubble, 0 )
 
 	-- create physical bodies as bounds for the submarine
 	-- no need to access these vars elsewhere in the code so we keep them local here
-	local floor = display.newRect( group, M.submarine.x, display.contentHeight, 300, 1 )
+	local floor = display.newRect( group, submarine.x, display.contentHeight, 300, 1 )
 	floor.isVisible = false
 	physics.addBody( floor, "static", { bounce=0 } )
 
-	local ceiling = display.newRect( group, M.submarine.x, 0, 300, 1 )
+	local ceiling = display.newRect( group, submarine.x, 0, 300, 1 )
 	ceiling.isVisible = false
 	physics.addBody( ceiling, "static", { bounce=0 } )
 
@@ -175,11 +188,21 @@ end
 function M.clear()
 
     -- clear Runtime listeners
-    Runtime:removeEventListener( "touch", M.submarine )
-    Runtime:removeEventListener( "enterFrame", M.submarine )
+    Runtime:removeEventListener( "touch", submarine )
+    Runtime:removeEventListener( "enterFrame", submarine )
 	
-	-- remove timers
+	-- cancel timers
 	timer.cancel( bubbleSpawnTimer )
+
+    -- cancel transitions
+
+	-- dispose loaded audio
+	
+end
+
+function M.cancAllSubTrans()
+	-- cancel all transitions on the submarine object
+	transition.cancel( submarine )
 end
 
 

@@ -5,8 +5,6 @@ local composer = require( "composer" )
 local physics = require( "physics" )
 
 -- define vars
-M.pickableObjectsTable = nil
-
 local spawnHandlerTimer
 
 local group
@@ -37,7 +35,7 @@ local function spawnGroundObjects()
     lastSpawnGroundObjects = os.time()
 
     -- generate a random number of pickable items
-    local randNum = math.random( 2, math.floor(gameSpeed)+1 ) 
+    local randNum = math.random( 1, math.floor(gameSpeed)+1 ) 
     for i=1, randNum do
 
         -- select random asset
@@ -52,7 +50,9 @@ local function spawnGroundObjects()
         local newPickable = display.newRect( group, display.contentWidth + math.random(400, 1200), display.contentHeight, 349*scaleFact, 512*scaleFact )
         newPickable.fill = paint
         newPickable.anchorY = 1
+        newPickable.myType = "pickableObject"
         newPickable.myName = "groundObject"
+        newPickable.mySeaLife = true -- used in updateSeaLife() to avoid counting the same object more than 1 time
         physics.addBody( newPickable, { radius=50, isSensor=true } )
         newPickable.gravityScale = 0 -- remove gravity from this
 
@@ -82,6 +82,9 @@ local function spawnFloatingObjects()
     end
     lastSpawnFloatingObjects = os.time()
 
+    -- set random spawn center on the Y axis
+    local spawnCenterY = math.random(400, display.contentHeight-400)
+
     -- generate a random number of pickable items
     local randNum = math.random( 2, math.floor(gameSpeed*2)+2 ) 
     for i=1, randNum do
@@ -95,9 +98,13 @@ local function spawnFloatingObjects()
         
         -- create object
         local scaleFact = 0.18
-        local newPickable = display.newRect( group, display.contentWidth + math.random(400, 1500), math.random(100, display.contentHeight-100), 233*scaleFact, 512*scaleFact )
+        local spawnPosY = math.random( spawnCenterY - 100, spawnCenterY + 100 )
+        local spawnPosX = display.contentWidth + 400 + (i * 150) + math.random( -50, 50 ) -- TODO random or fixed or a mix of the two?
+        local newPickable = display.newRect( group, spawnPosX, spawnPosY, 233*scaleFact, 512*scaleFact )
         newPickable.fill = paint
+        newPickable.myType = "pickableObject"
         newPickable.myName = "floatingObject"
+        newPickable.mySeaLife = true -- used in updateSeaLife() to avoid counting the same object more than 1 time
         physics.addBody( newPickable, { radius=50, isSensor=true } )
         newPickable.gravityScale = 0 -- remove gravity from this
 
@@ -125,6 +132,7 @@ local function spawnObstacle( assetPath, location, xPos, yPos, linearVelocity )
     
     -- create object and select the right scale
     local newObstacle = display.newImage( group, assetPathScaled, xPos, yPos )
+    newObstacle.myType = "obstacleObject"
     newObstacle.myName = "obstacle"
 
     -- adapt to location
@@ -154,10 +162,10 @@ local function spawnObstacleSequence ( length, location )
         -- set random obstlacle properties and spawn it
         local assetPath = obsDir .. "stone/" .. 1
         local linearVelocity = -450 * gameSpeed
-        local xPos = display.contentWidth + (320 * i)
+        local xPos = display.contentWidth + (350 * i)
         if ( location == "mix" ) then
             if ( math.random( 2 ) == 1 ) then
-                spawnObstacle( assetPath, "floor", xPos, display.contentHeight+20, linearVelocity )
+                spawnObstacle( assetPath, "floor", xPos, display.contentHeight+70, linearVelocity )
             else
                 spawnObstacle( assetPath, "ceiling", xPos, -20, linearVelocity )
             end
@@ -198,19 +206,16 @@ local function spawnHandler()
             local assetPath = obsDir .. "stone/" .. math.random(2, 4)
             local linearVelocity = -450 * gameSpeed
             local xPos = display.contentWidth + 400
-            local location
             if ( math.random( 2 ) == 1 ) then
-                location = "floor"
-                spawnObstacle( assetPath, location, xPos, display.contentHeight+20, linearVelocity )
-            else
-                location = "ceiling"
-                spawnObstacle( assetPath, location, xPos, -20, linearVelocity )
+                spawnObstacle( assetPath, "floor", xPos, display.contentHeight+20, linearVelocity )
+            else 
+                spawnObstacle( assetPath, "ceiling", xPos, -20, linearVelocity )
             end
         end
 
     elseif ( randEvent <= 100 ) then -- 15% prob of obstacle sequence
         -- check cooldowns
-        local obsSeqSpawnCooldown = 24/gameSpeed -- cooldown seconds
+        local obsSeqSpawnCooldown = 18/gameSpeed -- cooldown seconds
         if ( (os.time() - lastSpawnObsSeq) < obsSeqSpawnCooldown ) then
             return
         end
@@ -218,7 +223,7 @@ local function spawnHandler()
 
         -- select rand seq kind
         local randSeqKind = math.random( 6 ) 
-        local randSeqLen = math.random( 7, 14 ) -- length of seq in pieces
+        local randSeqLen = math.random( 8, 16 ) -- length of seq in pieces
 
         if ( randSeqKind == 1 ) then
             spawnObstacleSequence ( randSeqLen, "floor" ) -- 1/6 prob
@@ -241,7 +246,6 @@ end
 function M.init( mainGroup )
     
     -- init vars
-    M.pickableObjectsTable = {}
     group = mainGroup
     lastSpawnGroundObjects = os.time()
     lastSpawnFloatingObjects = os.time()
@@ -249,9 +253,7 @@ function M.init( mainGroup )
     lastSpawnObsSeq = os.time()
 
     -- set spawn timers
-    --spawnGroundObjectsTimer = timer.performWithDelay( 3000, spawnGroundObjects, 0 )
-    --spawnFloatingObjectsTimer = timer.performWithDelay( 2000, spawnFloatingObjects, 0 )
-    spawnHandlerTimer = timer.performWithDelay( 1000, spawnHandler, 0 )
+    spawnHandlerTimer = timer.performWithDelay( 500, spawnHandler, 0 )
 end
 
 -- clear function
@@ -259,13 +261,13 @@ function M.clear()
 
     -- remove Runtime listeners (do before removing references to the objects to be removed)
 
-    -- remove object references
-    M.pickableObjectsTable = {}
-
-    -- remove timers
-    --timer.cancel( spawnGroundObjectsTimer )
-    --timer.cancel( spawnFloatingObjectsTimer )
+    -- cancel timers
     timer.cancel( spawnHandlerTimer )
+
+    -- cancel transitions
+
+    -- dispose loaded audio
+
 end
 
 
