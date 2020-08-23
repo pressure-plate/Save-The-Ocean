@@ -21,6 +21,9 @@ local bgMod = require( "scenes.game.background" )
 -- load spawner module
 local spawnMod = require( "scenes.game.spawner" )
 
+-- load savedata module
+local savedata = require( "scenes.libs.savedata" )
+
 -- initialize variables -------------------------------------------------------
 
 local font = composer.getVariable( "defaultFontParams" )
@@ -37,9 +40,12 @@ local seaLifeProgressView
 
 local maxGameSpeed = 3
 
-local gameSpeedUpdateTimer
+local isGameOver = false
+
+local updateGameSpeedTimer
 local clearObjectsTimer
 local updateSeaLifeTimer
+local updateScoreMultiplierTimer
 
 -- display groups
 local bgGroup
@@ -55,8 +61,7 @@ local uiDir = "assets/ui/" -- user interface assets dir
 -- game functions
 -- ----------------------------------------------------------------------------
 
--- update game speed
-local function gameSpeedUpdate()
+local function updateGameSpeed()
 
 	local gs = composer.getVariable( "gameSpeed" )
 
@@ -64,62 +69,29 @@ local function gameSpeedUpdate()
 	if ( gs < maxGameSpeed ) then 
 
 		local st = composer.getVariable( "startTime" )
-		gs = 1 + ( (os.time() - st) / 100 )
-		--gs = 1 + ( (os.time() - st) / 10 ) -- TEST
+		--gs = 1 + ( (os.time() - st) / 100 )
+		gs = 1 + ( (os.time() - st) / 10 ) -- TEST
 		--gs = 3 -- TEST
 		composer.setVariable( "gameSpeed", gs )
 	end
 
-	-- score multiplier update based on game speed
-	local oldMult = scoreMultiplier -- save to check if score multiplier changed
-	
-	if ( gs < math.floor( gs ) + 0.25 ) then 
-		scoreMultiplier = math.floor( gs )
-
-	elseif ( ( gs >= math.floor( gs ) + 0.25 ) and ( gs < math.floor( gs ) + 0.5 ) ) then
-		scoreMultiplier = math.floor( gs ) + 0.25
-
-	elseif ( ( gs >= math.floor( gs ) + 0.5 ) and ( gs < math.floor( gs ) + 0.75 ) ) then
-		scoreMultiplier = math.floor( gs ) + 0.5
-
-	else
-		scoreMultiplier = math.floor( gs ) + 0.75
-	end
-
-	-- if score multiplier changed then update text, set visible and animate
-	if ( oldMult ~= scoreMultiplier ) then
-		-- update
-		scoreMultiplierText.text = "X" .. scoreMultiplier
-
-		-- set visible
-		scoreMultiplierText.isVisible = true
-
-		-- animate
-		scoreMultiplierText.xScale = 3
-		scoreMultiplierText.yScale = 3
-		local oldX = scoreMultiplierText.x
-		local oldY = scoreMultiplierText.y
-		scoreMultiplierText.x = scoreMultiplierText.x - 400
-		scoreMultiplierText.y = scoreMultiplierText.y + 400
-		transition.to( scoreMultiplierText, { timer = 200, xScale = 1, yScale = 1, x = oldX, y = oldY } )
-	end
-
-	print( "gameSpeed: ", gs ) -- TEST
+	--print( "gameSpeed: ", gs ) -- TEST
 end
 
--- end game
-local function endGame()
-
-	-- TODO save data into gamesaves module
-
-    -- set variable to be accessed from the composer
-    --composer.setVariable( "finalScore", score )
+local function exitGame()
 	
 	composer.gotoScene( "scenes.menu", { time=800, effect="crossFade" } )
 end
 
--- game over screen
 local function gameOver()
+
+	-- CRITICAL CHECK: check if the gameOver function has already been called
+	if ( isGameOver == true ) then
+		return -- abort gameOver call
+	end
+	
+	-- set gameOver as called
+	isGameOver = true
 
 	-- stop screen objects movement
 	bgMod.setStopScrolling( true )
@@ -142,11 +114,13 @@ local function gameOver()
 	local scoredText = display.newText( uiGroup, "SCORED: " .. score, display.contentCenterX, display.contentCenterY+100, font.path, 120 )
 	scoredText:setFillColor( font.colorR, font.colorG, font.colorB )
 
-	-- call endgame function after a short delay
-	timer.performWithDelay( 4000, endGame )
+	-- save score
+	savedata.addNewScore( score )
+
+	-- call exitGame function after a short delay
+	timer.performWithDelay( 4000, exitGame )
 end
 
--- collision handler
 local function onCollision( event )
  
     -- detect "began" phase of collision
@@ -289,6 +263,7 @@ local function updateSeaLife()
 				-- check if game over
 				if ( seaLife <= 0 ) then
 					gameOver()
+					break -- the game is over, no need to finish the for
 				end
             end
         end
@@ -339,6 +314,35 @@ local function newProgressView( percent, xPos, yPos )
     return progressView
 end
 
+local function setScoreMultiplier( newValue )
+
+    if ( scoreMultiplier ~= newValue ) then
+
+        -- update value
+        scoreMultiplier = newValue
+
+		-- update visible text
+		scoreMultiplierText.text = "X" .. scoreMultiplier
+
+		-- set visible
+		scoreMultiplierText.isVisible = true
+
+		-- animate
+		local fromX = scoreMultiplierText.x - 500
+		local fromY = scoreMultiplierText.y + 400
+		local fromScaleX = 3
+		local fromScaleY = 3
+		transition.from( scoreMultiplierText, { timer = 500, xScale = fromScaleX, yScale = fromScaleY, x = fromX, y = fromY } )
+	end
+end
+
+
+local function updateScoreMultiplier()
+
+    setScoreMultiplier( scoreMultiplier + 0.25 )
+end
+
+
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
 -- -----------------------------------------------------------------------------------
@@ -374,7 +378,7 @@ function scene:create( event )
 
 
 	-- set event listener to update game speed
-	gameSpeedUpdateTimer = timer.performWithDelay( 1000, gameSpeedUpdate, 0 )
+	updateGameSpeedTimer = timer.performWithDelay( 1000, updateGameSpeed, 0 )
 
 	-- load and set background
 	bgMod.init( bgGroup )	
@@ -416,6 +420,9 @@ function scene:show( event )
 	if ( phase == "will" ) then
 		-- Code here runs when the scene is still off screen (but is about to come on screen)
 
+		-- set timer to update the score multiplier (+0.25 every 30secs)
+		updateScoreMultiplierTimer = timer.performWithDelay( 30000, updateScoreMultiplier, 0)
+
 	elseif ( phase == "did" ) then
 		-- Code here runs when the scene is entirely on screen
 
@@ -444,9 +451,10 @@ function scene:hide( event )
 		Runtime:removeEventListener( "collision", onCollision )
 
 		-- clear timers
-		timer.cancel( gameSpeedUpdateTimer )
+		timer.cancel( updateGameSpeedTimer )
 		timer.cancel( clearObjectsTimer )
 		timer.cancel( updateSeaLifeTimer )
+		timer.cancel( updateScoreMultiplierTimer )
 
 		-- clear loaded modules
 		bgMod.clear()
