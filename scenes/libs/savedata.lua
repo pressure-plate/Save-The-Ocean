@@ -137,8 +137,8 @@ function M.setGamedata( varName, newValue )
 
     --[[ 
     NOTE: 
-    In Lua doing table[ "foo" ] = 1
-        is the same as doing table.foo = 1
+    In Lua doing barTable[ "foo" ] = 1
+        is the same as doing barTable.foo = 1
     --]]
 
     -- set variable 
@@ -152,8 +152,8 @@ function M.getGamedata( varName )
     
     --[[ 
     NOTE: 
-    In Lua table[ "foo" ]
-        is the same as table.foo
+    In Lua barTable[ "foo" ]
+        is the same as barTable.foo
     --]]
 
     -- return the table reference
