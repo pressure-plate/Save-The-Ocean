@@ -21,6 +21,11 @@ fontParams.colorG = 0.5
 fontParams.colorB = 0.1
 composer.setVariable( "defaultFontParams", fontParams )
 
+-- reserve channel 1 for background music
+audio.reserveChannels( 1 )
+
+-- reduce the overall volume of the channel
+audio.setVolume( 0.7, { channel=1 } )
 
 -- @DEBUG -----------------------------------------------------------------------------------------
 

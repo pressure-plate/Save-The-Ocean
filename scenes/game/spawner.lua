@@ -22,7 +22,7 @@ local obsDir = "assets/items/obstacles/" -- obstacles dir
 
 
 -- ----------------------------------------------------------------------------
--- functions
+-- private functions
 -- ----------------------------------------------------------------------------
 
 local function spawnGroundObjects()
@@ -247,11 +247,11 @@ end
 
 
 -- ----------------------------------------------------------------------------
--- module utility functions
+-- public functions
 -- ----------------------------------------------------------------------------
 
--- init function
-function M.init( mainGroup )
+-- insert in scene:create()
+function M.create( mainGroup )
     
     -- init vars
     group = mainGroup
@@ -260,13 +260,17 @@ function M.init( mainGroup )
     lastSpawnObstacle = os.time()
     lastSpawnObsSeq = os.time()
     outlineCache = {}
+end
+
+-- insert in scene:show() in "did" phase
+function M.showDid()
 
     -- set spawn timers
     spawnHandlerTimer = timer.performWithDelay( 500, spawnHandler, 0 )
 end
 
--- clear function
-function M.clear()
+-- insert in scene:hide() in "did" phase
+function M.hideDid()
 
     -- remove Runtime listeners (do before removing references to the objects to be removed)
 
@@ -278,7 +282,6 @@ function M.clear()
     -- dispose loaded audio
 
 end
-
 
 -- return module table
 return M
