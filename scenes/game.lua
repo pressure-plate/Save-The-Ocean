@@ -379,11 +379,14 @@ function scene:create( event )
 	-- set event listener to update game speed
 	updateGameSpeedTimer = timer.performWithDelay( 1000, updateGameSpeed, 0 )
 
-	-- load and set background
-	bgMod.init( bgGroup )	
+	-- create background
+	bgMod.create( bgGroup )	
 
-	-- load and set submarine
-	subMod.init( submarineGroup, mainGroup )
+	-- create submarine
+	subMod.create( submarineGroup, mainGroup )
+
+	-- create spawner
+	spawnMod.create( mainGroup )
 
 	-- global collision listener
 	Runtime:addEventListener( "collision", onCollision )
@@ -428,8 +431,8 @@ function scene:show( event )
 		-- re-start physics engine ( previously stopped in create() )
 		physics.start()
 
-		-- load and set the objects spawner
-		spawnMod.init( mainGroup )
+		-- set the objects spawner
+		spawnMod.showDid()
 	end
 end
 
@@ -446,19 +449,19 @@ function scene:hide( event )
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
 
-		-- clear Runtime listeners
+		-- remove Runtime listeners
 		Runtime:removeEventListener( "collision", onCollision )
 
-		-- clear timers
+		-- cancel timers
 		timer.cancel( updateGameSpeedTimer )
 		timer.cancel( clearObjectsTimer )
 		timer.cancel( updateSeaLifeTimer )
 		timer.cancel( updateScoreMultiplierTimer )
 
 		-- clear loaded modules
-		bgMod.clear()
-		subMod.clear()
-		spawnMod.clear()
+		bgMod.hideDid()
+		subMod.hideDid()
+		spawnMod.hideDid()
 
 		-- remove the scene from cache 
 		-- NOTE: this function entirely removes the scene and all the objects and variables inside,

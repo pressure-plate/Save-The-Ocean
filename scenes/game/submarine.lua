@@ -32,7 +32,7 @@ local bubbleDir = "assets/submarine/bubble/"
 
 
 -- ----------------------------------------------------------------------------
--- functions
+-- private functions
 -- ----------------------------------------------------------------------------
 
 local function moveSubmarine( self, event )
@@ -126,11 +126,11 @@ end
 
 
 -- ----------------------------------------------------------------------------
--- module utility functions
+-- public functions
 -- ----------------------------------------------------------------------------
 
--- init function
-function M.init( submarineGroup, mainGroup )
+-- insert in scene:create()
+function M.create( submarineGroup, mainGroup )
     
     -- init vars
     submarine = nil
@@ -184,8 +184,8 @@ function M.init( submarineGroup, mainGroup )
 
 end
 
--- clear function
-function M.clear()
+-- insert in scene:hide() in "did" phase
+function M.hideDid()
 
     -- clear Runtime listeners
     Runtime:removeEventListener( "touch", submarine )
@@ -200,11 +200,10 @@ function M.clear()
 	
 end
 
+-- cancel all transitions on the submarine object
 function M.cancAllSubTrans()
-	-- cancel all transitions on the submarine object
 	transition.cancel( submarine )
 end
-
 
 -- return module table
 return M

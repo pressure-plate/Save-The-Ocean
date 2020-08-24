@@ -20,7 +20,7 @@ local bgDir -- this will be setted every time .init() function is called to allo
 
 
 -- ----------------------------------------------------------------------------
--- functions
+-- private functions
 -- ----------------------------------------------------------------------------
 
 local function backgroundScroller( self, event )
@@ -49,11 +49,11 @@ end
 
 
 -- ----------------------------------------------------------------------------
--- module utility functions
+-- public functions
 -- ----------------------------------------------------------------------------
 
--- init function
-function M.init( bgGroup )
+-- insert in scene:create()
+function M.create( bgGroup )
     
     -- init vars
     backgroundWorld = savedata.getGamedata( "backgroundWorld" )
@@ -101,8 +101,8 @@ function M.init( bgGroup )
     end	
 end
 
--- clear function
-function M.clear()
+-- insert in scene:hide() in "did" phase
+function M.hideDid()
 
     -- remove Runtime listeners
     for i=1, backgroundLayerNum do
@@ -117,8 +117,8 @@ function M.clear()
 
 end
 
-function M.setStopScrolling( bool )
-    -- stops the background movement
+-- stop the background movement
+function M.setStopScrolling( bool )    
     stopScrolling = bool
 end
 
