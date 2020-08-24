@@ -147,10 +147,25 @@ e uno che permette di scegliere il colore delle bolle che usciranno dal sottomar
 
 \includegraphics[width=70mm]{bolle.png}\\
 
-Dopo aver premuto il pulsante play si passa alla scena "game.lua", in cui vengono realizzati tutti gli oggetti ed il codice relativo alla realizzazione della logica del gioco. 
-Nella funzione create(), inzialmente vengono settate le variabili legate al composer: "startTime" 
-è utilizzata per calcolare la velocità dello schermo in base al tempo che scorre; "gameSpeed", 
-imposta la velocità iniziale di scorrimento dello schermo. Tale velocità viene aggiornata ogni 1000 ms 
-tramite un listener (il valore non è casuale, ma è stato inserito in modo tale da non accumulare troppo l'incremento in quel secondo).
+\section{Game.lua}
+Dopo aver premuto il pulsante play si passa al file "game.lua", in cui vengono realizzati tutti gli oggetti ed il codice relativo alla realizzazione della logica del gioco. 
+\subsection{create()}
+Nella funzione create(), inzialmente vengono settate le variabili legate al composer: "startTime" è utilizzata per calcolare la velocità dello schermo in base al tempo; "gameSpeed", imposta la velocità iniziale di scorrimento dello schermo (inizialmente gameSpeed = 1). Tale velocità viene aggiornata ogni 1000 ms tramite un listener che chiama la funzione updateGameSpeed. La scelta del valore 1000ms non è casuale, ma è stato inserito in modo tale da non accumulare troppo l'incremento in quel secondo.
+\\
+
+Le collisioni tra sottomarino ed oggetti da raccogliere sono gestite a tempo di esecuzione mediante un listener, in questo modo ogni volta che avviene una collisione viene chiamata la funzione onCollision(). 
+\\
+
+Il punteggio viene rappresentato mediante un "display object" in cui è stato utilizzato il font di default salvato in una variabile locale in modo tale da renderlo più accessibile in tutte le parti del programma. 
+
+\\
+La vita del mare viene creata usando la funzione newProgressView in cui vengono inseriti 3 parametri:
+\begin{itemize}
+    \item percetuale della vita: rappresentata da un valore all'interno dell'intervallo [0,1] in cui 1 rappresenta il 100 e 0 lo 0. La barra viene creata inizialmente al 100.
+    \item posizione della barra a seconda dell'asse X: inizialmente posta al centro dell'asse X (contentCenterX)
+    \item posizione della barra a seconda dell'asse Y: 
+\end{itemize}
+La percentuale di progresso della barra viene gestita da un metodo setProgress inserito all'interno della funzione newProgressView.
+
 
 \end{document}
