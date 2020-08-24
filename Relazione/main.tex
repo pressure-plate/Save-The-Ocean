@@ -74,7 +74,7 @@ maestrutti.andrea@spes.uniud.it
 %	LOGO SECTION
 %----------------------------------------------------------------------------------------
 
-% \includegraphics[width=50mm]{uniud.png}\\[1cm] % Include a department/university logo - this will require the graphicx package
+\includegraphics[width=50mm]{uniud.png}\\[1cm] % Include a department/university logo - this will require the graphicx package
  
 %----------------------------------------------------------------------------------------
 
@@ -88,7 +88,8 @@ Il progetto d’esame relativo all’insegnamento di Laboratorio di Tecnologie A
 
 Ai fini dello sviluppo è stato utilizzato il linguaggio di programmazione "Lua", che è un linguaggio utilizzato prevalentemente per scripting.
 
-\section{Spiegazione del gioco}
+\section{Meccaniche di gioco}
+\subsection{Spiegazione del gioco}
 Il gioco realizzato è intitolato Save The Ocean, ed ha come scopo quello di liberare il fondale marino dalla spazzatura lasciata dall'uomo a bordo di un sommergibile, preservano così il pianeta e le creature dell'oceano.
 
 La spazzatura è rappresentata da bottigliette di plastica e barili pieni di petrolio.
@@ -97,7 +98,7 @@ La spazzatura è rappresentata da bottigliette di plastica e barili pieni di pet
 La sconfitta si verifica in due casi distinti: ogni qualvolta non si raccolga la spazzatura, oppure quando il sommergibile va a sbattere contro uno scoglio. Nel primo caso, non raccogliendo gli oggetti la "vita del mare" diminuisce e quando quest'ultima raggiunge la fine la partita finisce (raccogliendo gli oggetti, però, la vita del mare aumenta); nel secondo caso, la partita termina immediatamente. 
  
 
-\section{Cosa l'utente deve fare (da cambiare)}
+\subsection{Cosa l'utente deve fare (da cambiare)}
  
 L'utente dovrà raccogliere tutti i rifiuti presenti nell'ambiente. Ad ognuno corrisponde un punteggio differente: con la raccolta delle bottigliette di plastica si guadagnano 50 punti; mentre con la raccolta dei barili 100 punti. 
 \\Il gioco, inoltre, tiene traccia del punteggio massimo che viene raggiunto nelle varie sessioni.
@@ -146,6 +147,25 @@ e uno che permette di scegliere il colore delle bolle che usciranno dal sottomar
 
 \includegraphics[width=70mm]{bolle.png}\\
 
+\section{Game.lua}
+Dopo aver premuto il pulsante play si passa al file "game.lua", in cui vengono realizzati tutti gli oggetti ed il codice relativo alla realizzazione della logica del gioco. 
+\subsection{create()}
+Nella funzione create(), inzialmente vengono settate le variabili legate al composer: "startTime" è utilizzata per calcolare la velocità dello schermo in base al tempo; "gameSpeed", imposta la velocità iniziale di scorrimento dello schermo (inizialmente gameSpeed = 1). Tale velocità viene aggiornata ogni 1000 ms tramite un listener che chiama la funzione updateGameSpeed. La scelta del valore 1000ms non è casuale, ma è stato inserito in modo tale da non accumulare troppo l'incremento in quel secondo.
+\\
+
+Le collisioni tra sottomarino ed oggetti da raccogliere sono gestite a tempo di esecuzione mediante un listener, in questo modo ogni volta che avviene una collisione viene chiamata la funzione onCollision(). 
+\\
+
+Il punteggio viene rappresentato mediante un "display object" in cui è stato utilizzato il font di default salvato in una variabile locale in modo tale da renderlo più accessibile in tutte le parti del programma. 
+
+\\
+La vita del mare viene creata usando la funzione newProgressView in cui vengono inseriti 3 parametri:
+\begin{itemize}
+    \item percetuale della vita: rappresentata da un valore all'interno dell'intervallo [0,1] in cui 1 rappresenta il 100 e 0 lo 0. La barra viene creata inizialmente al 100.
+    \item posizione della barra a seconda dell'asse X: inizialmente posta al centro dell'asse X (contentCenterX)
+    \item posizione della barra a seconda dell'asse Y: 
+\end{itemize}
+La percentuale di progresso della barra viene gestita da un metodo setProgress inserito all'interno della funzione newProgressView.
 
 
 \end{document}
