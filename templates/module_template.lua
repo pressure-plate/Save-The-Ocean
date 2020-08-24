@@ -6,31 +6,57 @@ local M = {}
 
 
 -- ----------------------------------------------------------------------------
--- functions
+-- private functions
 -- ----------------------------------------------------------------------------
 
 
 
 
 -- ----------------------------------------------------------------------------
--- module utility functions
+-- public functions
 -- ----------------------------------------------------------------------------
 
--- init function
-function M.init( group )
+-- insert in scene:create()
+function M.create( group )
     
     -- init vars
     
 end
 
--- clear function
-function M.clear()
+-- insert in scene:show() in "will" phase
+function M.showWill()
+
+end
+
+-- insert in scene:show() in "did" phase
+function M.showDid()
+
+end
+
+-- insert in scene:hide() in "will" phase
+function M.hideWill()
 
     -- remove Runtime listeners
 
     -- cancel timers
 
     -- cancel transitions
+
+end
+
+-- insert in scene:hide() in "did" phase
+function M.hideDid()
+
+    -- remove Runtime listeners
+
+    -- cancel timers
+
+    -- cancel transitions
+
+end
+
+-- insert in scene:destroy()
+function M.destroy()
 
     -- dispose loaded audio
 

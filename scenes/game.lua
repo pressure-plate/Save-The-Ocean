@@ -21,6 +21,9 @@ local bgMod = require( "scenes.game.background" )
 -- load spawner module
 local spawnMod = require( "scenes.game.spawner" )
 
+-- load savedata module
+local savedata = require( "scenes.libs.savedata" )
+
 -- initialize variables -------------------------------------------------------
 
 local font = composer.getVariable( "defaultFontParams" )
@@ -37,9 +40,19 @@ local seaLifeProgressView
 
 local maxGameSpeed = 3
 
-local gameSpeedUpdateTimer
+local isGameOver = false
+
+local updateGameSpeedTimer
 local clearObjectsTimer
 local updateSeaLifeTimer
+local updateScoreMultiplierTimer
+
+local musicTrack
+local groundObjPickSound
+local floatingObjPickSound
+local obstacleCollisionSound
+local deadSeaSound
+local multiplierUpSound
 
 -- display groups
 local bgGroup
@@ -55,8 +68,7 @@ local uiDir = "assets/ui/" -- user interface assets dir
 -- game functions
 -- ----------------------------------------------------------------------------
 
--- update game speed
-local function gameSpeedUpdate()
+local function updateGameSpeed()
 
 	local gs = composer.getVariable( "gameSpeed" )
 
@@ -70,56 +82,26 @@ local function gameSpeedUpdate()
 		composer.setVariable( "gameSpeed", gs )
 	end
 
-	-- score multiplier update based on game speed
-	local oldMult = scoreMultiplier -- save to check if score multiplier changed
-	
-	if ( gs < math.floor( gs ) + 0.25 ) then 
-		scoreMultiplier = math.floor( gs )
-
-	elseif ( ( gs >= math.floor( gs ) + 0.25 ) and ( gs < math.floor( gs ) + 0.5 ) ) then
-		scoreMultiplier = math.floor( gs ) + 0.25
-
-	elseif ( ( gs >= math.floor( gs ) + 0.5 ) and ( gs < math.floor( gs ) + 0.75 ) ) then
-		scoreMultiplier = math.floor( gs ) + 0.5
-
-	else
-		scoreMultiplier = math.floor( gs ) + 0.75
-	end
-
-	-- if score multiplier changed then update text, set visible and animate
-	if ( oldMult ~= scoreMultiplier ) then
-		-- update
-		scoreMultiplierText.text = "X" .. scoreMultiplier
-
-		-- set visible
-		scoreMultiplierText.isVisible = true
-
-		-- animate
-		scoreMultiplierText.xScale = 3
-		scoreMultiplierText.yScale = 3
-		local oldX = scoreMultiplierText.x
-		local oldY = scoreMultiplierText.y
-		scoreMultiplierText.x = scoreMultiplierText.x - 400
-		scoreMultiplierText.y = scoreMultiplierText.y + 400
-		transition.to( scoreMultiplierText, { timer = 200, xScale = 1, yScale = 1, x = oldX, y = oldY } )
-	end
-
-	print( "gameSpeed: ", gs ) -- TEST
+	--print( "gameSpeed: ", gs ) -- TEST
 end
 
--- end game
-local function endGame()
-
-	-- TODO save data into gamesaves module
-
-    -- set variable to be accessed from the composer
-    --composer.setVariable( "finalScore", score )
+local function exitGame()
 	
 	composer.gotoScene( "scenes.menu", { time=800, effect="crossFade" } )
 end
 
--- game over screen
 local function gameOver()
+
+	-- CRITICAL CHECK: check if the gameOver function has already been called
+	if ( isGameOver == true ) then
+		return -- abort gameOver call
+	end
+	
+	-- set gameOver as called
+	isGameOver = true
+
+	-- stop the music
+	audio.stop( 1 )
 
 	-- stop screen objects movement
 	bgMod.setStopScrolling( true )
@@ -142,11 +124,13 @@ local function gameOver()
 	local scoredText = display.newText( uiGroup, "SCORED: " .. score, display.contentCenterX, display.contentCenterY+100, font.path, 120 )
 	scoredText:setFillColor( font.colorR, font.colorG, font.colorB )
 
-	-- call endgame function after a short delay
-	timer.performWithDelay( 4000, endGame )
+	-- save score
+	savedata.addNewScore( score )
+
+	-- call exitGame function after a short delay
+	timer.performWithDelay( 4000, exitGame )
 end
 
--- collision handler
 local function onCollision( event )
  
     -- detect "began" phase of collision
@@ -168,15 +152,20 @@ local function onCollision( event )
 				collidingObj = obj1
 			end
 
-			-- handle collision with pickable object type ----------------------------------
+			-- handle collision with pickable object type -------------------------------
 			if ( collidingObj.myType == "pickableObject" ) then
-
 				-- update score and sea life based on name of "collidingObj"
 				if ( collidingObj.myName == "groundObject" ) then
+					-- play pick sound
+					audio.play( groundObjPickSound )
+
 					score = math.floor( score + ( 150 * scoreMultiplier ) )
 					seaLife = seaLife + 200
 
 				elseif ( collidingObj.myName == "floatingObject" ) then
+					-- play pick sound
+					audio.play( floatingObjPickSound )
+
 					score = math.floor( score + ( 50 * scoreMultiplier ) )
 					seaLife = seaLife + 50
 				end
@@ -204,8 +193,12 @@ local function onCollision( event )
 				-- remove "collidingObj" from display
 				display.remove( collidingObj )
 			
-			-- handle collision with "obstacleObject" type -----------------------------
+			-- handle collision with "obstacleObject" type ------------------------------
 			elseif ( collidingObj.myType == "obstacleObject" ) then
+
+				-- play obstacleCollisionSound
+				audio.play( obstacleCollisionSound )
+
 				gameOver()
 			end
 
@@ -250,7 +243,7 @@ local function clearObjects()
 		
 		local thisObject = screenObjectsTable[i]
 		
-		if ( thisObject.x < -600 ) then
+		if ( thisObject.x < -800 ) then
 
             display.remove( thisObject )
             table.remove( screenObjectsTable, i )
@@ -288,7 +281,14 @@ local function updateSeaLife()
 
 				-- check if game over
 				if ( seaLife <= 0 ) then
+
+					if ( isGameOver == false ) then
+						-- play deadSeaSound
+						audio.play( deadSeaSound )
+					end
+
 					gameOver()
+					break -- the game is over, no need to finish the for
 				end
             end
         end
@@ -339,6 +339,37 @@ local function newProgressView( percent, xPos, yPos )
     return progressView
 end
 
+local function setScoreMultiplier( newValue )
+
+    if ( scoreMultiplier ~= newValue ) then
+
+        -- update value
+        scoreMultiplier = newValue
+
+		-- update visible text
+		scoreMultiplierText.text = "X" .. scoreMultiplier
+
+		-- set visible
+		scoreMultiplierText.isVisible = true
+
+		-- animate
+		local fromX = scoreMultiplierText.x - 500
+		local fromY = scoreMultiplierText.y + 400
+		local fromScaleX = 3
+		local fromScaleY = 3
+		transition.from( scoreMultiplierText, { timer = 500, xScale = fromScaleX, yScale = fromScaleY, x = fromX, y = fromY } )
+	end
+end
+
+local function updateScoreMultiplier()
+
+	-- play multiplierUpSound
+	audio.play( multiplierUpSound )
+
+    setScoreMultiplier( scoreMultiplier + 0.25 )
+end
+
+
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
 -- -----------------------------------------------------------------------------------
@@ -372,15 +403,25 @@ function scene:create( event )
     uiGroup = display.newGroup()    -- display group for UI
 	sceneGroup:insert( uiGroup )    -- insert into the scene's view group
 
+	-- load audio (sounds and streams)
+	musicTrack = audio.loadStream( "audio/F777-TheSevenSeas.mp3")
+	groundObjPickSound = audio.loadSound( "audio/sfx/pickGroundObj.wav" )
+	floatingObjPickSound = audio.loadSound( "audio/sfx/pickFloatingObj.wav" )
+	obstacleCollisionSound = audio.loadSound( "audio/sfx/explosion.wav" )
+	deadSeaSound = audio.loadSound( "audio/sfx/deadSea.wav" )
+	multiplierUpSound = audio.loadSound( "audio/sfx/multiplierUp.wav" )
 
 	-- set event listener to update game speed
-	gameSpeedUpdateTimer = timer.performWithDelay( 1000, gameSpeedUpdate, 0 )
+	updateGameSpeedTimer = timer.performWithDelay( 1000, updateGameSpeed, 0 )
 
-	-- load and set background
-	bgMod.init( bgGroup )	
+	-- create background
+	bgMod.create( bgGroup )	
 
-	-- load and set submarine
-	subMod.init( submarineGroup, mainGroup )
+	-- create submarine
+	subMod.create( submarineGroup, mainGroup )
+
+	-- create spawner
+	spawnMod.create( mainGroup )
 
 	-- global collision listener
 	Runtime:addEventListener( "collision", onCollision )
@@ -416,14 +457,20 @@ function scene:show( event )
 	if ( phase == "will" ) then
 		-- Code here runs when the scene is still off screen (but is about to come on screen)
 
+		-- set timer to update the score multiplier (+0.25 every 30secs)
+		updateScoreMultiplierTimer = timer.performWithDelay( 30000, updateScoreMultiplier, 0)
+
 	elseif ( phase == "did" ) then
 		-- Code here runs when the scene is entirely on screen
 
 		-- re-start physics engine ( previously stopped in create() )
 		physics.start()
 
-		-- load and set the objects spawner
-		spawnMod.init( mainGroup )
+		-- set the objects spawner
+		spawnMod.showDid()
+
+		-- start playing the music (in loop)
+        audio.play( musicTrack, { channel=1, loops=-1 } )
 	end
 end
 
@@ -440,18 +487,22 @@ function scene:hide( event )
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
 
-		-- clear Runtime listeners
+		-- remove Runtime listeners
 		Runtime:removeEventListener( "collision", onCollision )
 
-		-- clear timers
-		timer.cancel( gameSpeedUpdateTimer )
+		-- cancel timers
+		timer.cancel( updateGameSpeedTimer )
 		timer.cancel( clearObjectsTimer )
 		timer.cancel( updateSeaLifeTimer )
+		timer.cancel( updateScoreMultiplierTimer )
 
 		-- clear loaded modules
-		bgMod.clear()
-		subMod.clear()
-		spawnMod.clear()
+		bgMod.hideDid()
+		subMod.hideDid()
+		spawnMod.hideDid()
+
+		-- stop all audio playing
+		audio.stop()
 
 		-- remove the scene from cache 
 		-- NOTE: this function entirely removes the scene and all the objects and variables inside,
@@ -468,6 +519,13 @@ function scene:destroy( event )
 	local sceneGroup = self.view
 	-- Code here runs prior to the removal of scene's view
 
+	-- dispose loaded audio
+	audio.dispose( musicTrack )
+	audio.dispose( groundObjPickSound )
+	audio.dispose( floatingObjPickSound )
+	audio.dispose( obstacleCollisionSound )
+	audio.dispose( deadSeaSound )
+	audio.dispose( multiplierUpSound )
 end
 
 
