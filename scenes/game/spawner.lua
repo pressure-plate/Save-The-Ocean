@@ -14,13 +14,15 @@ local lastSpawnFloatingObjects
 local lastSpawnObstacle
 local lastSpawnObsSeq
 
+local outlineCache -- to reduce CPU usage
+
 -- assets dir
 local pickDir = "assets/items/pickables/" -- pickables dir
 local obsDir = "assets/items/obstacles/" -- obstacles dir
 
 
 -- ----------------------------------------------------------------------------
--- functions
+-- private functions
 -- ----------------------------------------------------------------------------
 
 local function spawnGroundObjects()
@@ -47,7 +49,7 @@ local function spawnGroundObjects()
         
         -- create object
         local scaleFact = 0.18
-        local newPickable = display.newRect( group, display.contentWidth + math.random(400, 1200), display.contentHeight, 349*scaleFact, 512*scaleFact )
+        local newPickable = display.newRect( group, display.contentWidth + math.random(600, 1400), display.contentHeight, 349*scaleFact, 512*scaleFact )
         newPickable.fill = paint
         newPickable.anchorY = 1
         newPickable.myType = "pickableObject"
@@ -99,7 +101,7 @@ local function spawnFloatingObjects()
         -- create object
         local scaleFact = 0.18
         local spawnPosY = math.random( spawnCenterY - 100, spawnCenterY + 100 )
-        local spawnPosX = display.contentWidth + 400 + (i * 150) + math.random( -50, 50 ) -- TODO random or fixed or a mix of the two?
+        local spawnPosX = display.contentWidth + 450 + (i * 150) + math.random( -50, 50 )
         local newPickable = display.newRect( group, spawnPosX, spawnPosY, 233*scaleFact, 512*scaleFact )
         newPickable.fill = paint
         newPickable.myType = "pickableObject"
@@ -125,10 +127,15 @@ local function spawnObstacle( assetPath, location, xPos, yPos, linearVelocity )
     -- select asset with random scale
     -- NOTE: here we use assets already scaled because outline function works on
     --          the real dimension in pixels of the asset to be outlined
-    local assetPathScaled = assetPath .. "x" .. math.random( 11, 15 ) .. ".png"
+    local assetPathScaled = assetPath .. "x" .. math.random( 12, 15 ) .. ".png"
     
     -- outline asset image
-    local assetOutline = graphics.newOutline( 2, assetPathScaled )
+    -- NOTE: here we dynamically cache the graphics.newOutline() output to improve perfomance and reduce CPU usage
+    if ( outlineCache[ assetPathScaled ] == nil ) then
+        outlineCache[ assetPathScaled ] = graphics.newOutline( 2, assetPathScaled )
+    end
+    
+    local assetOutline = outlineCache[ assetPathScaled ]
     
     -- create object and select the right scale
     local newObstacle = display.newImage( group, assetPathScaled, xPos, yPos )
@@ -160,12 +167,12 @@ local function spawnObstacleSequence ( length, location )
 
     for i=1, length do
         -- set random obstlacle properties and spawn it
-        local assetPath = obsDir .. "stone/" .. 1
+        local assetPath = obsDir .. "stone/" .. math.random( 1, 2 )
         local linearVelocity = -450 * gameSpeed
-        local xPos = display.contentWidth + (350 * i)
+        local xPos = display.contentWidth + 300 + (350 * i)
         if ( location == "mix" ) then
             if ( math.random( 2 ) == 1 ) then
-                spawnObstacle( assetPath, "floor", xPos, display.contentHeight+70, linearVelocity )
+                spawnObstacle( assetPath, "floor", xPos, display.contentHeight+30, linearVelocity )
             else
                 spawnObstacle( assetPath, "ceiling", xPos, -20, linearVelocity )
             end
@@ -203,19 +210,20 @@ local function spawnHandler()
             lastSpawnObstacle = os.time()
 
             -- set random obstlacle properties and spawn it
-            local assetPath = obsDir .. "stone/" .. math.random(2, 4)
             local linearVelocity = -450 * gameSpeed
-            local xPos = display.contentWidth + 400
+            local xPos = display.contentWidth + 600
             if ( math.random( 2 ) == 1 ) then
+                local assetPath = obsDir .. "stone/" .. math.random( 3, 4 )
                 spawnObstacle( assetPath, "floor", xPos, display.contentHeight+20, linearVelocity )
             else 
+                local assetPath = obsDir .. "stone/" .. math.random( 1, 2 )
                 spawnObstacle( assetPath, "ceiling", xPos, -20, linearVelocity )
             end
         end
 
     elseif ( randEvent <= 100 ) then -- 15% prob of obstacle sequence
         -- check cooldowns
-        local obsSeqSpawnCooldown = 18/gameSpeed -- cooldown seconds
+        local obsSeqSpawnCooldown = 17/gameSpeed -- cooldown seconds
         if ( (os.time() - lastSpawnObsSeq) < obsSeqSpawnCooldown ) then
             return
         end
@@ -239,11 +247,11 @@ end
 
 
 -- ----------------------------------------------------------------------------
--- module utility functions
+-- public functions
 -- ----------------------------------------------------------------------------
 
--- init function
-function M.init( mainGroup )
+-- insert in scene:create()
+function M.create( mainGroup )
     
     -- init vars
     group = mainGroup
@@ -251,13 +259,18 @@ function M.init( mainGroup )
     lastSpawnFloatingObjects = os.time()
     lastSpawnObstacle = os.time()
     lastSpawnObsSeq = os.time()
+    outlineCache = {}
+end
+
+-- insert in scene:show() in "did" phase
+function M.showDid()
 
     -- set spawn timers
     spawnHandlerTimer = timer.performWithDelay( 500, spawnHandler, 0 )
 end
 
--- clear function
-function M.clear()
+-- insert in scene:hide() in "did" phase
+function M.hideDid()
 
     -- remove Runtime listeners (do before removing references to the objects to be removed)
 
@@ -269,7 +282,6 @@ function M.clear()
     -- dispose loaded audio
 
 end
-
 
 -- return module table
 return M

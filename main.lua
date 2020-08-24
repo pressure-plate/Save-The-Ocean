@@ -21,6 +21,11 @@ fontParams.colorG = 0.5
 fontParams.colorB = 0.1
 composer.setVariable( "defaultFontParams", fontParams )
 
+-- reserve channel 1 for background music
+audio.reserveChannels( 1 )
+
+-- reduce the overall volume of the channel
+audio.setVolume( 0.7, { channel=1 } )
 
 -- @DEBUG -----------------------------------------------------------------------------------------
 
@@ -48,7 +53,7 @@ if (system.getInfo("environment") == "simulator" and debugMode == true) then
     --Runtime:addEventListener( "enterFrame", printMemUsage) -- print memory usage for every frame
 
     -- continuosly print mem and launch garbage collector
-    timer.performWithDelay(1000, collectAndPrint, 0)
+    timer.performWithDelay(4000, collectAndPrint, 0)
 end
 
 -- ------------------------------------------------------------------------------------------------
@@ -56,4 +61,3 @@ end
 
 -- Go to the menu screen
 composer.gotoScene( "scenes.menu" )
---composer.gotoScene( "scenes.game" ) -- TEST scene
