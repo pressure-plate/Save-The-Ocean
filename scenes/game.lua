@@ -224,7 +224,7 @@ local function clearObjects()
 		
 		local thisObject = screenObjectsTable[i]
 		
-		if ( thisObject.x < -600 ) then
+		if ( thisObject.x < -800 ) then
 
             display.remove( thisObject )
             table.remove( screenObjectsTable, i )
