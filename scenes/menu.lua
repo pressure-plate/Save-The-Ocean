@@ -18,6 +18,9 @@ local bgMod = require( "scenes.menu.background" )
 -- load background module
 local windowMod = require( "scenes.menu.window" )
 
+-- load the saved data
+local savedata = require( "scenes.libs.savedata" ) -- load the save data module
+
 -- assets directory
 local bgDir = "assets/menu/" -- user interface assets dir
 local uiDir = "assets/ui/" -- user interface assets dir
@@ -36,6 +39,7 @@ local buttonRowOffset -- the offet between each button on the same row
 -- audio
 local menuTrack
 local buttonPlaySound
+local buttonClickSound
 
 local menuTrackPlayer
 
@@ -62,6 +66,7 @@ function scene:create( event )
 	-- load music
 	menuTrack = audio.loadStream( "audio/Halo-SetFireInYourHeart.mp3")
 	buttonPlaySound = audio.loadStream( "audio/sfx/play.mp3")
+	buttonClickSound = audio.loadStream( "audio/sfx/click.mp3" )
 
 	-- set title on the menu
 	local titleImmage = display.newImageRect(uiGroup, bgDir .. "menu2.png", display.contentWidth, display.contentHeight) -- set title
@@ -124,6 +129,27 @@ function scene:create( event )
 	bubblesBadge.x = display.contentCenterX + display.contentWidth/2.3 - buttonRowOffset * 2
 	bubblesBadge.y = display.contentCenterY - display.contentHeight/2.5
 	bubblesBadge:addEventListener( "tap", windowMod.openBubblesMenu ) -- tap listener
+
+	-- open bubbles window
+	local muteBadge = display.newImage(uiGroup, uiDir .. "badgeMute.png") -- set mask
+	muteBadge:scale( badgesScaleFactor, badgesScaleFactor )
+	muteBadge.x = display.contentCenterX + display.contentWidth/2.3 - buttonRowOffset * 3
+	muteBadge.y = display.contentCenterY - display.contentHeight/2.5
+	muteBadge:addEventListener( 
+		"tap", 
+		function()
+			audioMute = savedata.getGamedata( "audioMute" )
+			if audioMute then
+				audio.setVolume( 0.7, { channel=1 } )
+				audio.play( buttonClickSound )
+				savedata.setGamedata( "audioMute", false)
+			else
+				audio.play( buttonClickSound )
+				audio.setVolume( 0, { channel=1 } )
+				savedata.setGamedata( "audioMute", true)
+			end 
+		end 
+	) -- tap listener
 
 
 	-- show version
@@ -207,6 +233,7 @@ function scene:destroy( event )
 	-- delete music tracks
 	audio.dispose( menuTrack )
 	audio.dispose( buttonPlaySound )
+	audio.dispose( buttonClickSound )
 	
 end
 

@@ -15,7 +15,9 @@ local gamedataTableDefault = {
     submarineSkin = 1,
     submarineBubbleSkin = 1,
     backgroundWorld = 1,
-    backgroundLayerNum = 6
+    backgroundLayerNum = 6,
+
+    audioMute = false
 }
 -- set the table as initialized
 gamedataTableDefault[1] = "initialized"
