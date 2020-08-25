@@ -404,12 +404,13 @@ function scene:create( event )
 	sceneGroup:insert( uiGroup )    -- insert into the scene's view group
 
 	-- load audio (sounds and streams)
-	musicTrack = audio.loadStream( "audio/F777-TheSevenSeas.mp3")
-	groundObjPickSound = audio.loadSound( "audio/sfx/pickGroundObj.wav" )
-	floatingObjPickSound = audio.loadSound( "audio/sfx/pickFloatingObj.wav" )
-	obstacleCollisionSound = audio.loadSound( "audio/sfx/explosion.wav" )
-	deadSeaSound = audio.loadSound( "audio/sfx/deadSea.wav" )
-	multiplierUpSound = audio.loadSound( "audio/sfx/multiplierUp.wav" )
+	local audioDir = composer.getVariable( "audioDir" )
+	musicTrack = audio.loadStream( audioDir .. "F777-TheSevenSeas.mp3" )
+	groundObjPickSound = audio.loadSound( audioDir .. "sfx/pickGroundObj.wav" )
+	floatingObjPickSound = audio.loadSound( audioDir .. "sfx/pickFloatingObj.wav" )
+	obstacleCollisionSound = audio.loadSound( audioDir .. "sfx/explosion.wav" )
+	deadSeaSound = audio.loadSound( audioDir .. "sfx/deadSea.wav" )
+	multiplierUpSound = audio.loadSound( audioDir .. "sfx/multiplierUp.wav" )
 
 	-- set event listener to update game speed
 	updateGameSpeedTimer = timer.performWithDelay( 1000, updateGameSpeed, 0 )

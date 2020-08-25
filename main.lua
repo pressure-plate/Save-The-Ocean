@@ -4,13 +4,13 @@
 --
 -----------------------------------------------------------------------------------------
 
--- Load the composer
+-- load the composer
 local composer = require( "composer" )
  
--- Hide status bar
+-- hide status bar
 display.setStatusBar( display.HiddenStatusBar )
  
--- Seed the random number generator
+-- seed the random number generator
 math.randomseed( os.time() )
 
 -- set default font params on the composer
@@ -29,6 +29,9 @@ audio.reserveChannels( 1 )
 
 -- reduce the overall volume of the channel
 audio.setVolume( 0.7, { channel=1 } )
+
+-- set audio root dir globally (this is done to simplify the introduction of different audio packs)
+composer.setVariable( "audioDir", "audio/" )
 
 -- @DEBUG -----------------------------------------------------------------------------------------
 
