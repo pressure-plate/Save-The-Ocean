@@ -19,6 +19,9 @@ local windowObjects = {} -- to store the objest used to create the window
 
 local closeButtonScaleRateo = 3
 
+-- close button sound
+local buttonCloseSound = audio.loadStream( "audio/sfx/close.mp3" )
+
 
 local function closeWindow()
 
@@ -27,6 +30,8 @@ local function closeWindow()
         display.remove( windowObjects[i] )
     end
     windowObjects = {} -- removing reference to let garbage colletcor do its job
+
+    audio.play( buttonCloseSound )
 
     isOpen = false
     if onExitCallback ~= null then
@@ -64,14 +69,17 @@ local function openWindow(exitCallback, title)
     end
 
     -- set the window title
+    local fontParams = composer.getVariable( "defaultFontParams" )
+
     windowTitle = display.newText( 
         group, 
         title, 
         display.contentCenterX, 
         display.contentCenterY - yTitleBar, 
-        "fonts/CooperBlack.ttf", 
+        fontParams.path, 
         100 
     )
+    windowTitle:setFillColor( fontParams.colorR, fontParams.colorG, fontParams.colorB )
     table.insert(windowObjects, windowTitle)
 
     -- set the close button
@@ -136,6 +144,8 @@ function M.init( displayGroup )
 
     -- init the loader
     loadMod.init(displayGroup)
+
 end
+
 
 return M

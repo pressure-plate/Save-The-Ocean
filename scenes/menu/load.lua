@@ -23,6 +23,9 @@ local rowCount = 2
 local inTableItems = {}
 local highlightSelected
 
+-- close button sound
+local buttonSelectSound = audio.loadStream( "audio/sfx/select.mp3" )
+
 
 -- ----------------------------------------------------------------------------
 -- Functions
@@ -31,6 +34,8 @@ local highlightSelected
 -- function to visually check the selected item
 -- this function is called by the event that handle the clicked object
 local function highlightItem( x, y )
+    audio.play( buttonSelectSound )
+
     display.remove( highlightSelected )
 
     highlightSelected = display.newImage(group, submarineDir .. "hightlight.png") -- set title
@@ -188,6 +193,8 @@ end
 function M.init( displayGroup )
     -- init vars
     group = displayGroup
+
 end
+
 
 return M
