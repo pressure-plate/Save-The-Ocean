@@ -87,7 +87,8 @@ maestrutti.andrea@spes.uniud.it
 Il progetto d’esame relativo all’insegnamento di Laboratorio di Tecnologie Audio-VideoInterattive (LGP) consiste nell’implementazione di un videogioco utilizzando il framework di sviluppo CoronaSDK. 
 Il tema del videogioco è l'ecologia e l'ambiente.
 
-Ai fini dello sviluppo è stato utilizzato il linguaggio di programmazione "Lua", che è un linguaggio utilizzato prevalentemente per scripting.
+Ai fini dello sviluppo è stato utilizzato il linguaggio di programmazione "Lua", che è un linguaggio utilizzato prevalentemente per 
+scripting.
 
 \section{Meccaniche di gioco}
 \subsection{Spiegazione del gioco}
@@ -113,6 +114,12 @@ Il gioco è stato implementato utilizzando il framework coronaSDK, e scrivendo i
 
 
 Il codice è stato diviso in moduli per avere una visione più completa del programma e per poter apportare modifiche più agevolemente. 
+Il codice è stato diviso in moduli per avere una visione più completa del programma e per poter apportare modifiche più agevolemente. 
+Ogni modulo del gioco ha un template ben definito:
+\\\\
+
+%                   INSERIRE IMMAGINE MODULO                %
+
 \subsection{Scene}
 Il gioco è strutturato in "scene", gestite utilizzando il \textbf{composer}, una libreria che fornisce agli sviluppatori  un modo semplice per creare e passare da una scena all'altra. Il ciclo di vita di composer inizia all'interno di main.lua. Tuttavia, main.lua stesso non è una scena del composer: viene semplicemente utilizzato per inizializzarlo, quindi avvia la prima scena tramite composer.gotoScene(). In questa chiamata, si specifica il nome della scena (file) da caricare. 
 
@@ -182,6 +189,7 @@ di punteggio: ogni 30 secondi si aggiunge 0.25 al moltiplicatore dei punti e la 
 Evento hide() viene usato per nascondere la scena, in particolare le sue funzioni vengono chiamate nella fase "did". Quando la scena è 
 completamente off-screen, vengono eliminati i listener RunTime e i timer creati in precedenza. Una funzione particolarmente importante
  è "removeScene()" che rimuove completamente la scena, tutti gli oggetti e le variabili al suo interno, in particolare si occupa degli 
- gli oggetti all'interno della gerarchia di sceneGroup (NOTA: non rimuove cose come timer o listener collegati all'oggetto "Runtime". Essi vengono eliminati manualmente).
+ gli oggetti all'interno della gerarchia di sceneGroup (NOTA: non rimuove cose come timer o listener collegati all'oggetto "Runtime". 
+ Essi vengono eliminati manualmente).
 
 \end{document}
