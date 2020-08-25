@@ -22,7 +22,7 @@ fontParams.colorB = 0.1
 composer.setVariable( "defaultFontParams", fontParams )
 
 -- version of the game
-composer.setVariable( "version", '0.9.1' )
+composer.setVariable( "version", "0.9.1" )
 
 -- reserve channel 1 for background music
 audio.reserveChannels( 1 )
