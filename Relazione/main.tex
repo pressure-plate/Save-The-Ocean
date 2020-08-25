@@ -166,6 +166,21 @@ La vita del mare viene creata usando la funzione newProgressView in cui vengono 
     \item posizione della barra a seconda dell'asse Y: 
 \end{itemize}
 La percentuale di progresso della barra viene gestita da un metodo setProgress inserito all'interno della funzione newProgressView.
+Inoltre la vita del mare viene aggiornata utilizzando un timer: ogni secondo abbassa la vita del mare in funzione della quantità 
+di oggetti che sono fuoriusciti dalla parte sinsitra schermo, e che quindi non sono stati raccolti dal sottomarino. 
+La quantità di vita perduta è proporzionale al valore dell'oggetto perso.
 
+\subsection{show()}
+L'evento show() ha due sottoeventi chiamati "will" e "did". Nel "will" si aggiunge il timer che va ad aggiornare il moltiplicatore 
+di punteggio: ogni 30 secondi si aggiunge 0.25 al moltiplicatore dei punti e la funzione che fa tutto questo è updateScoreMultiplier().
+ Il codice del sottoevento "did" viene eseguito quando la scena è visualizzata sullo schermo, e come prima cosa viene fatta partire 
+ la fisica, altrimenti il gioco inizierebbe con il sottomarino sulla parte bassa dello schermo. Inoltre in questa fase si carica 
+ il modulo relativo allo "spawner" dei vari oggetti(bottigliette, barili, scogli) e al caricamento dell'audio (la musica e i vari effetti sonori).
+
+\subsection{hide()}
+Evento hide() viene usato per nascondere la scena, in particolare le sue funzioni vengono chiamate nella fase "did". Quando la scena è 
+completamente off-screen, vengono eliminati i listener RunTime e i timer creati in precedenza. Una funzione particolarmente importante
+ è "removeScene()" che rimuove completamente la scena, tutti gli oggetti e le variabili al suo interno, in particolare si occupa degli 
+ gli oggetti all'interno della gerarchia di sceneGroup (NOTA: non rimuove cose come timer o listener collegati all'oggetto "Runtime". Essi vengono eliminati manualmente).
 
 \end{document}
