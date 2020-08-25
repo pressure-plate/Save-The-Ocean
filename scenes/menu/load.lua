@@ -2,9 +2,10 @@ local M = {}
 
 local composer = require( "composer" )
 
--- load submarine module
-local subMod = require( "scenes.game.submarine" )
-local bgMod = require( "scenes.game.background" )
+local savedata = require( "scenes.libs.savedata" ) -- load the save data module
+
+local bgMenuMod = require( "scenes.menu.background" ) -- required to reload the home background
+
 
 -- initialize variables -------------------------------------------------------
 
@@ -23,6 +24,12 @@ local inTableItems = {}
 local highlightSelected
 
 
+-- ----------------------------------------------------------------------------
+-- Functions
+-- ----------------------------------------------------------------------------
+
+-- function to visually check the selected item
+-- this function is called by the event that handle the clicked object
 local function highlightItem( x, y )
     display.remove( highlightSelected )
 
@@ -35,24 +42,27 @@ end
 
 -- called on screen tap on the item
 local function onSubmarineSelection( event )
-    subMod.submarineSkin = event.target.itemId
+    savedata.setGamedata( "submarineSkin", event.target.itemId )
     highlightItem(event.target.x, event.target.y)
 end
 
 
 -- called on screen tap on the item
 local function onBoubleSelection( event )
-    subMod.bubbleSkin = event.target.itemId
+    savedata.setGamedata( "submarineBubbleSkin", event.target.itemId )
     highlightItem(event.target.x, event.target.y)
 end
 
 
+-- set the background var once is selected
 local function onWorldStikerSelection( event )
-    bgMod.bgWorld = event.target.itemId
+    savedata.setGamedata( "backgroundWorld", event.target.itemId )
+    bgMenuMod.updateBackground() -- call the reload for the background menu
     highlightItem(event.target.x, event.target.y)
 end
 
 
+--  public function to destroy the loaded content
 function M.destroyTable()
     for i=0, table.getn(inTableItems) do 
         display.remove( inTableItems[i] )
@@ -62,6 +72,8 @@ function M.destroyTable()
 end
 
 
+-- function that create a table as a grid
+-- and it will populare the cells with the given objectGenerationFunction(i, row, col)
 local function createTable(objectGenerationFunction, itemCount)
     
     local isBreak = false
@@ -83,6 +95,11 @@ local function createTable(objectGenerationFunction, itemCount)
 end
 
 
+-- ----------------------------------------------------------------------------
+-- Load Items Functions
+-- ----------------------------------------------------------------------------
+
+-- load the content in submarines menu
 function M.loadSubmarines()
 
     local itemsCount = 6
@@ -99,7 +116,7 @@ function M.loadSubmarines()
         item:addEventListener( "tap", onSubmarineSelection ) -- tap listener
         
         -- if the submarine is the current loaded then highlight it
-        if subMod.submarineSkin == i then -- check the loaded item
+        if savedata.getGamedata( "submarineSkin") == i then -- check the loaded item
             highlightItem(item.x, item.y)
         end
         return item
@@ -109,6 +126,7 @@ function M.loadSubmarines()
 end
 
 
+-- load the content in bubbles menu
 function M.loadBubbles()
 
     local itemsCount = 3
@@ -125,7 +143,7 @@ function M.loadBubbles()
         item:addEventListener( "tap", onBoubleSelection ) -- tap listener
         
         -- if the bubble is the current loaded then highlight it
-        if subMod.bubbleSkin == i then  -- check the loaded item
+        if savedata.getGamedata( "submarineBubbleSkin") == i then  -- check the loaded item
             highlightItem(item.x, item.y)
         end
         return item
@@ -135,6 +153,7 @@ function M.loadBubbles()
 end
 
 
+-- load the content in world menu
 function M.loadWorlds()
 
     local itemsCount = 4
@@ -151,7 +170,7 @@ function M.loadWorlds()
         item:addEventListener( "tap", onWorldStikerSelection ) -- tap listener
         
         -- if the works is the current loaded then highlight it
-        if bgMod.bgWorld == i then -- check the loaded item
+        if savedata.getGamedata( "backgroundWorld" ) == i then -- check the loaded item
             highlightItem(item.x, item.y)
         end
         return item
@@ -160,6 +179,10 @@ function M.loadWorlds()
     createTable(objectGenerationFunction, itemsCount)
 end
 
+
+-- ----------------------------------------------------------------------------
+-- Init
+-- ----------------------------------------------------------------------------
 
 -- init function
 function M.init( displayGroup )

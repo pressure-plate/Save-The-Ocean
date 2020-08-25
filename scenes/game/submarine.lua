@@ -139,7 +139,7 @@ function M.create( submarineGroup, mainGroup )
 	group = submarineGroup
 	bubbleGroup = mainGroup
 	submarineSkin = savedata.getGamedata( "submarineSkin" )
-	bubbleSkin = savedata.getGamedata( "bubbleSkin" )
+	bubbleSkin = savedata.getGamedata( "submarineBubbleSkin" )
 
 	-- load submarine skin
 	local submarinePaint = {

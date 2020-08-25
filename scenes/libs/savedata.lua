@@ -13,7 +13,7 @@ local gamedataFilePath = system.pathForFile( "gamedata.json", system.DocumentsDi
 -- DEFAULT game data
 local gamedataTableDefault = {
     submarineSkin = 1,
-    bubbleSkin = 1,
+    submarineBubbleSkin = 1,
     backgroundWorld = 1,
     backgroundLayerNum = 6
 }

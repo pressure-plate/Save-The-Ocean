@@ -24,34 +24,12 @@ local uiDir = "assets/ui/" -- user interface assets dir
 local bgGroup
 local uiGroup
 
-local gameSpeedUpdateTimer = 0.1
-local backgroundScrollDirection = 1
-local backgroundmaxVel = 0.1
-
 -- scale
 local buttonScaleFactor = 0.6
 local badgesScaleFactor = 0.3
 
 -- buttons grid formatting, set on init
 local buttonRowOffset -- the offet between each button on the same row
-
-
--- -----------------------------------------------------------------------------------
--- Scene event functions
--- -----------------------------------------------------------------------------------
-
--- update game speed
-local function BackgroundSpeedUpdate()
-
-	local gs = composer.getVariable( "backgroundSpeed" )
-
-	if ( math.abs(gs) >= backgroundmaxVel ) then 
-		backgroundScrollDirection = backgroundScrollDirection * -1
-	end
-	gs = gs + (0.01) * backgroundScrollDirection
-
-	composer.setVariable( "backgroundSpeed", gs )
-end
 
 
 -- ----------------------------------------------------------------------------
@@ -75,10 +53,6 @@ function scene:create( event )
 
 	uiGroup = display.newGroup() -- display group for UI
 	sceneGroup:insert( uiGroup ) -- insert into the scene's view group
-
-	-- set event listener to update game speed
-	composer.setVariable( "backgroundSpeed", 0.1 ) -- set initial game speed
-	menuBackgroundSpeedUpdateTimer = timer.performWithDelay(400, BackgroundSpeedUpdate, 0)
 
 	-- load and set background
 	bgMod.init( bgGroup )
@@ -173,9 +147,7 @@ function scene:hide( event )
 
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
-		
-		-- clear timers
-		timer.cancel( menuBackgroundSpeedUpdateTimer )
+
 		-- clear background
 		bgMod.clear()
 
