@@ -15,6 +15,7 @@ local group
 -- assets directory
 local submarineDir = "assets/submarine/" -- submarine assets
 local backgroundDir = "assets/background/" -- background assets
+local audioDir = "audio/" -- audio dir
 
 
 -- default table configuration
@@ -24,7 +25,7 @@ local inTableItems = {}
 local highlightSelected
 
 -- close button sound
-local buttonSelectSound = audio.loadStream( "audio/sfx/select.mp3" )
+local buttonSelectSound = audio.loadStream( audioDir .. "sfx/select.mp3" )
 
 
 -- ----------------------------------------------------------------------------

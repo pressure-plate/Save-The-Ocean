@@ -26,6 +26,7 @@ local badgesMod = require( "scenes.libs.ui" )
 
 -- assets directory
 local bgDir = "assets/menu/" -- user interface assets dir
+local audioDir = "audio/" -- audio dir
 
 -- display groups
 local bgGroup
@@ -59,9 +60,9 @@ function scene:create( event )
 	windowMod.init( uiGroup )
 
 	-- load music
-	menuTrack = audio.loadStream( "audio/Halo-SetFireInYourHeart.mp3")
-	buttonPlaySound = audio.loadStream( "audio/sfx/play.mp3")
-	buttonClickSound = audio.loadStream( "audio/sfx/click.mp3" )
+	menuTrack = audio.loadStream( audioDir .. "menu.mp3" )
+	buttonPlaySound = audio.loadStream( audioDir .. "sfx/play.mp3" )
+	buttonClickSound = audio.loadStream( audioDir .. "sfx/click.mp3" )
 
 	-- set title on the menu
 	local titleImmage = display.newImageRect(uiGroup, bgDir .. "menu2.png", display.contentWidth, display.contentHeight) -- set title
