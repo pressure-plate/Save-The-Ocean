@@ -56,7 +56,7 @@ local function onSubmarineSelection( event )
 end
 
 
--- called on screen tap on the item
+-- called on screen tap on the Submarine
 local function onBoubleSelection( event )
     savedata.setGamedata( "submarineBubbleSkin", event.target.itemId )
     highlightItem(event.target.x, event.target.y, false)

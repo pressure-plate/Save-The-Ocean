@@ -21,6 +21,8 @@ local windowMod = require( "scenes.menu.window" )
 -- load the saved data
 local savedata = require( "scenes.libs.savedata" ) -- load the save data module
 
+local badgeMod = require( "scenes.libs.badges" )
+
 -- assets directory
 local bgDir = "assets/menu/" -- user interface assets dir
 local uiDir = "assets/ui/" -- user interface assets dir
@@ -29,12 +31,9 @@ local uiDir = "assets/ui/" -- user interface assets dir
 local bgGroup
 local uiGroup
 
--- scale
+-- buttons formatting
 local buttonScaleFactor = 0.6
-local badgesScaleFactor = 0.3
-
--- buttons grid formatting, set on init
-local buttonRowOffset -- the offet between each button on the same row
+local buttonRowOffset = 150 -- the offet between each button on the same row
 
 -- audio
 local menuTrack
@@ -73,91 +72,64 @@ function scene:create( event )
 	titleImmage.x = display.contentCenterX
 	titleImmage.y = display.contentCenterY
 	
-	-- set button to play the game
-	local playButton = display.newImage(uiGroup, uiDir .. "buttonPlay3.png")
-	playButton:scale(buttonScaleFactor, buttonScaleFactor)
-	playButton.x = display.contentCenterX
-	playButton.y = display.contentCenterY
-	playButton:addEventListener( 
-		"tap", 
-		function () 
-			audio.play( buttonPlaySound )
-    		composer.gotoScene( "scenes.game", { time=fadeOutGame, effect="crossFade" } )
-		end  
-	) -- tap listener
 
-	-- set offsets based on the dimensions of the button
-	-- based on the play button that is on the center of the screen
-	buttonRowOffset = playButton.height*buttonScaleFactor*1.1
+	-- ----------------------------------------------------------------------------
+	-- cental buttons
+	-- ----------------------------------------------------------------------------
+	local function playCallback() 
+		audio.play( buttonPlaySound )
+		composer.gotoScene( "scenes.game", { time=fadeOutGame, effect="crossFade" } )
+	end 
 
-	-- set button to display highscores
-	local highScoresButton = display.newImage(uiGroup, uiDir .. "buttonScores.png")
-	highScoresButton:scale(buttonScaleFactor, buttonScaleFactor)
-	highScoresButton.x = display.contentCenterX
-	highScoresButton.y = display.contentCenterY + buttonRowOffset * 1  -- increment the counter for each new button in the column
-	highScoresButton:addEventListener( "tap", windowMod.openHighscoresMenu ) -- tap listener
+	local buttonsDescriptor = {
+		{"buttonPlay3.png", playCallback},
+		{"buttonScores.png", windowMod.openHighscoresMenu},
+		{"buttonAbout.png", windowMod.openAboutMenu}
+	}
 
-	-- set button to open about windows
-	local aboutButton = display.newImage(uiGroup, uiDir .. "buttonAbout.png")
-	aboutButton:scale(buttonScaleFactor, buttonScaleFactor)
-	aboutButton.x = display.contentCenterX
-	aboutButton.y = display.contentCenterY + buttonRowOffset * 2  -- increment the counter for each new button in the column
-	aboutButton:addEventListener( "tap", windowMod.openAboutMenu ) -- tap listener
+	for buttonCount = 1, #buttonsDescriptor do
+		local button = buttonsDescriptor[buttonCount]
+		local buttonDir = button[1]
+		local buttonCallback = button[2]
+
+		local buttonItem = display.newImage(uiGroup, uiDir .. buttonDir)
+		buttonItem:scale(buttonScaleFactor, buttonScaleFactor)
+		buttonItem.x = display.contentCenterX
+		buttonItem.y = display.contentCenterY + buttonRowOffset * (buttonCount-1)  -- increment the counter for each new button in the column
+		buttonItem:addEventListener( "tap", buttonCallback ) -- tap listener
+	end
+	
 	
 	-- ----------------------------------------------------------------------------
 	-- top right bagdes
 	-- ----------------------------------------------------------------------------
-	local buttonRowOffset = 200 -- the offet between each button on the same row
-
-	-- open worlds window
-	local worldsBadge = display.newImage(uiGroup, uiDir .. "badgeEdit.png") -- set mask
-	worldsBadge:scale( badgesScaleFactor, badgesScaleFactor )
-	worldsBadge.x = display.contentCenterX + display.contentWidth/2.3
-	worldsBadge.y = display.contentCenterY - display.contentHeight/2.5
-	worldsBadge:addEventListener( "tap", windowMod.openWorldsMenu ) -- tap listener
-
-	-- open sumbmarines window
-	local sumbmarinesBadge = display.newImage(uiGroup, uiDir .. "badgeSubmarine.png") -- set mask
-	sumbmarinesBadge:scale( badgesScaleFactor, badgesScaleFactor )
-	sumbmarinesBadge.x = display.contentCenterX + display.contentWidth/2.3 - buttonRowOffset * 1
-	sumbmarinesBadge.y = display.contentCenterY - display.contentHeight/2.5
-	sumbmarinesBadge:addEventListener( "tap", windowMod.openSubmarinesMenu ) -- tap listener
-
-	-- open bubbles window
-	local bubblesBadge = display.newImage(uiGroup, uiDir .. "badgeBubbles.png") -- set mask
-	bubblesBadge:scale( badgesScaleFactor, badgesScaleFactor )
-	bubblesBadge.x = display.contentCenterX + display.contentWidth/2.3 - buttonRowOffset * 2
-	bubblesBadge.y = display.contentCenterY - display.contentHeight/2.5
-	bubblesBadge:addEventListener( "tap", windowMod.openBubblesMenu ) -- tap listener
-
-	-- open bubbles window
-	local muteBadge = display.newImage(uiGroup, uiDir .. "badgeMute.png") -- set mask
-	muteBadge:scale( badgesScaleFactor, badgesScaleFactor )
-	muteBadge.x = display.contentCenterX + display.contentWidth/2.3 - buttonRowOffset * 3
-	muteBadge.y = display.contentCenterY - display.contentHeight/2.5
-	muteBadge:addEventListener( 
-		"tap", 
-		function()
-			audioMute = savedata.getGamedata( "audioMute" )
-			if audioMute then
-				audio.setVolume( 0.7, { channel=1 } )
-				audio.play( buttonClickSound )
-				savedata.setGamedata( "audioMute", false)
-			else
-				audio.play( buttonClickSound )
-				audio.setVolume( 0, { channel=1 } )
-				savedata.setGamedata( "audioMute", true)
-			end 
+	local function muteMusicCallback()
+		audioMute = savedata.getGamedata( "audioMute" )
+		if audioMute then
+			audio.setVolume( 0.7, { channel=1 } )
+			audio.play( buttonClickSound )
+			savedata.setGamedata( "audioMute", false)
+		else
+			audio.play( buttonClickSound )
+			audio.setVolume( 0, { channel=1 } )
+			savedata.setGamedata( "audioMute", true)
 		end 
-	) -- tap listener
-
+	end
+	
+	local badgesDescriptor = {
+		{"badgeEdit.png", windowMod.openWorldsMenu},
+		{"badgeSubmarine.png", windowMod.openSubmarinesMenu},
+		{"badgeBubbles.png", windowMod.openBubblesMenu},
+		{"badgeMute.png", muteMusicCallback}
+	}
+	badgeMod.init(uiGroup, badgesDescriptor)
 
 	-- show version
 	local fontParams = composer.getVariable( "defaultFontParams" )
 
 	local versionStamp = display.newText( 
         uiGroup, 
-        'ver.: ' .. composer.getVariable( "version" ), 
+        'v ' .. composer.getVariable( "version" ), 
         display.contentCenterX - display.contentWidth/2.5, 
         display.contentCenterY + display.contentHeight/2.3, 
         fontParams.path, 
@@ -165,6 +137,7 @@ function scene:create( event )
 	)
 	versionStamp:setFillColor( fontParams.colorR, fontParams.colorG, fontParams.colorB )
 
+	-- show label
 	local gameProgrammingStamp = display.newText( 
         uiGroup, 
         'Laboratorio di Game Programing', 
