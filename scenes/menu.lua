@@ -21,19 +21,15 @@ local windowMod = require( "scenes.menu.window" )
 -- load the saved data
 local savedata = require( "scenes.libs.savedata" ) -- load the save data module
 
-local badgeMod = require( "scenes.libs.badges" )
+local buttonsMod = require( "scenes.libs.ui" )
+local badgesMod = require( "scenes.libs.ui" )
 
 -- assets directory
 local bgDir = "assets/menu/" -- user interface assets dir
-local uiDir = "assets/ui/" -- user interface assets dir
 
 -- display groups
 local bgGroup
 local uiGroup
-
--- buttons formatting
-local buttonScaleFactor = 0.6
-local buttonRowOffset = 150 -- the offet between each button on the same row
 
 -- audio
 local menuTrack
@@ -82,23 +78,16 @@ function scene:create( event )
 	end 
 
 	local buttonsDescriptor = {
-		{"buttonPlay3.png", playCallback},
-		{"buttonScores.png", windowMod.openHighscoresMenu},
-		{"buttonAbout.png", windowMod.openAboutMenu}
+		descriptor = {
+			{"buttonPlay3.png", playCallback},
+			{"buttonScores.png", windowMod.openHighscoresMenu},
+			{"buttonAbout.png", windowMod.openAboutMenu}
+		},
+		propagation = 'down',
+		position = 'center',
+		scaleFactor = 0.6
 	}
-
-	for buttonCount = 1, #buttonsDescriptor do
-		local button = buttonsDescriptor[buttonCount]
-		local buttonDir = button[1]
-		local buttonCallback = button[2]
-
-		local buttonItem = display.newImage(uiGroup, uiDir .. buttonDir)
-		buttonItem:scale(buttonScaleFactor, buttonScaleFactor)
-		buttonItem.x = display.contentCenterX
-		buttonItem.y = display.contentCenterY + buttonRowOffset * (buttonCount-1)  -- increment the counter for each new button in the column
-		buttonItem:addEventListener( "tap", buttonCallback ) -- tap listener
-	end
-	
+	buttonsMod.init(uiGroup, buttonsDescriptor)	
 	
 	-- ----------------------------------------------------------------------------
 	-- top right bagdes
@@ -117,13 +106,20 @@ function scene:create( event )
 	end
 	
 	local badgesDescriptor = {
-		{"badgeEdit.png", windowMod.openWorldsMenu},
-		{"badgeSubmarine.png", windowMod.openSubmarinesMenu},
-		{"badgeBubbles.png", windowMod.openBubblesMenu},
-		{"badgeMute.png", muteMusicCallback}
+		descriptor={
+			{"badgeEdit.png", windowMod.openWorldsMenu},
+			{"badgeSubmarine.png", windowMod.openSubmarinesMenu},
+			{"badgeBubbles.png", windowMod.openBubblesMenu},
+			{"badgeMute.png", muteMusicCallback}
+		}
 	}
-	badgeMod.init(uiGroup, badgesDescriptor)
+	badgesMod.init(uiGroup, badgesDescriptor)
 
+
+	-- ----------------------------------------------------------------------------
+	-- bottom row text
+	-- ----------------------------------------------------------------------------
+	
 	-- show version
 	local fontParams = composer.getVariable( "defaultFontParams" )
 
