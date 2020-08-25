@@ -19,14 +19,23 @@ local windowObjects = {} -- to store the objest used to create the window
 
 local closeButtonScaleRateo = 3
 
+-- close button sound
+local buttonCloseSound = audio.loadStream( "audio/sfx/close.mp3" )
+local buttonClickSound = audio.loadStream( "audio/sfx/click.mp3" )
 
-local function closeWindow()
+
+local function closeWindow(playSound)
 
     -- remove oll the objects used to create the window
     for i=0, table.getn(windowObjects) do
         display.remove( windowObjects[i] )
     end
     windowObjects = {} -- removing reference to let garbage colletcor do its job
+
+    -- avoid to play close sound on window switch
+    if playSound then
+        audio.play( buttonCloseSound )
+    end
 
     isOpen = false
     if onExitCallback ~= null then
@@ -44,9 +53,12 @@ local function openWindow(exitCallback, title)
 
     local yTitleBar -- the level of the title bar in the window
 
+    -- Play open Window Sound
+    audio.play( buttonClickSound )
+
     -- if a windows is already open, close it
     if isOpen == true then
-        closeWindow()
+        closeWindow(false)
     end
 
     -- show the menu window
@@ -64,14 +76,17 @@ local function openWindow(exitCallback, title)
     end
 
     -- set the window title
+    local fontParams = composer.getVariable( "defaultFontParams" )
+
     windowTitle = display.newText( 
         group, 
         title, 
         display.contentCenterX, 
         display.contentCenterY - yTitleBar, 
-        "fonts/CooperBlack.ttf", 
+        fontParams.path, 
         100 
     )
+    windowTitle:setFillColor( fontParams.colorR, fontParams.colorG, fontParams.colorB )
     table.insert(windowObjects, windowTitle)
 
     -- set the close button
@@ -79,7 +94,7 @@ local function openWindow(exitCallback, title)
     closeButton:scale(0.3, 0.3)
 	closeButton.x = display.contentCenterX - settingsWindow.x/1.5
 	closeButton.y = display.contentCenterY - yTitleBar
-    closeButton:addEventListener( "tap", closeWindow ) -- tap listener
+    closeButton:addEventListener( "tap", function () closeWindow(true) end ) -- tap listener
     table.insert(windowObjects, closeButton)
 
     isOpen = true
@@ -136,6 +151,8 @@ function M.init( displayGroup )
 
     -- init the loader
     loadMod.init(displayGroup)
+
 end
+
 
 return M

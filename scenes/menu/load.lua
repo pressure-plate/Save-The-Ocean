@@ -2,9 +2,10 @@ local M = {}
 
 local composer = require( "composer" )
 
--- load submarine module
-local subMod = require( "scenes.game.submarine" )
-local bgMod = require( "scenes.game.background" )
+local savedata = require( "scenes.libs.savedata" ) -- load the save data module
+
+local bgMenuMod = require( "scenes.menu.background" ) -- required to reload the home background
+
 
 -- initialize variables -------------------------------------------------------
 
@@ -22,8 +23,23 @@ local rowCount = 2
 local inTableItems = {}
 local highlightSelected
 
+-- close button sound
+local buttonSelectSound = audio.loadStream( "audio/sfx/select.mp3" )
 
-local function highlightItem( x, y )
+
+-- ----------------------------------------------------------------------------
+-- Functions
+-- ----------------------------------------------------------------------------
+
+-- function to visually check the selected item
+-- this function is called by the event that handle the clicked object
+local function highlightItem( x, y, isOnLoad )
+    
+    -- avoid to play the sound when the menu is opened
+    if not isOnLoad then
+        audio.play( buttonSelectSound )
+    end
+
     display.remove( highlightSelected )
 
     highlightSelected = display.newImage(group, submarineDir .. "hightlight.png") -- set title
@@ -35,24 +51,27 @@ end
 
 -- called on screen tap on the item
 local function onSubmarineSelection( event )
-    subMod.submarineSkin = event.target.itemId
-    highlightItem(event.target.x, event.target.y)
+    savedata.setGamedata( "submarineSkin", event.target.itemId )
+    highlightItem(event.target.x, event.target.y, false)
 end
 
 
--- called on screen tap on the item
+-- called on screen tap on the Submarine
 local function onBoubleSelection( event )
-    subMod.bubbleSkin = event.target.itemId
-    highlightItem(event.target.x, event.target.y)
+    savedata.setGamedata( "submarineBubbleSkin", event.target.itemId )
+    highlightItem(event.target.x, event.target.y, false)
 end
 
 
+-- set the background var once is selected
 local function onWorldStikerSelection( event )
-    bgMod.bgWorld = event.target.itemId
-    highlightItem(event.target.x, event.target.y)
+    savedata.setGamedata( "backgroundWorld", event.target.itemId )
+    bgMenuMod.updateBackground() -- call the reload for the background menu
+    highlightItem(event.target.x, event.target.y, false)
 end
 
 
+--  public function to destroy the loaded content
 function M.destroyTable()
     for i=0, table.getn(inTableItems) do 
         display.remove( inTableItems[i] )
@@ -62,6 +81,8 @@ function M.destroyTable()
 end
 
 
+-- function that create a table as a grid
+-- and it will populare the cells with the given objectGenerationFunction(i, row, col)
 local function createTable(objectGenerationFunction, itemCount)
     
     local isBreak = false
@@ -83,6 +104,11 @@ local function createTable(objectGenerationFunction, itemCount)
 end
 
 
+-- ----------------------------------------------------------------------------
+-- Load Items Functions
+-- ----------------------------------------------------------------------------
+
+-- load the content in submarines menu
 function M.loadSubmarines()
 
     local itemsCount = 6
@@ -99,8 +125,8 @@ function M.loadSubmarines()
         item:addEventListener( "tap", onSubmarineSelection ) -- tap listener
         
         -- if the submarine is the current loaded then highlight it
-        if subMod.submarineSkin == i then -- check the loaded item
-            highlightItem(item.x, item.y)
+        if savedata.getGamedata( "submarineSkin") == i then -- check the loaded item
+            highlightItem(item.x, item.y, true)
         end
         return item
     end
@@ -109,6 +135,7 @@ function M.loadSubmarines()
 end
 
 
+-- load the content in bubbles menu
 function M.loadBubbles()
 
     local itemsCount = 3
@@ -125,8 +152,8 @@ function M.loadBubbles()
         item:addEventListener( "tap", onBoubleSelection ) -- tap listener
         
         -- if the bubble is the current loaded then highlight it
-        if subMod.bubbleSkin == i then  -- check the loaded item
-            highlightItem(item.x, item.y)
+        if savedata.getGamedata( "submarineBubbleSkin") == i then  -- check the loaded item
+            highlightItem(item.x, item.y, true)
         end
         return item
     end
@@ -135,6 +162,7 @@ function M.loadBubbles()
 end
 
 
+-- load the content in world menu
 function M.loadWorlds()
 
     local itemsCount = 4
@@ -151,8 +179,8 @@ function M.loadWorlds()
         item:addEventListener( "tap", onWorldStikerSelection ) -- tap listener
         
         -- if the works is the current loaded then highlight it
-        if bgMod.bgWorld == i then -- check the loaded item
-            highlightItem(item.x, item.y)
+        if savedata.getGamedata( "backgroundWorld" ) == i then -- check the loaded item
+            highlightItem(item.x, item.y, true)
         end
         return item
     end
@@ -161,10 +189,16 @@ function M.loadWorlds()
 end
 
 
+-- ----------------------------------------------------------------------------
+-- Init
+-- ----------------------------------------------------------------------------
+
 -- init function
 function M.init( displayGroup )
     -- init vars
     group = displayGroup
+
 end
+
 
 return M
