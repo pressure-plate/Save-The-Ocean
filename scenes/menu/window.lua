@@ -10,6 +10,7 @@ local loadMod = require( "scenes.menu.load" )
 
 -- assets directory
 local uiDir = "assets/ui/" -- user interface assets di
+local audioDir = "audio/" -- audio dir
 
 local group
 local isOpen = false
@@ -20,8 +21,8 @@ local windowObjects = {} -- to store the objest used to create the window
 local closeButtonScaleRateo = 3
 
 -- close button sound
-local buttonCloseSound = audio.loadStream( "audio/sfx/close.mp3" )
-local buttonClickSound = audio.loadStream( "audio/sfx/click.mp3" )
+local buttonCloseSound = audio.loadStream( audioDir .. "sfx/close.mp3" )
+local buttonClickSound = audio.loadStream( audioDir .. "sfx/click.mp3" )
 
 
 local function closeWindow(playSound)
