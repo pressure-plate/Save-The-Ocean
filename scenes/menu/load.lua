@@ -33,8 +33,12 @@ local buttonSelectSound = audio.loadStream( "audio/sfx/select.mp3" )
 
 -- function to visually check the selected item
 -- this function is called by the event that handle the clicked object
-local function highlightItem( x, y )
-    audio.play( buttonSelectSound )
+local function highlightItem( x, y, isOnLoad )
+    
+    -- avoid to play the sound when the menu is opened
+    if not isOnLoad then
+        audio.play( buttonSelectSound )
+    end
 
     display.remove( highlightSelected )
 
@@ -48,14 +52,14 @@ end
 -- called on screen tap on the item
 local function onSubmarineSelection( event )
     savedata.setGamedata( "submarineSkin", event.target.itemId )
-    highlightItem(event.target.x, event.target.y)
+    highlightItem(event.target.x, event.target.y, false)
 end
 
 
 -- called on screen tap on the item
 local function onBoubleSelection( event )
     savedata.setGamedata( "submarineBubbleSkin", event.target.itemId )
-    highlightItem(event.target.x, event.target.y)
+    highlightItem(event.target.x, event.target.y, false)
 end
 
 
@@ -63,7 +67,7 @@ end
 local function onWorldStikerSelection( event )
     savedata.setGamedata( "backgroundWorld", event.target.itemId )
     bgMenuMod.updateBackground() -- call the reload for the background menu
-    highlightItem(event.target.x, event.target.y)
+    highlightItem(event.target.x, event.target.y, false)
 end
 
 
@@ -122,7 +126,7 @@ function M.loadSubmarines()
         
         -- if the submarine is the current loaded then highlight it
         if savedata.getGamedata( "submarineSkin") == i then -- check the loaded item
-            highlightItem(item.x, item.y)
+            highlightItem(item.x, item.y, true)
         end
         return item
     end
@@ -149,7 +153,7 @@ function M.loadBubbles()
         
         -- if the bubble is the current loaded then highlight it
         if savedata.getGamedata( "submarineBubbleSkin") == i then  -- check the loaded item
-            highlightItem(item.x, item.y)
+            highlightItem(item.x, item.y, true)
         end
         return item
     end
@@ -176,7 +180,7 @@ function M.loadWorlds()
         
         -- if the works is the current loaded then highlight it
         if savedata.getGamedata( "backgroundWorld" ) == i then -- check the loaded item
-            highlightItem(item.x, item.y)
+            highlightItem(item.x, item.y, true)
         end
         return item
     end
