@@ -1,3 +1,5 @@
+
+
 \documentclass[12pt]{article}
 \usepackage[italian]{babel}
 \usepackage[utf8x]{inputenc}
@@ -84,11 +86,9 @@ maestrutti.andrea@spes.uniud.it
 \tableofcontents
 \clearpage
 \section{Il problema}
-Il progetto d’esame relativo all’insegnamento di Laboratorio di Tecnologie Audio-VideoInterattive (LGP) consiste nell’implementazione di un videogioco utilizzando il framework di sviluppo CoronaSDK. 
-Il tema del videogioco è l'ecologia e l'ambiente.
+Il progetto d’esame relativo all’insegnamento di Laboratorio di Tecnologie Audio-VideoInterattive (LGP) consiste nell’implementazione di un videogioco utilizzando il framework di sviluppo CoronaSDK. Il tema del videogioco è l'ambiente. 
 
-Ai fini dello sviluppo è stato utilizzato il linguaggio di programmazione "Lua", che è un linguaggio utilizzato prevalentemente per 
-scripting.
+Ai fini dello sviluppo è stato utilizzato il linguaggio di programmazione "Lua", che è un linguaggio utilizzato prevalentemente per scripting.
 
 \section{Meccaniche di gioco}
 \subsection{Spiegazione del gioco}
@@ -114,24 +114,37 @@ Il gioco è stato implementato utilizzando il framework coronaSDK, e scrivendo i
 
 
 Il codice è stato diviso in moduli per avere una visione più completa del programma e per poter apportare modifiche più agevolemente. 
-Il codice è stato diviso in moduli per avere una visione più completa del programma e per poter apportare modifiche più agevolemente. 
 Ogni modulo del gioco ha un template ben definito:
 \\\\
 
-%                   INSERIRE IMMAGINE MODULO                %
+
+\includegraphics[width=152mm]{module_template.png}\\
+
+\section{Gestione dell’efficieza nella generazione delle hitbox
+per gli ostacoli}
+
+Dato che gli ostacoli devono avere una \textbf{hitbox} consistente con la loro forma, viene utillizzata la funzione di libreria 
+graphics.newOutline(), per creare automaticamente il poligono della hitbox basandosi sulle sezioni con alpha = 0 (trasparente) 
+dell’asset dell’ostacolo.
+Tale operazione richiede un elaborazione sull’immagine ed è onerosa in termini di prestazioni. E'stato dunque unserito un sistema 
+dinamico di cache, che utilizza la table outlineCache dove vengono salvati i gli output della funzione graphics.newOutline(), 
+utilizzando come stringa di riferimento per la table il nome del path dove risiede l’asset salvato, es. outlineCache [assetPathString] = graphics.newOutline(), 
+dunque ogni volta che è necessario creare l’outline di un ostacolo viene prima verificata la sua presenza in cache, se presente viene 
+estratto da li, se non presente viene generato, salvato in cache, e poi letto sempre dalla cache. Il sistema è dinamico e non si basa 
+su una tabella di nomi gia definita ma viene creata all’occorrenza e per qualsiasi nome di percorso.
 
 \subsection{Scene}
 Il gioco è strutturato in "scene", gestite utilizzando il \textbf{composer}, una libreria che fornisce agli sviluppatori  un modo semplice per creare e passare da una scena all'altra. Il ciclo di vita di composer inizia all'interno di main.lua. Tuttavia, main.lua stesso non è una scena del composer: viene semplicemente utilizzato per inizializzarlo, quindi avvia la prima scena tramite composer.gotoScene(). In questa chiamata, si specifica il nome della scena (file) da caricare. 
 
-Quattro diverse funzioni del ciclo di vita gestiscono gli eventi generati dal Composer: : create, show, hide and destroy.
-La funzione "scene:create()" viene utilizzata per creare tutti gli oggetti, caricare in memoria e di settare i display object, inclusi pulsanti, testo, grafica e altri oggetti che dovrebbero essere visualizzati prima dell'effettiva comparsa sullo schermo.
-La funzione "scene:show()" ... \\
-La funzione "scene:hide()" è composta da due fasi: una fase "will", quando la scena è sullo schermo (ma sta per uscire dallo schermo); ed una fase "did", immediatamente dopo che la scena esce dallo schermo. Se viene specificato un effetto di transizione o sovrapposizione per la nuova scena , la fase "will" viene inviata prima che l'effetto inizi l'esecuzione e la fase "did" viene inviata dopo che l'effetto è terminato.
-Quando si esce dalla scena la funzione che viene richiamata per eliminare gli oggetti è "scene:destroy". 
+Quattro diverse funzioni gestiscono gli eventi generati dal Composer: create, show, hide and destroy.
+La funzione "scene:create()" viene utilizzata per creare tutti gli oggetti, caricare in memoria e settare i display object, inclusi pulsanti, testo, grafica e altri oggetti che dovrebbero essere visualizzati prima dell'effettiva comparsa sullo schermo.
+Immediatamente prima della transizione della scena sullo schermo, viene inviato un evento show che utilizza un paramatro "will". Questa è una grande opportunità per reimpostare i valori delle variabili o riposizionare oggetti che potrebbero essersi spostati dalla loro posizione iniziale prevista dall'ultima volta che la scena è stata mostrata. Una volta che la scena è completamente sullo schermo, un altro evento viene inviato alla scena: la funzione show () con un parametro di fase uguale a "did", questa è ora considerata la scena attiva.
+La funzione "scene:hide()" è composta anch'essa da due fasi: una fase "will", quando la scena è sullo schermo (ma sta per uscire); ed una fase "did", immediatamente dopo che la scena esce dallo schermo. Se viene specificato un effetto di transizione o sovrapposizione per la nuova scena , la fase "will" viene inviata prima che l'effetto inizi l'esecuzione e la fase "did" viene inviata dopo che l'effetto è terminato.
+Quando si esce dalla scena, la funzione che viene richiamata per eliminare gli oggetti è "scene:destroy" (nel programma in questione questa funzione non è stata necessaria). 
 \\
 
 
-Le varie scene sono rapprsentate da dei file.lua, che verranno chiamati mediante la funzione gotoScene() citata in precedenza, in particolare:
+Le varie scene sono rapprsentate da dei file.lua, che verranno chiamati mediante la funzione del composer gotoScene() citata in precedenza, in particolare:
 \begin{itemize}
     \item menu.lua
     \item game.lua
@@ -139,26 +152,33 @@ Le varie scene sono rapprsentate da dei file.lua, che verranno chiamati mediante
 
 
 
-La schermata iniziale del gioco raffigura il menù, composto da tre pulsanti principali: il pulsante "play" che avvia la partita vera e propria; il pulsante "scores" che mostra i vari punteggi ottenuti; ed infine il pulsante "about" che mostra le informazioni sugli sviluppatori ed il link al git se si volesse contribuire al progetto. \\
+La schermata iniziale del gioco raffigura il menù, composto da tre pulsanti principali: il pulsante "play" che avvia la partita vera e propria; il pulsante "scores" che mostra i punteggi più alti ottenuti; ed infine il pulsante "about" che mostra le informazioni sugli sviluppatori ed il link al git se si volesse contribuire al progetto. \\
 
 \includegraphics[width=70mm]{Menu.png}\\
-Ci sono inoltre tre bottoni secondari: uno realtivo alla scelta delle diverse skin del sottomarino; 
+Ci sono inoltre tre bottoni secondari: 
+\begin{itemize}
+    \item uno realtivo alla scelta delle diverse skin del sottomarino; 
 
 \includegraphics[width=70mm]{skin.png}\\
 
-uno che mostra i vari ambienti di gioco selezionabili; 
+    \item uno che mostra i vari ambienti di gioco selezionabili; 
 
 \includegraphics[width=70mm]{ambienti.png}\\
-\\
-e uno che permette di scegliere il colore delle bolle che usciranno dal sottomarino. 
+
+    \item uno che permette la scelta del colore delle bolle che usciranno dal sottomarino. 
 \\
 
 \includegraphics[width=70mm]{bolle.png}\\
 
+\end{itemize}
 \section{Game.lua}
-Dopo aver premuto il pulsante play si passa al file "game.lua", in cui vengono realizzati tutti gli oggetti ed il codice relativo alla realizzazione della logica del gioco. 
+Dopo aver premuto il pulsante play si passa al file "game.lua", in cui vengono realizzati tutti gli oggetti ed il codice relativo 
+alla realizzazione della logica del gioco. 
 \subsection{create()}
-Nella funzione create(), inzialmente vengono settate le variabili legate al composer: "startTime" è utilizzata per calcolare la velocità dello schermo in base al tempo; "gameSpeed", imposta la velocità iniziale di scorrimento dello schermo (inizialmente gameSpeed = 1). Tale velocità viene aggiornata ogni 1000 ms tramite un listener che chiama la funzione updateGameSpeed. La scelta del valore 1000ms non è casuale, ma è stato inserito in modo tale da non accumulare troppo l'incremento in quel secondo.
+Nella funzione create(), inzialmente vengono settate le variabili legate al composer: "startTime" è utilizzata per calcolare la 
+velocità dello schermo in base al tempo; "gameSpeed", imposta la velocità iniziale di scorrimento dello schermo a 1. 
+ale velocità viene aggiornata ogni 1000 ms tramite un listener che chiama la funzione updateGameSpeed. 
+La scelta del valore 1000ms non è casuale, ma è stato inserito in modo tale da non accumulare troppo l'incremento in quel secondo.
 \\
 
 Le collisioni tra sottomarino ed oggetti da raccogliere sono gestite a tempo di esecuzione mediante un listener, in questo modo ogni volta che avviene una collisione viene chiamata la funzione onCollision(). 
@@ -170,26 +190,51 @@ Il punteggio viene rappresentato mediante un "display object" in cui è stato ut
 La vita del mare viene creata usando la funzione newProgressView in cui vengono inseriti 3 parametri:
 \begin{itemize}
     \item percetuale della vita: rappresentata da un valore all'interno dell'intervallo [0,1] in cui 1 rappresenta il 100 e 0 lo 0. La barra viene creata inizialmente al 100.
-    \item posizione della barra a seconda dell'asse X: inizialmente posta al centro dell'asse X (contentCenterX)
-    \item posizione della barra a seconda dell'asse Y: 
+    \item posizione della barra a seconda dell'asse X (inizialmente posta al centro dell'asse X)
+    \item posizione della barra a seconda dell'asse Y
 \end{itemize}
-La percentuale di progresso della barra viene gestita da un metodo setProgress inserito all'interno della funzione newProgressView.
-Inoltre la vita del mare viene aggiornata utilizzando un timer: ogni secondo abbassa la vita del mare in funzione della quantità 
-di oggetti che sono fuoriusciti dalla parte sinsitra schermo, e che quindi non sono stati raccolti dal sottomarino. 
-La quantità di vita perduta è proporzionale al valore dell'oggetto perso.
+La percentuale di progresso della barra viene gestita da un metodo setProgress inserito all'interno della funzione newProgressView. Inoltre la vita del mare viene aggiornata utilizzando un timer: ogni secondo abbassa la vita del mare in funzione della quantità di oggetti che sono fuoriusciti dalla parte sinsitra schermo, e che quindi non sono stati raccolti dal sottomarino. La quantità di vita perduta è proporzionale al valore dell'oggetto perso.
 
 \subsection{show()}
-L'evento show() ha due sottoeventi chiamati "will" e "did". Nel "will" si aggiunge il timer che va ad aggiornare il moltiplicatore 
-di punteggio: ogni 30 secondi si aggiunge 0.25 al moltiplicatore dei punti e la funzione che fa tutto questo è updateScoreMultiplier().
- Il codice del sottoevento "did" viene eseguito quando la scena è visualizzata sullo schermo, e come prima cosa viene fatta partire 
- la fisica, altrimenti il gioco inizierebbe con il sottomarino sulla parte bassa dello schermo. Inoltre in questa fase si carica 
- il modulo relativo allo "spawner" dei vari oggetti(bottigliette, barili, scogli) e al caricamento dell'audio (la musica e i vari effetti sonori).
+L'evento show() ha due sottoeventi chiamati "will" e "did". Nel "will" si aggiunge il timer che va ad aggiornare il moltiplicatore di punteggio: ogni 30 secondi si aggiunge 0.25 al moltiplicatore dei punti e la funzione che fa tutto questo è updateScoreMultiplier(). Il codice del sottoevento "did" viene eseguito quando la scena è visualizzata sullo schermo, e come prima cosa viene fatta partire la fisica, altrimenti il gioco inizierebbe con il sottomarino sulla parte bassa dello schermo. Inoltre in questa fase si carica il modulo relativo allo "spawner" dei vari oggetti(bottigliette, barili, scogli) e al caricamento dell'audio (la musica e i vari effetti sonori).
 
 \subsection{hide()}
-Evento hide() viene usato per nascondere la scena, in particolare le sue funzioni vengono chiamate nella fase "did". Quando la scena è 
-completamente off-screen, vengono eliminati i listener RunTime e i timer creati in precedenza. Una funzione particolarmente importante
- è "removeScene()" che rimuove completamente la scena, tutti gli oggetti e le variabili al suo interno, in particolare si occupa degli 
- gli oggetti all'interno della gerarchia di sceneGroup (NOTA: non rimuove cose come timer o listener collegati all'oggetto "Runtime". 
- Essi vengono eliminati manualmente).
+Evento hide() viene usato per nascondere la scena, in particolare le sue funzioni vengono chiamate nella fase "did". Quando la scena è completamente off-screen, vengono eliminati i listener RunTime e i timer creati in precedenza. Una funzione particolarmente importante è "removeScene()" che rimuove completamente la scena, tutti gli oggetti e le variabili al suo interno,
+in particolare si occupa degli gli oggetti all'interno della gerarchia di sceneGroup (NOTA: non rimuove cose come timer o listener collegati all'oggetto "Runtime". Essi vengono eliminati manualmente).
+
+\subsection{destroy()}
+
+\subsection{Funzioni implementate}
+In questo paragrafo verranno descritte le funzionalità implementate per realizzare le funzionalità citate in precedenza.
+\subsubsection{updateGameSpeed()}
+
+
+\subsubsection{exitGame()}
+
+\subsubsection{gameOver()}
+
+\subsubsection{onCollision()}
+Per realizzare la procedura che gestisce la collisione tra gli oggetti è stato applicato il metodo dei filtri. 
+Questo metodo implica l'assegnazione di \textbf{categoryBits} e \textbf{maskBits} agli oggetti tramite una definizione di una 
+tabella assegnata al filtro durante la costruzione del corpo. Un oggetto entrerà in collisione con altri oggetti solo se i loro 
+categoryBits sono tra i maskBits assegnati. Normalmente, un oggetto avrà solo un valore di categoryBits assegnato, ma potrebbe avere 
+uno o più mskBits a seconda delle altre cose con cui dovrebbe entrare in collisione.
+
+I parametri dei filtri sono stati impostati come "globali" sul composer, in quanto se in un secondo momento si aggiungono ulteriori 
+elementi di gioco, è necessario lavorare di nuovo su tutti i tipi di oggetto, perché se il nuovo tipo di oggetto dovesse entrare in 
+collisione con qualsiasi tipo di oggetto precedente, i valori per quest'ultimo potrebbero cambiare. 
+
+
+\subsubsection{clearObject()}
+
+\subsubsection{updateSeaLife()}
+
+\subsubsection{setScoreMultiplier()}
+
+\subsubsection{updateScoreMultiplier()}
+
+\section{Menu.lua}
+
+
 
 \end{document}
