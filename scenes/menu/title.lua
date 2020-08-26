@@ -69,11 +69,11 @@ local function spawnFloatingObjects()
         item.rotation = randRotation
         
         -- set the phisics
-        physics.addBody( item, { density=3.0, bounce=0.3, radius=50 } )
+        physics.addBody( item, { density=3.0, bounce=0.3, radius=100 } )
         item.gravityScale = 0
 
         local randSpeedX = math.random( -12, 12 )
-        local randSpeedr = math.random( -12, 12 )
+        local randSpeedY = math.random( -12, 12 )
         item:setLinearVelocity( randSpeedX, randSpeedY )
 
         item:applyTorque( randRotation )

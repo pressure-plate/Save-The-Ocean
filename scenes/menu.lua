@@ -82,7 +82,7 @@ function scene:create( event )
 	}
 	buttonsMod.init(uiGroup, buttonsDescriptor)	
 	
-	
+
 	-- ----------------------------------------------------------------------------
 	-- top right bagdes
 	-- ----------------------------------------------------------------------------
@@ -175,6 +175,8 @@ function scene:hide( event )
 
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
+
+		bgMod.clear() -- clear background
 
 		-- stop the music to let the game music begin
 		audio.stop( menuTrackPlayer )
