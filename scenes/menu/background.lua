@@ -23,7 +23,6 @@ local backgroundSpeed
 local backgroundLastUpdate -- time since the last update
 
 
-
 -- ----------------------------------------------------------------------------
 -- functions Background Scroller
 -- ----------------------------------------------------------------------------
@@ -128,6 +127,7 @@ function M.init( viewGroup )
     -- load the actual background
     M.updateBackground()
 end
+
 
 -- clear function
 function M.clear()

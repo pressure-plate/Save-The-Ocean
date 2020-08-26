@@ -45,6 +45,7 @@ function scene:create( event )
 	sceneGroup:insert( bgGroup1 ) -- insert into the scene's view group
 	bgMod.init( bgGroup1 ) -- load and set background module
 
+	-- load the title and the floating objects
 	local bgGroup2 = display.newGroup()
 	sceneGroup:insert( bgGroup2 )
 	titleMod.init( bgGroup2 )
@@ -80,6 +81,7 @@ function scene:create( event )
 		scaleFactor = 0.6
 	}
 	buttonsMod.init(uiGroup, buttonsDescriptor)	
+	
 	
 	-- ----------------------------------------------------------------------------
 	-- top right bagdes
