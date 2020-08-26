@@ -300,26 +300,40 @@ end
 
 local function newProgressView( percent, xPos, yPos )
 	
-	local assetWidth = 200
-	local assetHeight = 40
+	local assetWidth = 512
+	local assetHeight = 60
 
-	-- create a new display group
+	-- create the progressView's display group hierarchy
+	local progressLayer = display.newGroup()
 	local progressView = display.newGroup()
+	progressView:insert( progressLayer )
 
 	-- insert in the uiGroup
 	uiGroup:insert( progressView )
 	
-	-- set image and mask
-	progressView.backgound = display.newImageRect( progressView, uiDir .. "pvBackground.png", assetWidth, assetHeight )
-    local mask = graphics.newMask( uiDir .. "pvMask.png" )
-	progressView:setMask( mask )
+	-- set progress bar fill image
+	progressView.barFill = display.newImageRect( progressLayer, uiDir .. "lifebar/fill.png", assetWidth, assetHeight )
 	
 	-- set a color filled Rect to progressively cover the bar
-    progressView.progress = display.newRect( progressView, assetWidth/2, 0, assetWidth, assetHeight )
-    progressView.progress:setFillColor( 0, 0.25, 0.5 )
+    progressView.progress = display.newRect( progressLayer, assetWidth/2, 0, assetWidth, assetHeight )
+    progressView.progress:setFillColor( 0.8, 0.6, 0.2 )
     progressView.progress.anchorX = 1 -- align
-    progressView.progress.width = assetWidth - ( percent * assetWidth ) -- set percent
- 
+	progressView.progress.width = assetWidth - ( percent * assetWidth ) -- set percent
+
+	-- set mask on progressLayer
+	local mask = graphics.newMask( uiDir .. "lifebar/mask.png" )
+	progressLayer:setMask( mask )
+
+	-- set frame image
+	progressView.barFrame = display.newImageRect( progressView, uiDir .. "lifebar/frame.png", assetWidth, assetHeight )
+
+	-- add badge image next to the progress bar
+	progressView.badgeSeaLife = display.newImageRect( progressView, uiDir .. "badgeSeaLife.png", 512, 512 )
+	local badgeScale = 0.14
+	progressView.badgeSeaLife.xScale = badgeScale
+	progressView.badgeSeaLife.yScale = badgeScale
+	progressView.badgeSeaLife.x = progressView.badgeSeaLife.x - 270
+	
 	-- add method to set the percent of the bar
 	function progressView:setProgress( percent )
 		
