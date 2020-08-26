@@ -112,7 +112,10 @@ function scene:create( event )
 			{"badgeSubmarine.png", windowMod.openSubmarinesMenu},
 			{"badgeBubbles.png", windowMod.openBubblesMenu},
 			{"badgeMute.png", muteMusicCallback}
-		}
+		},
+		-- yPropagationOffset = 180,
+		-- propagation = 'down',
+
 	}
 	badgesMod.init(uiGroup, badgesDescriptor)
 
