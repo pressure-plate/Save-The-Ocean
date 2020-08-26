@@ -18,12 +18,21 @@ local descriptor
 local position
 local propagation
 
+local packTime
+local packRotation
+local isPacked -- if the sub menu is packed, for the default toggle callback
+
 local loadedButtons
 
 -- get the x, y coords for the given propagation
 local function computePropagation(count)
     local xPropagation = 0
     local yPropagation = 0
+
+    -- avoid propagation calculation if the items are packed
+    if isPacked then
+        return xPropagation, yPropagation
+    end
 
     if propagation == 'left' then
         xPropagation = xPropagationOffset * (count - 1) * -1
@@ -69,7 +78,7 @@ local function load()
     
     local xPosition, yPosition = computePosition()
 
-    for count = 1, #descriptor do
+    for count = #descriptor, 1, -1 do
 		local d = descriptor[count]
 		local dir = d[1]
         local callback = d[2]
@@ -80,7 +89,6 @@ local function load()
         obj:scale( scaleFactor, scaleFactor )
 		obj.x = display.contentCenterX + xPosition + xPropagation
         obj.y = display.contentCenterY + yPosition + yPropagation
-        print(obj.x, obj.y)
         obj:addEventListener( "tap", callback ) -- tap listener
 
         table.insert(loadedButtons, obj)
@@ -106,29 +114,127 @@ function M.reload()
 end
 
 
+-- hide all the badges
+function M.pack()
+    xPosition, yPosition = computePosition()
+
+    for count = #descriptor, 1, -1 do
+        transition.to(
+            loadedButtons[#descriptor - count + 1], 
+            { 
+                time = packTime,
+                rotation = -packRotation,
+                x = display.contentCenterX + xPosition, 
+                y = display.contentCenterY + yPosition
+            }
+        )
+    end
+end
+
+
+-- show the hided badges
+function M.unpack()
+    xPosition, yPosition = computePosition()
+
+    for count = #descriptor, 1, -1 do
+        local xPropagation, yPropagation = computePropagation(count)
+        transition.to(
+            loadedButtons[#descriptor - count + 1], 
+            { 
+                time = packTime,
+                rotation = packRotation,
+                x = display.contentCenterX + xPosition + xPropagation, 
+                y = display.contentCenterY + yPosition + yPropagation
+            }
+        )
+    end
+    return true
+end
+
+
+-- build in callback
+-- this will be used as default if not overwritten in init options
+local function togglePackCallback()
+    if isPacked then
+        isPacked = false
+        M.unpack()
+    else
+        isPacked = true
+        M.pack()
+    end
+    return true
+end
+
+
 -- init function
 function M.init( displayGroup, options )
-    --[[
-        an example of badgesDescriptor
-        {
-            {"badgeEdit.png", windowMod.openWorldsMenu},
-            {"badgeSubmarine.png", windowMod.openSubmarinesMenu},
-            {"badgeBubbles.png", windowMod.openBubblesMenu},
-            {"badgeMute.png", muteMusicCallback}
-        }
-
-        you can edit the anytime changing the global var badgesDescriptor
-        and use reload() to apply changes
-    ]]--
     
     group = displayGroup
     
+    --[[
+    an example of badgesDescriptor:
+    {
+        {"badgeEdit.png", windowMod.openWorldsMenu},
+        {"badgeSubmarine.png", windowMod.openSubmarinesMenu},
+        {"badgeBubbles.png", windowMod.openBubblesMenu},
+        {"badgeMute.png", muteMusicCallback}
+    }
+
+    you can edit the anytime changing the global var badgesDescriptor
+    and use reload() to apply changes
+    
+    the follw declatations can be overwritten in options
+
+    - packIcon -- the png file of the pack button
+    - packRotation -- rotate the item of deg x during pack/unpack
+    - packCallback -- custom calback for the pack button
+    - descriptor -- list of files
+    - xPropagationOffset -- distance between 2 object on the x axe
+    - yPropagationOffset -- distance between 2 object on the y axe
+    - scaleFactor -- the scale of the obj
+    - position -- the origin of the first item generated
+    - propagation -- the direction of other items generation
+    ]]--
+    
+    -- packIcon = ''
+    packTime = 300
+    packRotation = 0
+    packCallback = togglePackCallback
+    isPacked = false
+    descriptor = {}
     xPropagationOffset = 180
     yPropagationOffset = 150
     scaleFactor = 0.3
-    descriptor = {}
-    position = 'top-right'
-    propagation = 'left'
+    position = 'top-right' -- center, top-right, top-left, bottom-right, bottom-left
+    propagation = 'left' -- left, right, up, down
+
+    -- packTime
+    if options.packTime then 
+        packTime = options.packTime 
+    end
+
+    -- packRotation
+    if options.packRotation then 
+        packRotation = options.packRotation 
+    end
+
+    -- packCallback
+    if options.packCallback then 
+        packCallback = options.packCallback 
+    end
+
+    -- add the packIcon with is callback to the descriptor
+    if options.packIcon then 
+        table.insert(descriptor, {options.packIcon, packCallback})
+        isPacked = true
+    end
+
+    -- descriptor
+    if options.descriptor then 
+        for count, el in pairs ( options.descriptor ) do
+            table.insert( descriptor, el )
+        end
+    end
 
     -- xPropagationOffset the offet between each item in the x axe
     if options.xPropagationOffset then 
@@ -143,11 +249,6 @@ function M.init( displayGroup, options )
     -- scaleFactor
     if options.scaleFactor then 
         scaleFactor = options.scaleFactor 
-    end
-
-    -- descriptor
-    if options.descriptor then 
-        descriptor = options.descriptor 
     end
 
     -- position

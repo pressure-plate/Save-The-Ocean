@@ -65,7 +65,7 @@ function scene:create( event )
 	buttonClickSound = audio.loadStream( audioDir .. "sfx/click.mp3" )
 
 	-- set title on the menu
-	local titleImmage = display.newImageRect(uiGroup, bgDir .. "menu2.png", display.contentWidth, display.contentHeight) -- set title
+	local titleImmage = display.newImageRect(uiGroup, bgDir .. "menu3.png", display.contentWidth, display.contentHeight) -- set title
 	titleImmage.x = display.contentCenterX
 	titleImmage.y = display.contentCenterY
 	
@@ -107,6 +107,8 @@ function scene:create( event )
 	end
 	
 	local badgesDescriptor = {
+		packIcon = "badgeBack.png",
+		packRotation = 360,
 		descriptor={
 			{"badgeEdit.png", windowMod.openWorldsMenu},
 			{"badgeSubmarine.png", windowMod.openSubmarinesMenu},
