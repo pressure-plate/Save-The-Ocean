@@ -12,24 +12,18 @@ local scene = composer.newScene()
 
 local fadeOutGame = 1400-- time to switch in game Mode
 
--- load background module
-local bgMod = require( "scenes.menu.background" )
 
--- load background module
-local windowMod = require( "scenes.menu.window" )
-
--- load the saved data
+local bgMod = require( "scenes.menu.background" ) -- load background module
+local titleMod = require( "scenes.menu.title" )
+local windowMod = require( "scenes.menu.window" ) -- load background module
 local savedata = require( "scenes.libs.savedata" ) -- load the save data module
-
 local buttonsMod = require( "scenes.libs.ui" )
 local badgesMod = require( "scenes.libs.ui" )
 
 -- assets directory
-local bgDir = "assets/menu/" -- user interface assets dir
 local audioDir = "audio/" -- audio dir
 
 -- display groups
-local bgGroup
 local uiGroup
 
 -- audio
@@ -47,14 +41,16 @@ function scene:create( event )
 	-- Code here runs when the scene is first created but has not yet appeared on screen
 	
 	-- set up groups for display objects
-	bgGroup = display.newGroup() -- display group for background
-	sceneGroup:insert( bgGroup ) -- insert into the scene's view group
+	local bgGroup1 = display.newGroup() -- display group for background and for the title
+	sceneGroup:insert( bgGroup1 ) -- insert into the scene's view group
+	bgMod.init( bgGroup1 ) -- load and set background module
+
+	local bgGroup2 = display.newGroup()
+	sceneGroup:insert( bgGroup2 )
+	titleMod.init( bgGroup2 )
 
 	uiGroup = display.newGroup() -- display group for UI
 	sceneGroup:insert( uiGroup ) -- insert into the scene's view group
-
-	-- load and set background
-	bgMod.init( bgGroup )
 
 	-- load and set settings window manager
 	windowMod.init( uiGroup )
@@ -64,11 +60,6 @@ function scene:create( event )
 	buttonPlaySound = audio.loadStream( audioDir .. "sfx/play.mp3" )
 	buttonClickSound = audio.loadStream( audioDir .. "sfx/click.mp3" )
 
-	-- set title on the menu
-	local titleImmage = display.newImageRect(uiGroup, bgDir .. "menu3.png", display.contentWidth, display.contentHeight) -- set title
-	titleImmage.x = display.contentCenterX
-	titleImmage.y = display.contentCenterY
-	
 
 	-- ----------------------------------------------------------------------------
 	-- cental buttons
@@ -183,10 +174,7 @@ function scene:hide( event )
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
 
-		-- clear background
-		bgMod.clear()
-
-		-- stop the music after the fadeout 
+		-- stop the music to let the game music begin
 		audio.stop( menuTrackPlayer )
 		menuTrackPlayer = nil
 
@@ -207,8 +195,8 @@ function scene:destroy( event )
 
 	-- delete music tracks
 	audio.dispose( menuTrack )
-	audio.dispose( buttonPlaySound )
-	audio.dispose( buttonClickSound )
+	-- audio.dispose( buttonPlaySound )
+	-- audio.dispose( buttonClickSound )
 	
 end
 
