@@ -8,8 +8,15 @@ local tabulatorMod = require( "scenes.libs.tabulator" )
 local savedata = require( "scenes.libs.savedata" ) -- load the save data module
 local bgMenuMod = require( "scenes.menu.background" ) -- required to reload the home background
 
-local bubbleDir = "assets/submarine/bubble/"
+local itemsDir = "assets/submarine/bubble/"
 
+itemsData = {
+    {inernalId='SoapBubble', dir='1.png', price=1, default=true},
+    {inernalId='CleanBubble', dir='2.png', price=300},
+    {inernalId='VioletBubble', dir='3.png', price=830},
+}
+
+local parent 
 local group
 
 
@@ -22,12 +29,73 @@ end
 -- set the background var once is selected
 -- check also if is avaiable, and its price
 local function onBubbleSelection( event )
+
+    if event.target.alpha ~= 1 then
+
+        -- try to pay
+        if savedata.pay( itemsData[event.target.itemId].price) then
+
+            -- update the user owned data
+            local ownedData = savedata.getGamedata( "submarineBubblesOwned" )
+            ownedData[itemsData[event.target.itemId].inernalId] = true
+
+            -- display the object as owned
+            event.target.alpha = 1
+            tabulatorMod.removeItemTextOver( event.target.itemId )
+
+            -- update the money value
+            parent:updateMoneyView()
+        end
+    end
     
     -- select the item, if the operation goes well, do actions
     if tabulatorMod.highlightItem(event.target.itemId, true) then
         savedata.setGamedata( "submarineBubbleSkin", event.target.itemId )
     end
 
+end
+
+
+-- generate the items table to display the items
+local function builditems()
+    local itemsOwned = savedata.getGamedata( "submarineBubblesOwned")
+    local items = {}
+
+    for count, el in pairs ( itemsData ) do
+        
+
+        -- set the base data of the item
+        local item = { 
+            dir=itemsDir .. el.dir, 
+            scaleFactor=2,
+        }
+        
+        -- if the user dont own the item set the price to buy it
+        if not itemsOwned[el.inernalId] then
+
+            -- check if the item is set as default
+            -- if is as defaut and is not owned then add the user owned set
+            if not el.default then
+                item["label"] = el.price .. '$'
+                item['alpha'] = 0.5
+            else
+                -- update the user owned data
+                local ownedData = savedata.getGamedata( "submarineBubblesOwned" )
+                ownedData[el.inernalId] = true
+            end
+
+        end
+
+        table.insert(items, item) -- append to the table
+
+    end
+
+    return items
+end
+
+
+function scene:show( event )
+    parent = event.parent  -- Reference to the parent scene object
 end
 
 
@@ -49,11 +117,7 @@ function scene:create( event )
     -- options
     local tabulatorOptions = {
         -- itemDir, scaleFactor, price
-        items = {
-            { dir=bubbleDir .. "1.png", scaleFactor=2 },
-            { dir=bubbleDir .. "2.png", scaleFactor=2, label='14', alpha=0.5 },
-            { dir=bubbleDir .. "3.png", scaleFactor=2, label='22', alpha=0.5 }
-        },
+        items = builditems(),
         colCount = 3,
         rowCount = 2,
         tableOriginX = display.contentCenterX - display.contentWidth/4,
@@ -74,13 +138,14 @@ function scene:hide( event )
     local parent = event.parent  -- Reference to the parent scene object
  
     if ( phase == "will" ) then
-        -- Call the "resumeGame()" function in the parent scene
-        -- parent:resumeGame()
+        -- update the mony view before leave the window
+        parent:updateMoneyView()
     end
 end
 
 
 scene:addEventListener( "create", scene )
+scene:addEventListener( "show", scene )
 scene:addEventListener( "hide", scene )
 
 return scene

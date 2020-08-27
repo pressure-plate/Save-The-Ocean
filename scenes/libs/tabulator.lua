@@ -26,7 +26,6 @@ local buttonHighlightSound
 local inTableItems
 local highlightSelected
 local currentHighlightItemId = 0
-local itemsLables
 
 
 -- ----------------------------------------------------------------------------
@@ -71,7 +70,7 @@ end
 
 -- if the item is locked (show price), or for the Scores
 -- set Text Over on the item
-local function setItemTextOver( itemId, textLaber )
+local function setItemTextOverLable( itemId, textLaber )
 
     -- item id must be in range
     if (itemId < 1) or (itemId > #inTableItems) then return false end
@@ -91,7 +90,19 @@ local function setItemTextOver( itemId, textLaber )
     )
     label:setFillColor( fontParams.colorR, fontParams.colorG, fontParams.colorB )
 
-    table.insert(itemsLables, label)
+    return label
+end
+
+
+function M.removeItemTextOver( itemId )
+
+    -- item id must be in range
+    if (itemId < 1) or (itemId > #inTableItems) then return false end
+
+    -- load the item from inTableItems by itemId
+    local item = inTableItems[itemId]
+    display.remove( item.textOverLable )
+
 end
 
 
@@ -104,10 +115,6 @@ function M.destroyTable()
     inTableItems = {}
 
     display.remove( highlightSelected )
-
-    for i=0, #itemsLables do 
-        display.remove( itemsLables[i] )
-    end
 end
 
 
@@ -156,7 +163,7 @@ local function createTable()
             
             -- set the label value over the item
             if label then
-                setItemTextOver(i, label)
+                item.textOverLable = setItemTextOverLable(i, label)
             end
 
             i = i+1
@@ -268,7 +275,6 @@ function M.init( displayGroup, options )
     end
 
     inTableItems = {}
-    itemsLables = {}
     createTable()
 end
 

@@ -36,7 +36,7 @@ composer.setVariable( "windowFadingOpenTime", 400 )
 composer.setVariable( "windowFadingClosingTime", 200 )
 
 -- version of the game
-composer.setVariable( "version", "0.9.3" )
+composer.setVariable( "version", "0.9.5" )
 
 -- reserve channel 1 for background music
 audio.reserveChannels( 1 )
