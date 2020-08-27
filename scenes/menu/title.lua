@@ -83,6 +83,17 @@ local function spawnFloatingObjects()
 end
 
 
+-- update the speed of the objects
+function M.updateMovement()
+
+    for count=1, #screenObjects do
+        local randRotation = math.random( -30, 30 ) -- generate a random rotation
+        screenObjects[count]:applyAngularImpulse( randRotation * 10 )
+    end
+
+end
+
+
 -- init function
 function M.init( viewGroup )
 

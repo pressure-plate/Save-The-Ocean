@@ -214,6 +214,7 @@ function scene:show( event )
 
 	elseif ( phase == "did" ) then
 		-- Code here runs when the scene is entirely on screen
+		timer.performWithDelay( 2000, titleMod.updateMovement , 0)
 		menuTrackPlayer = audio.play( menuTrack, { channel=1, loops=-1 } )
 	end
 end
