@@ -11,6 +11,9 @@ local scene = composer.newScene()
 -- set up physics
 local physics = require( "physics" )
 physics.start()
+--physics.setDrawMode( "normal" )  -- the default Corona renderer (no collision outlines)
+--physics.setDrawMode( "hybrid" )  -- overlays collision outlines on normal display objects
+--physics.setDrawMode( "debug" )   -- shows collision engine outlines only
 
 -- load submarine module
 local subMod = require( "scenes.game.submarine" )
@@ -62,6 +65,21 @@ local uiGroup
 
 -- assets dir
 local uiDir = "assets/ui/" -- user interface assets dir
+
+-- define shared collFiltParams table to define collisions filter parameters
+composer.setVariable( "collFiltParams", {
+
+	submarineFilter = { categoryBits = 1, maskBits = 14 },
+
+	pickableObjectFilter = { categoryBits = 2, maskBits = 5 },
+
+	obstacleFilter = { categoryBits = 4, maskBits = 3 },
+
+	submarinePlatformFilter = { categoryBits = 8, maskBits = 1 },
+
+	submarineBubbleFilter = { categoryBits = 16, maskBits = 0 }
+
+} )
 
 
 -- ----------------------------------------------------------------------------
@@ -401,7 +419,7 @@ function scene:create( event )
 	composer.setVariable( "startTime", os.time() ) -- save game start time
 	composer.setVariable( "gameSpeed", 1 ) -- set initial game speed
 	composer.setVariable( "screenObjectsTable", {} ) -- keep a table of screen objects to clear during game and other purposes
-
+	
 
 	-- Set up display groups
 	-- NOTE: here we use the Group vars initialized earlier
