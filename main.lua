@@ -21,6 +21,10 @@ fontParams.colorG = 0.5
 fontParams.colorB = 0.1
 composer.setVariable( "defaultFontParams", fontParams )
 
+-- fading times for windows
+composer.setVariable( "windowFadingOpenTime", 400 )
+composer.setVariable( "windowFadingClosingTime", 200 )
+
 -- version of the game
 composer.setVariable( "version", "0.9.1" )
 

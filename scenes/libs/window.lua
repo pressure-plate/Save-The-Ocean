@@ -11,6 +11,7 @@ local group
 local showCloseButton
 local windowTitle
 local windowScaleFactor
+local windowForceClose
 local onExitCallback
 
 local buttonClickSound
@@ -22,11 +23,17 @@ local isOpen
 
 local function closeWindow(playSound)
 
-    -- remove oll the objects used to create the window
-    for count, el in pairs ( windowObjects ) do
-        display.remove( el )
+    -- check if the window mut be closed
+    -- if not there is an entity destroyer that close it automatically
+    if windowForceClose then
+
+        -- remove oll the objects used to create the window
+        for count, el in pairs ( windowObjects ) do
+            display.remove( el )
+        end
+        windowObjects = {} -- removing reference to let garbage colletcor do its job
+
     end
-    windowObjects = {} -- removing reference to let garbage colletcor do its job
 
     -- avoid to play close sound on window switch
     if playSound then
@@ -34,6 +41,7 @@ local function closeWindow(playSound)
     end
 
     isOpen = false
+
     if onExitCallback then
         onExitCallback()
     end
@@ -101,6 +109,7 @@ function M.init( displayGroup, options )
     showCloseButton = true
     windowTitle = null
     windowScaleFactor = 1
+    windowForceClose = false -- close the window on button exit button press
     onExitCallback = null
     buttonCloseSound = audio.loadStream( audioDir .. "sfx/close.mp3" )
     buttonClickSound = audio.loadStream( audioDir .. "sfx/click.mp3" )
@@ -118,6 +127,11 @@ function M.init( displayGroup, options )
     -- windowScaleFactor
     if options.windowScaleFactor then 
         windowScaleFactor = options.windowScaleFactor 
+    end
+
+    -- windowForceClose
+    if options.windowForceClose then 
+        windowForceClose = options.windowForceClose 
     end
 
     -- onExitCallback
@@ -142,6 +156,12 @@ end
 
 
 function M.clear()
+    -- remove oll the objects used to create the window
+    for count, el in pairs ( windowObjects ) do
+        display.remove( el )
+    end
+    windowObjects = {}
+    
     audio.dispose( buttonClickSound )
     audio.dispose( buttonCloseSound )
 end

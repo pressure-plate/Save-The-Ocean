@@ -12,11 +12,11 @@ local scene = composer.newScene()
 local fadeOutGame = 1400-- time to switch in game Mode
 
 
+-- Load all the neades modules
 local bgMod = require( "scenes.menu.background" ) -- load background module
-local titleMod = require( "scenes.menu.title" )
-local windowMod = require( "scenes.menu.window" ) -- load background module
+local titleMod = require( "scenes.menu.title" ) -- to display title and floating objects
 local savedata = require( "scenes.libs.savedata" ) -- load the save data module
-local buttonsMod = require( "scenes.libs.ui" )
+local buttonsMod = require( "scenes.libs.ui" )  -- ui lib to show buttons in the interface
 local badgesMod = require( "scenes.libs.ui" )
 
 -- assets directory
@@ -52,9 +52,6 @@ function scene:create( event )
 	uiGroup = display.newGroup() -- display group for UI
 	sceneGroup:insert( uiGroup ) -- insert into the scene's view group
 
-	-- load and set settings window manager
-	windowMod.init( uiGroup )
-
 	-- load music
 	menuTrack = audio.loadStream( audioDir .. "menu.mp3" )
 	buttonPlaySound = audio.loadStream( audioDir .. "sfx/play.mp3" )
@@ -66,18 +63,22 @@ function scene:create( event )
 	-- ----------------------------------------------------------------------------
 	local function playCallback() 
 		audio.play( buttonPlaySound )
-		composer.gotoScene( "scenes.game", { time=fadeOutGame, effect="crossFade" } )
+		composer.gotoScene( "scenes.game", { time=fadeOutGame, effect="slideLeft" } )
 	end 
 
 	local function scoresCallback()
-		composer.showOverlay( "scenes.menu.settings.scores", { time=400, effect="fade" } )
+		composer.showOverlay( "scenes.menu.scores", { time=composer.getVariable( "windowFadingOpenTime" ), effect="fade" } )
+	end
+
+	local function aboutCallback()
+		composer.showOverlay( "scenes.menu.about", { time=composer.getVariable( "windowFadingOpenTime" ), effect="fade" } )
 	end
 
 	local buttonsDescriptor = {
 		descriptor = {
-			{"buttonPlay3.png", playCallback},
-			{ "buttonScores.png", scoresCallback }, --windowMod.openHighscoresMenu
-			{"buttonAbout.png", windowMod.openAboutMenu}
+			{ "buttonPlay3.png", playCallback },
+			{ "buttonScores.png", scoresCallback },
+			{ "buttonAbout.png", aboutCallback }
 		},
 		propagation = 'down',
 		position = 'center',
@@ -101,14 +102,28 @@ function scene:create( event )
 			savedata.setGamedata( "audioMute", true)
 		end 
 	end
+
+	local function worldsMenuCallback() 
+		composer.showOverlay( "scenes.settings.worlds", { time=composer.getVariable( "windowFadingOpenTime" ), effect="fade" } )
+	end
+
+	local function submarinesMenuCallback() 
+		composer.showOverlay( "scenes.settings.submarines", { time=composer.getVariable( "windowFadingOpenTime" ), effect="fade" } )
+	end
+
+	local function bubblesMenuCallback() 
+		composer.showOverlay( "scenes.settings.bubbles", { time=composer.getVariable( "windowFadingOpenTime" ), effect="fade" } )
+	end
 	
+	-- load the badges in the list
+	-- with the packIcon declared the menu will pack under the packIcon as hamburger menu
 	local badgesDescriptor = {
-		packIcon = "badgeBack.png",
+		packIcon = "badgeSettings.png",
 		packRotation = 360,
 		descriptor={
-			{"badgeEdit.png", windowMod.openWorldsMenu},
-			{"badgeSubmarine.png", windowMod.openSubmarinesMenu},
-			{"badgeBubbles.png", windowMod.openBubblesMenu},
+			{"badgeEdit.png", worldsMenuCallback },
+			{"badgeSubmarine.png", submarinesMenuCallback },
+			{"badgeBubbles.png", bubblesMenuCallback },
 			{"badgeMute.png", muteMusicCallback}
 		},
 		-- yPropagationOffset = 180,
@@ -136,6 +151,7 @@ function scene:create( event )
 	versionStamp:setFillColor( fontParams.colorR, fontParams.colorG, fontParams.colorB )
 
 	-- show label
+	-- Game Programming Lab
 	local gameProgrammingStamp = display.newText( 
         uiGroup, 
         'Laboratorio di Game Programing', 

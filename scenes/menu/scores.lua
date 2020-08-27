@@ -5,9 +5,12 @@ local scene = composer.newScene()
 -- initialize variables -------------------------------------------------------
 local windowMod = require( "scenes.libs.window" )
 
-function hide()
-    composer.hideOverlay( "fade", 200 )
+
+-- to hide the current overlay
+function hideScene()
+    composer.hideOverlay( "fade", composer.getVariable( "windowFadingClosingTime" ) )
 end
+
 
 function scene:create( event )
 
@@ -17,8 +20,8 @@ function scene:create( event )
     sceneGroup:insert( group )
 
     local windowsOptions = {
-        onExitCallback = hide,
-        windowTitle = "scores"
+        onExitCallback = hideScene,
+        windowTitle = "Scores"
     }
 
     windowMod.init( group, windowsOptions )
