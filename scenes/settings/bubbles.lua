@@ -72,8 +72,18 @@ local function builditems()
         
         -- if the user dont own the item set the price to buy it
         if not itemsOwned[el.inernalId] then
-            item["label"] = el.price
-            item['alpha'] = 0.5
+
+            -- check if the item is set as default
+            -- if is as defaut and is not owned then add the user owned set
+            if not el.default then
+                item["label"] = el.price
+                item['alpha'] = 0.5
+            else
+                -- update the user owned data
+                local ownedData = savedata.getGamedata( "submarineBubblesOwned" )
+                ownedData[el.inernalId] = true
+            end
+
         end
 
         table.insert(items, item) -- append to the table
