@@ -4,13 +4,15 @@
 --
 -----------------------------------------------------------------------------------------
 
--- Load the composer
+-- load the composer
 local composer = require( "composer" )
+
+local savedata = require( "scenes.libs.savedata" ) -- load the save data module
  
--- Hide status bar
+-- hide status bar
 display.setStatusBar( display.HiddenStatusBar )
  
--- Seed the random number generator
+-- seed the random number generator
 math.randomseed( os.time() )
 
 -- set default font params on the composer
@@ -21,11 +23,27 @@ fontParams.colorG = 0.5
 fontParams.colorB = 0.1
 composer.setVariable( "defaultFontParams", fontParams )
 
+-- fading times for windows
+composer.setVariable( "windowFadingOpenTime", 400 )
+composer.setVariable( "windowFadingClosingTime", 200 )
+
+-- version of the game
+composer.setVariable( "version", "0.9.3" )
+
 -- reserve channel 1 for background music
 audio.reserveChannels( 1 )
 
 -- reduce the overall volume of the channel
-audio.setVolume( 0.7, { channel=1 } )
+local audioMute = savedata.getGamedata( "audioMute" )
+print(audioMute)
+if audioMute then
+    audio.setVolume( 0, { channel=1 } )
+else
+    audio.setVolume( 0.7, { channel=1 } )
+end
+
+-- set audio root dir globally (this is done to simplify the introduction of different audio packs)
+composer.setVariable( "audioDir", "audio/" )
 
 -- @DEBUG -----------------------------------------------------------------------------------------
 

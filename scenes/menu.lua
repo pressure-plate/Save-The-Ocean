@@ -1,6 +1,8 @@
 
 local composer = require( "composer" )
 
+local physics = require( "physics" )
+
 local scene = composer.newScene()
 
 -- -----------------------------------------------------------------------------------
@@ -10,56 +12,40 @@ local scene = composer.newScene()
 
 -- initialize variables -------------------------------------------------------
 
--- load background module
-local bgMod = require( "scenes.menu.background" )
+local fadeOutGame = 1400-- time to switch in game Mode
 
--- load background module
-local windowMod = require( "scenes.menu.window" )
 
--- assets directory
-local bgDir = "assets/menu/" -- user interface assets dir
-local uiDir = "assets/ui/" -- user interface assets dir
+-- Load all the neades modules
+local bgMod = require( "scenes.menu.background" ) -- load background module
+local titleMod = require( "scenes.menu.title" ) -- to display title and floating objects
+local savedata = require( "scenes.libs.savedata" ) -- load the save data module
+local buttonsMod = require( "scenes.libs.ui" )  -- ui lib to show buttons in the interface
+local badgesMod = require( "scenes.libs.ui" )
 
 -- display groups
-local bgGroup
 local uiGroup
 
-local gameSpeedUpdateTimer = 0.1
-local backgroundScrollDirection = 1
-local backgroundmaxVel = 0.1
+-- audio
+local menuTrack
+local menuTrackPlayer
 
--- scale
-local buttonScaleFactor = 0.6
-local badgesScaleFactor = 0.3
+local buttonPlaySound
+local buttonClickSound
 
--- buttons grid formatting, set on init
-local buttonRowOffset -- the offet between each button on the same row
+local fontParams
+
+local moneyText -- value to where is stored the money text to be updated
 
 
--- -----------------------------------------------------------------------------------
--- Scene event functions
--- -----------------------------------------------------------------------------------
+-- update the money amount
+local function updateMoneyText(x, y)
 
--- update game speed
-local function BackgroundSpeedUpdate()
-
-	local gs = composer.getVariable( "backgroundSpeed" )
-
-	if ( math.abs(gs) >= backgroundmaxVel ) then 
-		backgroundScrollDirection = backgroundScrollDirection * -1
+	if moneyText then
+		display.remove( moneyText )
 	end
-	gs = gs + (0.01) * backgroundScrollDirection
 
-	composer.setVariable( "backgroundSpeed", gs )
-end
-
-
--- ----------------------------------------------------------------------------
--- menu functions
--- ----------------------------------------------------------------------------
-
-local function gotoGame()
-    composer.gotoScene( "scenes.game", { time=800, effect="crossFade" } )
+	moneyText = display.newText( uiGroup, savedata.getGamedata( "money" ) .. '$', x, y, fontParams.path, 70 )
+	moneyText:setFillColor( fontParams.colorR, fontParams.colorG, fontParams.colorB )
 end
 
 
@@ -68,79 +54,150 @@ function scene:create( event )
 
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
+
+	physics.start() -- start/restart the physics, because on gameover it will be stopped
 	
 	-- set up groups for display objects
-	bgGroup = display.newGroup() -- display group for background
-	sceneGroup:insert( bgGroup ) -- insert into the scene's view group
+	local bgGroup1 = display.newGroup() -- display group for background and for the title
+	sceneGroup:insert( bgGroup1 ) -- insert into the scene's view group
+	bgMod.init( bgGroup1 ) -- load and set background module
+
+	-- load the title and the floating objects
+	local bgGroup2 = display.newGroup()
+	sceneGroup:insert( bgGroup2 )
+	titleMod.init( bgGroup2 )
 
 	uiGroup = display.newGroup() -- display group for UI
 	sceneGroup:insert( uiGroup ) -- insert into the scene's view group
 
-	-- set event listener to update game speed
-	composer.setVariable( "backgroundSpeed", 0.1 ) -- set initial game speed
-	menuBackgroundSpeedUpdateTimer = timer.performWithDelay(400, BackgroundSpeedUpdate, 0)
+	-- load music
+	menuTrack = audio.loadStream( composer.getVariable( "audioDir" ) .. "menu.mp3" )
+	buttonPlaySound = audio.loadStream( composer.getVariable( "audioDir" ) .. "sfx/play.mp3" )
+	buttonClickSound = audio.loadStream( composer.getVariable( "audioDir" ) .. "sfx/click.mp3" )
 
-	-- load and set background
-	bgMod.init( bgGroup )
+	-- load the global fonts params
+	fontParams = composer.getVariable( "defaultFontParams" )
 
-	-- load and set settings window manager
-	windowMod.init( uiGroup )
 
-	-- set title on the menu
-	local titleImmage = display.newImageRect(uiGroup, bgDir .. "menu2.png", display.contentWidth, display.contentHeight) -- set title
-	titleImmage.x = display.contentCenterX
-	titleImmage.y = display.contentCenterY
+	-- ----------------------------------------------------------------------------
+	-- cental buttons
+	-- ----------------------------------------------------------------------------
+	local function playCallback() 
+		audio.play( buttonPlaySound )
+		composer.gotoScene( "scenes.game", { time=fadeOutGame, effect="slideLeft" } )
+	end 
+
+	local function scoresCallback()
+		composer.showOverlay( "scenes.menu.scores", { time=composer.getVariable( "windowFadingOpenTime" ), effect="fade" } )
+	end
+
+	local function aboutCallback()
+		composer.showOverlay( "scenes.menu.about", { time=composer.getVariable( "windowFadingOpenTime" ), effect="fade" } )
+	end
+
+	local buttonsDescriptor = {
+		descriptor = {
+			{ "buttonPlay3.png", playCallback },
+			{ "buttonScores.png", scoresCallback },
+			{ "buttonAbout.png", aboutCallback }
+		},
+		propagation = 'down',
+		position = 'center',
+		scaleFactor = 0.6
+	}
+	buttonsMod.init(uiGroup, buttonsDescriptor)	
 	
-	-- set button to play the game
-	local playButton = display.newImage(uiGroup, uiDir .. "buttonPlay3.png")
-	playButton:scale(buttonScaleFactor, buttonScaleFactor)
-	playButton.x = display.contentCenterX
-	playButton.y = display.contentCenterY
-	playButton:addEventListener( "tap", gotoGame ) -- tap listener
 
-	-- set offsets based on the dimensions of the button
-	-- based on the play button that is on the center of the screen
-	buttonRowOffset = playButton.height*buttonScaleFactor*1.1
-
-	-- set button to display highscores
-	local highScoresButton = display.newImage(uiGroup, uiDir .. "buttonScores.png")
-	highScoresButton:scale(buttonScaleFactor, buttonScaleFactor)
-	highScoresButton.x = display.contentCenterX
-	highScoresButton.y = display.contentCenterY + buttonRowOffset * 1  -- increment the counter for each new button in the column
-	highScoresButton:addEventListener( "tap", windowMod.openHighscoresMenu ) -- tap listener
-
-	-- set button to open about windows
-	local aboutButton = display.newImage(uiGroup, uiDir .. "buttonAbout.png")
-	aboutButton:scale(buttonScaleFactor, buttonScaleFactor)
-	aboutButton.x = display.contentCenterX
-	aboutButton.y = display.contentCenterY + buttonRowOffset * 2  -- increment the counter for each new button in the column
-	aboutButton:addEventListener( "tap", windowMod.openAboutMenu ) -- tap listener
-	
 	-- ----------------------------------------------------------------------------
 	-- top right bagdes
 	-- ----------------------------------------------------------------------------
-	local buttonRowOffset = 200 -- the offet between each button on the same row
+	local function muteMusicCallback()
+		local audioMute = savedata.getGamedata( "audioMute" )
+		if audioMute then
+			audio.setVolume( 0.7, { channel=1 } )
+			audio.play( buttonClickSound )
+			savedata.setGamedata( "audioMute", false)
+		else
+			audio.play( buttonClickSound )
+			audio.setVolume( 0, { channel=1 } )
+			savedata.setGamedata( "audioMute", true)
+		end 
+	end
 
-	-- open worlds window
-	local worldsBadge = display.newImage(uiGroup, uiDir .. "badgeEdit.png") -- set mask
-	worldsBadge:scale( badgesScaleFactor, badgesScaleFactor )
-	worldsBadge.x = display.contentCenterX + display.contentWidth/2.3
-	worldsBadge.y = display.contentCenterY - display.contentHeight/2.5
-	worldsBadge:addEventListener( "tap", windowMod.openWorldsMenu ) -- tap listener
+	local function worldsMenuCallback() 
+		composer.showOverlay( "scenes.settings.worlds", { time=composer.getVariable( "windowFadingOpenTime" ), effect="fade" } )
+	end
 
-	-- open sumbmarines window
-	local sumbmarinesBadge = display.newImage(uiGroup, uiDir .. "badgeSubmarine.png") -- set mask
-	sumbmarinesBadge:scale( badgesScaleFactor, badgesScaleFactor )
-	sumbmarinesBadge.x = display.contentCenterX + display.contentWidth/2.3 - buttonRowOffset * 1
-	sumbmarinesBadge.y = display.contentCenterY - display.contentHeight/2.5
-	sumbmarinesBadge:addEventListener( "tap", windowMod.openSubmarinesMenu ) -- tap listener
+	local function submarinesMenuCallback() 
+		composer.showOverlay( "scenes.settings.submarines", { time=composer.getVariable( "windowFadingOpenTime" ), effect="fade" } )
+	end
 
-	-- open bubbles window
-	local bubblesBadge = display.newImage(uiGroup, uiDir .. "badgeBubbles.png") -- set mask
-	bubblesBadge:scale( badgesScaleFactor, badgesScaleFactor )
-	bubblesBadge.x = display.contentCenterX + display.contentWidth/2.3 - buttonRowOffset * 2
-	bubblesBadge.y = display.contentCenterY - display.contentHeight/2.5
-	bubblesBadge:addEventListener( "tap", windowMod.openBubblesMenu ) -- tap listener
+	local function bubblesMenuCallback() 
+		composer.showOverlay( "scenes.settings.bubbles", { time=composer.getVariable( "windowFadingOpenTime" ), effect="fade" } )
+	end
+	
+	-- load the badges in the list
+	-- with the packIcon declared the menu will pack under the packIcon as hamburger menu
+	local badgesDescriptor = {
+		packIcon = "badgeSettings.png",
+		packRotation = 360,
+		descriptor={
+			{"badgeEdit.png", worldsMenuCallback },
+			{"badgeSubmarine.png", submarinesMenuCallback },
+			{"badgeBubbles.png", bubblesMenuCallback },
+			{"badgeMute.png", muteMusicCallback}
+		},
+		yPropagationOffset = 160,
+		propagation = 'down',
+
+	}
+	badgesMod.init(uiGroup, badgesDescriptor)
+
+	-- money display
+	local xPosition, yPosition = badgesMod.getPosition()
+
+	local moneyBadge = display.newImage( uiGroup, "assets/ui/badgeMoney.png" ) -- set mask
+	moneyBadge:scale( 0.3, 0.3 )
+	moneyBadge.x = xPosition - 280
+	moneyBadge.y = yPosition, 
+	moneyBadge:addEventListener( 
+		"tap", 
+		function ()
+			savedata.setGamedata( "money", savedata.getGamedata( "money" ) + 10 )
+			updateMoneyText(moneyBadge.x, moneyBadge.y)
+		end
+	)
+
+    updateMoneyText(moneyBadge.x, moneyBadge.y)
+
+
+	-- ----------------------------------------------------------------------------
+	-- bottom row text
+	-- ----------------------------------------------------------------------------
+	
+	-- show version
+	
+	local versionStamp = display.newText( 
+        uiGroup, 
+        'v ' .. composer.getVariable( "version" ), 
+        display.contentCenterX - display.contentWidth/2.5, 
+        display.contentCenterY + display.contentHeight/2.3, 
+        fontParams.path, 
+        50 
+	)
+	versionStamp:setFillColor( fontParams.colorR, fontParams.colorG, fontParams.colorB )
+
+	-- show label
+	-- Game Programming Lab
+	local gameProgrammingStamp = display.newText( 
+        uiGroup, 
+        'Laboratorio di Game Programing', 
+        display.contentCenterX + display.contentWidth/4.1, 
+        display.contentCenterY + display.contentHeight/2.3, 
+        fontParams.path, 
+        50 
+	)
+	gameProgrammingStamp:setFillColor( fontParams.colorR, fontParams.colorG, fontParams.colorB )
 end
 
 
@@ -155,7 +212,7 @@ function scene:show( event )
 
 	elseif ( phase == "did" ) then
 		-- Code here runs when the scene is entirely on screen
-
+		menuTrackPlayer = audio.play( menuTrack, { channel=1, loops=-1 } )
 	end
 end
 
@@ -168,16 +225,18 @@ function scene:hide( event )
 
 	if ( phase == "will" ) then
 		-- Code here runs when the scene is on screen (but is about to go off screen)
-
-		-- Before the transition remove the updaters, cause thet will be recreated in the next scene
+		
+		-- when the scene will be removed start to fade out the music
+		-- audio.fadeOut( { channel=1, time=fadeOutGame } )
 
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
-		
-		-- clear timers
-		timer.cancel( menuBackgroundSpeedUpdateTimer )
-		-- clear background
-		bgMod.clear()
+
+		bgMod.clear() -- clear background
+
+		-- stop the music to let the game music begin
+		audio.stop( menuTrackPlayer )
+		menuTrackPlayer = nil
 
 		-- remove the scene from cache 
 		-- NOTE: this function entirely removes the scene and all the objects and variables inside,
@@ -194,6 +253,11 @@ function scene:destroy( event )
 	local sceneGroup = self.view
 	-- Code here runs prior to the removal of scene's view
 
+	-- delete music tracks
+	-- audio.dispose( menuTrack )
+	-- audio.dispose( buttonPlaySound )
+	-- audio.dispose( buttonClickSound )
+	
 end
 
 

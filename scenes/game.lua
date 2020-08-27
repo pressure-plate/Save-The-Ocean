@@ -11,6 +11,9 @@ local scene = composer.newScene()
 -- set up physics
 local physics = require( "physics" )
 physics.start()
+--physics.setDrawMode( "normal" )  -- the default Corona renderer (no collision outlines)
+--physics.setDrawMode( "hybrid" )  -- overlays collision outlines on normal display objects
+--physics.setDrawMode( "debug" )   -- shows collision engine outlines only
 
 -- load submarine module
 local subMod = require( "scenes.game.submarine" )
@@ -62,6 +65,21 @@ local uiGroup
 
 -- assets dir
 local uiDir = "assets/ui/" -- user interface assets dir
+
+-- define shared collFiltParams table to define collisions filter parameters
+composer.setVariable( "collFiltParams", {
+
+	submarineFilter = { categoryBits = 1, maskBits = 14 },
+
+	pickableObjectFilter = { categoryBits = 2, maskBits = 5 },
+
+	obstacleFilter = { categoryBits = 4, maskBits = 3 },
+
+	submarinePlatformFilter = { categoryBits = 8, maskBits = 1 },
+
+	submarineBubbleFilter = { categoryBits = 16, maskBits = 0 }
+
+} )
 
 
 -- ----------------------------------------------------------------------------
@@ -300,26 +318,40 @@ end
 
 local function newProgressView( percent, xPos, yPos )
 	
-	local assetWidth = 200
-	local assetHeight = 40
+	local assetWidth = 512
+	local assetHeight = 60
 
-	-- create a new display group
+	-- create the progressView's display group hierarchy
+	local progressLayer = display.newGroup()
 	local progressView = display.newGroup()
+	progressView:insert( progressLayer )
 
 	-- insert in the uiGroup
 	uiGroup:insert( progressView )
 	
-	-- set image and mask
-	progressView.backgound = display.newImageRect( progressView, uiDir .. "pvBackground.png", assetWidth, assetHeight )
-    local mask = graphics.newMask( uiDir .. "pvMask.png" )
-	progressView:setMask( mask )
+	-- set progress bar fill image
+	progressView.barFill = display.newImageRect( progressLayer, uiDir .. "lifebar/fill.png", assetWidth, assetHeight )
 	
 	-- set a color filled Rect to progressively cover the bar
-    progressView.progress = display.newRect( progressView, assetWidth/2, 0, assetWidth, assetHeight )
-    progressView.progress:setFillColor( 0, 0.25, 0.5 )
+    progressView.progress = display.newRect( progressLayer, assetWidth/2, 0, assetWidth, assetHeight )
+    progressView.progress:setFillColor( 0.8, 0.6, 0.2 )
     progressView.progress.anchorX = 1 -- align
-    progressView.progress.width = assetWidth - ( percent * assetWidth ) -- set percent
- 
+	progressView.progress.width = assetWidth - ( percent * assetWidth ) -- set percent
+
+	-- set mask on progressLayer
+	local mask = graphics.newMask( uiDir .. "lifebar/mask.png" )
+	progressLayer:setMask( mask )
+
+	-- set frame image
+	progressView.barFrame = display.newImageRect( progressView, uiDir .. "lifebar/frame.png", assetWidth, assetHeight )
+
+	-- add badge image next to the progress bar
+	progressView.badgeSeaLife = display.newImageRect( progressView, uiDir .. "badgeSeaLife.png", 512, 512 )
+	local badgeScale = 0.14
+	progressView.badgeSeaLife.xScale = badgeScale
+	progressView.badgeSeaLife.yScale = badgeScale
+	progressView.badgeSeaLife.x = progressView.badgeSeaLife.x - 270
+	
 	-- add method to set the percent of the bar
 	function progressView:setProgress( percent )
 		
@@ -387,7 +419,7 @@ function scene:create( event )
 	composer.setVariable( "startTime", os.time() ) -- save game start time
 	composer.setVariable( "gameSpeed", 1 ) -- set initial game speed
 	composer.setVariable( "screenObjectsTable", {} ) -- keep a table of screen objects to clear during game and other purposes
-
+	
 
 	-- Set up display groups
 	-- NOTE: here we use the Group vars initialized earlier
@@ -404,12 +436,13 @@ function scene:create( event )
 	sceneGroup:insert( uiGroup )    -- insert into the scene's view group
 
 	-- load audio (sounds and streams)
-	musicTrack = audio.loadStream( "audio/F777-TheSevenSeas.mp3")
-	groundObjPickSound = audio.loadSound( "audio/sfx/pickGroundObj.wav" )
-	floatingObjPickSound = audio.loadSound( "audio/sfx/pickFloatingObj.wav" )
-	obstacleCollisionSound = audio.loadSound( "audio/sfx/explosion.wav" )
-	deadSeaSound = audio.loadSound( "audio/sfx/deadSea.wav" )
-	multiplierUpSound = audio.loadSound( "audio/sfx/multiplierUp.wav" )
+	local audioDir = composer.getVariable( "audioDir" )
+	musicTrack = audio.loadStream( audioDir .. "F777-TheSevenSeas.mp3" )
+	groundObjPickSound = audio.loadSound( audioDir .. "sfx/pickGroundObj.wav" )
+	floatingObjPickSound = audio.loadSound( audioDir .. "sfx/pickFloatingObj.wav" )
+	obstacleCollisionSound = audio.loadSound( audioDir .. "sfx/explosion.wav" )
+	deadSeaSound = audio.loadSound( audioDir .. "sfx/deadSea.wav" )
+	multiplierUpSound = audio.loadSound( audioDir .. "sfx/multiplierUp.wav" )
 
 	-- set event listener to update game speed
 	updateGameSpeedTimer = timer.performWithDelay( 1000, updateGameSpeed, 0 )
