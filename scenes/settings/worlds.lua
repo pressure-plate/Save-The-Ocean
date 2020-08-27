@@ -15,7 +15,7 @@ local group
 
 -- to hide the current overlay
 -- and go back to the parent scene
-function hideScene()
+local function hideScene()
     composer.hideOverlay( "fade", composer.getVariable( "windowFadingClosingTime" ) )
 end
 

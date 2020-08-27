@@ -5,13 +5,43 @@ local scene = composer.newScene()
 -- initialize variables -------------------------------------------------------
 local windowMod = require( "scenes.libs.window" )
 local tabulatorMod = require( "scenes.libs.tabulator" )
+local savedata = require( "scenes.libs.savedata" ) -- load the save data module
 
 local leaderboardDir = "assets/ui/leaderboard/"
 
 
 -- to hide the current overlay
-function hideScene()
+local function hideScene()
     composer.hideOverlay( "fade", composer.getVariable( "windowFadingClosingTime" ) )
+end
+
+
+local function buildScores()
+    local scores = savedata.getScores()
+
+    for count = 1, 6 do
+        
+        local score = scores[count]
+        print(score)
+
+        -- set the dir based on the number of the score
+        local dir = count
+        if count > 3 then dir = 'n' end
+
+        local item = { 
+            dir=leaderboardDir  .. dir .. ".png", 
+            scaleFactor=1.2,
+            label=score
+        }
+        
+        table.insert(items, item) -- append to the table
+
+        -- if there are no more scores then break
+        -- do this at the end so you can load at least one tab
+        if score == 0 then break end
+    end
+
+    return items
 end
 
 
@@ -32,14 +62,7 @@ function scene:create( event )
 
     local tabulatorOptions = {
 
-        items = {
-            { dir=leaderboardDir .. "1.png", scaleFactor=1.2, label='300' },
-            { dir=leaderboardDir .. "2.png", scaleFactor=1.2, label='289' },
-            { dir=leaderboardDir .. "3.png", scaleFactor=1.2, label='230' },
-            { dir=leaderboardDir .. "n.png", scaleFactor=1.2, label='300' },
-            { dir=leaderboardDir .. "n.png", scaleFactor=1.2, label='300' },
-            { dir=leaderboardDir .. "n.png", scaleFactor=1.2, label='300' },
-        },
+        items = buildScores(),
         colCount = 2,
         rowCount = 5,
         tableOriginX = display.contentCenterX - display.contentWidth/5.2,
