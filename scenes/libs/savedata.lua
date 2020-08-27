@@ -20,7 +20,7 @@ local gamedataTableDefault = {
     audioMute = false
 }
 -- set the table as initialized
-gamedataTableDefault[1] = "initialized"
+gamedataTableDefault.initialized = true
 
 
 -- ----------------------------------------------------------------------------
@@ -69,8 +69,8 @@ local function loadGamedata()
         gamedataTable = json.decode( contents )
     end
  
-	-- if the table is nil or has a length of 0 then fill it with the default settings
-    if ( gamedataTable == nil or #gamedataTable == 0 ) then
+    -- if the table is nil or is NOT initialized fill it with the default settings
+    if ( gamedataTable == nil or gamedataTable.initialized ~= true ) then
         gamedataTable = gamedataTableDefault
     end
 end
