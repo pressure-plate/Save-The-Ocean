@@ -170,5 +170,19 @@ function M.getGamedata( varName )
 end
 
 
+function M.pay( amount )
+    
+    -- chek the amount and pay for an object
+    if amount > gamedataTable.money then
+        return false
+    end
+
+    --  update the money value
+    gamedataTable.money = gamedataTable.money - amount
+    return true
+
+end
+
+
 -- return module table
 return M
