@@ -32,6 +32,8 @@ local menuTrackPlayer
 local buttonPlaySound
 local buttonClickSound
 
+local updateMovementTimer
+
 local fontParams
 
 local moneyText -- value to where is stored the money text to be updated
@@ -218,7 +220,7 @@ function scene:show( event )
 		-- re-start physics engine ( previously stopped in create() )
 		physics.start()
 		
-		timer.performWithDelay( 2000, titleMod.updateMovement , 0)
+		updateMovementTimer = timer.performWithDelay( 2000, titleMod.updateMovement , 0)
 		menuTrackPlayer = audio.play( menuTrack, { channel=1, loops=-1 } )
 	end
 end
@@ -232,10 +234,8 @@ function scene:hide( event )
 
 	if ( phase == "will" ) then
 		-- Code here runs when the scene is on screen (but is about to go off screen)
+		timer.cancel( updateMovementTimer ) 
 		
-		-- when the scene will be removed start to fade out the music
-		-- audio.fadeOut( { channel=1, time=fadeOutGame } )
-
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
 
