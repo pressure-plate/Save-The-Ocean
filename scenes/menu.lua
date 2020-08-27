@@ -1,6 +1,5 @@
 
 local composer = require( "composer" )
-
 local scene = composer.newScene()
 
 -- -----------------------------------------------------------------------------------
@@ -70,10 +69,14 @@ function scene:create( event )
 		composer.gotoScene( "scenes.game", { time=fadeOutGame, effect="crossFade" } )
 	end 
 
+	local function scoresCallback()
+		composer.showOverlay( "scenes.menu.settings.scores", { time=400, effect="fade" } )
+	end
+
 	local buttonsDescriptor = {
 		descriptor = {
 			{"buttonPlay3.png", playCallback},
-			{"buttonScores.png", windowMod.openHighscoresMenu},
+			{ "buttonScores.png", scoresCallback }, --windowMod.openHighscoresMenu
 			{"buttonAbout.png", windowMod.openAboutMenu}
 		},
 		propagation = 'down',

@@ -60,7 +60,7 @@ local function spawnFloatingObjects()
             display.contentCenterX + display.contentWidth/2.2
         )
 
-        local randRotation = math.random( -30, 30 ) -- generate a random rotation
+        local randRotation = math.random( -40, 40 ) -- generate a random rotation
 
         local item = display.newImage( group, itemsDir .. dir )
         item:scale( scaleFactor, scaleFactor )
@@ -69,14 +69,14 @@ local function spawnFloatingObjects()
         item.rotation = randRotation
         
         -- set the phisics
-        physics.addBody( item, { density=3.0, bounce=0.3, radius=100 } )
+        physics.addBody( item, "dynamic", { density=3.0, bounce=0.3, radius=100 } )
         item.gravityScale = 0
 
         local randSpeedX = math.random( -12, 12 )
         local randSpeedY = math.random( -12, 12 )
         item:setLinearVelocity( randSpeedX, randSpeedY )
 
-        item:applyTorque( randRotation )
+        item:applyAngularImpulse( randRotation * 50 )
 
         -- save the item for future actions
         table.insert( screenObjects, item )
