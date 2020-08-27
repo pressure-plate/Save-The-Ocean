@@ -8,10 +8,17 @@ local tabulatorMod = require( "scenes.libs.tabulator" )
 local savedata = require( "scenes.libs.savedata" ) -- load the save data module
 local bgMenuMod = require( "scenes.menu.background" ) -- required to reload the home background
 
-local backgroundDir = "assets/background/"
+local itemsDir = "assets/background/"
 
+itemsData = {
+    {inernalId='BubbleBee', dir='1.png', price=1, default=true},
+    {inernalId='GreenPisel', dir='2.png', price=30},
+    {inernalId='DeathLand', dir='3.png', price=130},
+    {inernalId='ToiletBrownie', dir='4.png', price=2},
+}
+
+local parent 
 local group
-
 
 -- to hide the current overlay
 -- and go back to the parent scene
@@ -23,6 +30,24 @@ end
 -- set the background var once is selected
 -- check also if is avaiable, and its price
 local function onWorldStikerSelection( event )
+
+    if event.target.alpha ~= 1 then
+
+        -- try to pay
+        if savedata.pay( itemsData[event.target.itemId].price) then
+
+            -- update the user owned data
+            local ownedData = savedata.getGamedata( "backgroundsOwned" )
+            ownedData[itemsData[event.target.itemId].inernalId] = true
+
+            -- display the object as owned
+            event.target.alpha = 1
+            tabulatorMod.removeItemTextOver( event.target.itemId )
+
+            -- update the money value
+            parent:updateMoneyView()
+        end
+    end
     
     -- select the item, if the operation goes well, do actions
     if tabulatorMod.highlightItem(event.target.itemId, true) then
@@ -30,6 +55,39 @@ local function onWorldStikerSelection( event )
         bgMenuMod.updateBackground() -- call the reload for the background menu
     end
 
+end
+
+
+-- generate the items table to display the items
+local function builditems()
+    local itemsOwned = savedata.getGamedata( "backgroundsOwned")
+    local items = {}
+
+    for count, el in pairs ( itemsData ) do
+        
+
+        -- set the base data of the item
+        local item = { 
+            dir=itemsDir .. el.dir, 
+            scaleFactor=0.8,
+        }
+        
+        -- if the user dont own the item set the price to buy it
+        if not itemsOwned[el.inernalId] then
+            item["label"] = el.price
+            item['alpha'] = 0.5
+        end
+
+        table.insert(items, item) -- append to the table
+
+    end
+
+    return items
+end
+
+
+function scene:show( event )
+    parent = event.parent  -- Reference to the parent scene object
 end
 
 
@@ -51,12 +109,7 @@ function scene:create( event )
     -- options
     local tabulatorOptions = {
         -- itemDir, scaleFactor, price
-        items = {
-            { dir=backgroundDir .. "1.png", scaleFactor=0.8 },
-            { dir=backgroundDir .. "2.png", scaleFactor=0.8 },
-            { dir=backgroundDir .. "3.png", scaleFactor=0.8, label='22', alpha=0.5 },
-            { dir=backgroundDir .. "4.png", scaleFactor=0.8, label='24', alpha=0.5 },
-        },
+        items = builditems(),
         colCount = 3,
         rowCount = 2,
         tableOriginX = display.contentCenterX - display.contentWidth/4,
@@ -77,13 +130,14 @@ function scene:hide( event )
     local parent = event.parent  -- Reference to the parent scene object
  
     if ( phase == "will" ) then
-        -- Call the "resumeGame()" function in the parent scene
-        -- parent:resumeGame()
+        -- update the mony view before leave the window
+        parent:updateMoneyView()
     end
 end
 
 
 scene:addEventListener( "create", scene )
+scene:addEventListener( "show", scene )
 scene:addEventListener( "hide", scene )
 
 return scene

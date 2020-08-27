@@ -38,14 +38,8 @@ local moneyText -- value to where is stored the money text to be updated
 
 
 -- update the money amount
-local function updateMoneyText(x, y)
-
-	if moneyText then
-		display.remove( moneyText )
-	end
-
-	moneyText = display.newText( uiGroup, savedata.getGamedata( "money" ) .. '$', x, y, fontParams.path, 70 )
-	moneyText:setFillColor( fontParams.colorR, fontParams.colorG, fontParams.colorB )
+function scene:updateMoneyView()
+	moneyText.text = savedata.getGamedata( "money" ) .. '$'
 end
 
 
@@ -164,11 +158,19 @@ function scene:create( event )
 		"tap", 
 		function ()
 			savedata.setGamedata( "money", savedata.getGamedata( "money" ) + 10 )
-			updateMoneyText(moneyBadge.x, moneyBadge.y)
+			scene.updateMoneyView()
 		end
 	)
 
-    updateMoneyText(moneyBadge.x, moneyBadge.y)
+    moneyText = display.newText( 
+		uiGroup, 
+		savedata.getGamedata( "money" ) .. '$',
+		moneyBadge.x, 
+		moneyBadge.y, 
+		fontParams.path, 
+		70 
+	)
+	moneyText:setFillColor( fontParams.colorR, fontParams.colorG, fontParams.colorB )
 
 
 	-- ----------------------------------------------------------------------------
