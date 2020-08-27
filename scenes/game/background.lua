@@ -7,9 +7,6 @@ local physics = require( "physics" )
 local savedata = require( "scenes.libs.savedata" )
 
 -- background vars
-M.bgWorld = 1 -- world selector -- TODO DEPRECATED
-M.bgLayerNum = 6 -- num of the background layers to load from the assets folder -- TODO DEPRECATED
-
 local backgroundWorld
 local backgroundLayerNum
 local stopScrolling

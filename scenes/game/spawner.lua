@@ -55,7 +55,8 @@ local function spawnGroundObjects()
         newPickable.myType = "pickableObject"
         newPickable.myName = "groundObject"
         newPickable.mySeaLife = true -- used in updateSeaLife() to avoid counting the same object more than 1 time
-        physics.addBody( newPickable, { radius=50, isSensor=true } )
+        local collFiltParams = composer.getVariable( "collFiltParams" ) -- get collision filter params
+        physics.addBody( newPickable, { radius=50, isSensor=true, filter=collFiltParams.pickableObjectFilter } )
         newPickable.gravityScale = 0 -- remove gravity from this
 
         -- rand rotation
@@ -107,7 +108,8 @@ local function spawnFloatingObjects()
         newPickable.myType = "pickableObject"
         newPickable.myName = "floatingObject"
         newPickable.mySeaLife = true -- used in updateSeaLife() to avoid counting the same object more than 1 time
-        physics.addBody( newPickable, { radius=50, isSensor=true } )
+        local collFiltParams = composer.getVariable( "collFiltParams" ) -- get collision filter params
+        physics.addBody( newPickable, { radius=50, isSensor=true, filter=collFiltParams.pickableObjectFilter } )
         newPickable.gravityScale = 0 -- remove gravity from this
 
         -- rand spin
@@ -152,7 +154,8 @@ local function spawnObstacle( assetPath, location, xPos, yPos, linearVelocity )
     end
     
     -- set physics
-    physics.addBody( newObstacle, "kinematic", { isSensor=true, outline=assetOutline } )
+    local collFiltParams = composer.getVariable( "collFiltParams" ) -- get collision filter params
+    physics.addBody( newObstacle, "kinematic", { isSensor=true, outline=assetOutline,filter=collFiltParams.obstacleFilter } )
 
     -- add to table
     table.insert( composer.getVariable( "screenObjectsTable" ), newObstacle )
