@@ -20,7 +20,7 @@ local function buildScores()
     local scores = savedata.getScores()
     local items = {}
 
-    for count = 1, 6 do
+    for count = 1, 8 do
         
         local score = scores[count]
 
@@ -30,7 +30,7 @@ local function buildScores()
 
         local item = { 
             dir=leaderboardDir  .. dir .. ".png", 
-            scaleFactor=1.2,
+            scaleFactor=1.1,
             label=score
         }
         
@@ -38,7 +38,7 @@ local function buildScores()
 
         -- if there are no more scores then break
         -- do this at the end so you can load at least one tab
-        if score == 0 then break end
+        if scores[count+1] == 0 then break end
     end
 
     return items
@@ -65,9 +65,9 @@ function scene:create( event )
         items = buildScores(),
         colCount = 2,
         rowCount = 5,
-        tableOriginX = display.contentCenterX - display.contentWidth/5.2,
-        tableOriginY = display.contentCenterY - display.contentHeight/4,
-        onTapCallback = function () return true end,
+        tableOriginX = display.contentCenterX - display.contentWidth/5.6,
+        tableOriginY = display.contentCenterY - display.contentHeight/3.6,
+        tableReplicaDistanceFactorY = 1.1,
     }
     -- create the table based on the global configuration
     -- load the items int the table

@@ -9,6 +9,15 @@ local savedata = require( "scenes.libs.savedata" ) -- load the save data module
 
 local submarineDir = "assets/submarine/"
 
+submarinesData = {
+    {inernalId='BubbleBee', dir='1.png', price=1},
+    {inernalId='GreenPisel', dir='2.png', price=30},
+    {inernalId='VioletLove', dir='3.png', price=130},
+    {inernalId='ToiletBrownie', dir='4.png', price=2},
+    {inernalId='LGBT+', dir='5.png', price=6969},
+    {inernalId='AlphaDestroyer', dir='6.png', price=1000},
+}
+
 local group
 
 

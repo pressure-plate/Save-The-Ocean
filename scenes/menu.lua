@@ -93,7 +93,7 @@ function scene:create( event )
 	-- top right bagdes
 	-- ----------------------------------------------------------------------------
 	local function muteMusicCallback()
-		audioMute = savedata.getGamedata( "audioMute" )
+		local audioMute = savedata.getGamedata( "audioMute" )
 		if audioMute then
 			audio.setVolume( 0.7, { channel=1 } )
 			audio.play( buttonClickSound )

@@ -237,9 +237,9 @@ function M.init( displayGroup, options )
         tableReplicaDistanceFactorX = options.tableReplicaDistanceFactorX 
     end
 
-    -- tableReplicaDistanceFactorX
-    if options.tableReplicaDistanceFactorX then 
-        tableReplicaDistanceFactorX = options.tableReplicaDistanceFactorX 
+    -- tableReplicaDistanceFactorY
+    if options.tableReplicaDistanceFactorY then 
+        tableReplicaDistanceFactorY = options.tableReplicaDistanceFactorY 
     end
 
     -- colCount
