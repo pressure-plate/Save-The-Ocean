@@ -55,7 +55,7 @@ function scene:create( event )
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
 
-	physics.start() -- start/restart the physics, because on gameover it will be stopped
+	physics.pause()  -- Temporarily pause the physics engine (we don't want things to start yet)
 	
 	-- set up groups for display objects
 	local bgGroup1 = display.newGroup() -- display group for background and for the title
@@ -212,6 +212,10 @@ function scene:show( event )
 
 	elseif ( phase == "did" ) then
 		-- Code here runs when the scene is entirely on screen
+
+		-- re-start physics engine ( previously stopped in create() )
+		physics.start()
+		
 		menuTrackPlayer = audio.play( menuTrack, { channel=1, loops=-1 } )
 	end
 end
