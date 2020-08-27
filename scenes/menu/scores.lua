@@ -18,11 +18,11 @@ end
 
 local function buildScores()
     local scores = savedata.getScores()
+    local items = {}
 
     for count = 1, 6 do
         
         local score = scores[count]
-        print(score)
 
         -- set the dir based on the number of the score
         local dir = count
