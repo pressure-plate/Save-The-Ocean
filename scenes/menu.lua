@@ -22,9 +22,6 @@ local savedata = require( "scenes.libs.savedata" ) -- load the save data module
 local buttonsMod = require( "scenes.libs.ui" )  -- ui lib to show buttons in the interface
 local badgesMod = require( "scenes.libs.ui" )
 
--- assets directory
-local audioDir = "audio/" -- audio dir
-
 -- display groups
 local uiGroup
 
@@ -58,9 +55,9 @@ function scene:create( event )
 	sceneGroup:insert( uiGroup ) -- insert into the scene's view group
 
 	-- load music
-	menuTrack = audio.loadStream( audioDir .. "menu.mp3" )
-	buttonPlaySound = audio.loadStream( audioDir .. "sfx/play.mp3" )
-	buttonClickSound = audio.loadStream( audioDir .. "sfx/click.mp3" )
+	menuTrack = audio.loadStream( composer.getVariable( "audioDir" ) .. "menu.mp3" )
+	buttonPlaySound = audio.loadStream( composer.getVariable( "audioDir" ) .. "sfx/play.mp3" )
+	buttonClickSound = audio.loadStream( composer.getVariable( "audioDir" ) .. "sfx/click.mp3" )
 
 
 	-- ----------------------------------------------------------------------------
@@ -222,7 +219,7 @@ function scene:destroy( event )
 	-- Code here runs prior to the removal of scene's view
 
 	-- delete music tracks
-	audio.dispose( menuTrack )
+	-- audio.dispose( menuTrack )
 	-- audio.dispose( buttonPlaySound )
 	-- audio.dispose( buttonClickSound )
 	
