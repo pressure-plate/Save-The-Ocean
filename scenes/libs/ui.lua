@@ -166,6 +166,14 @@ local function togglePackCallback()
 end
 
 
+-- return the origin position of the UI
+-- to align other stuff to the buttons 
+function M.getPosition()
+    local xPosition, yPosition = computePosition()
+    return display.contentCenterX + xPosition, display.contentCenterY + yPosition
+end
+
+
 -- init function
 function M.init( displayGroup, options )
     

@@ -13,9 +13,16 @@ local gamedataFilePath = system.pathForFile( "gamedata.json", system.DocumentsDi
 -- DEFAULT game data
 local gamedataTableDefault = {
     submarineSkin = 1,
+    submarinesOwned = {},
+
     submarineBubbleSkin = 1,
+    submarineBubblesOwned = {},
+
     backgroundWorld = 1,
     backgroundLayerNum = 6,
+    backgroundsOwned = {},
+
+    money = 300,
 
     audioMute = false
 }
