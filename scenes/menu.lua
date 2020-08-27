@@ -2,7 +2,6 @@
 local composer = require( "composer" )
 
 local physics = require( "physics" )
-physics.start()
 
 local scene = composer.newScene()
 
@@ -23,9 +22,6 @@ local savedata = require( "scenes.libs.savedata" ) -- load the save data module
 local buttonsMod = require( "scenes.libs.ui" )  -- ui lib to show buttons in the interface
 local badgesMod = require( "scenes.libs.ui" )
 
--- assets directory
-local audioDir = "audio/" -- audio dir
-
 -- display groups
 local uiGroup
 
@@ -42,6 +38,8 @@ function scene:create( event )
 
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
+
+	physics.start() -- start/restart the physics, because on gameover it will be stopped
 	
 	-- set up groups for display objects
 	local bgGroup1 = display.newGroup() -- display group for background and for the title
@@ -57,9 +55,9 @@ function scene:create( event )
 	sceneGroup:insert( uiGroup ) -- insert into the scene's view group
 
 	-- load music
-	menuTrack = audio.loadStream( audioDir .. "menu.mp3" )
-	buttonPlaySound = audio.loadStream( audioDir .. "sfx/play.mp3" )
-	buttonClickSound = audio.loadStream( audioDir .. "sfx/click.mp3" )
+	menuTrack = audio.loadStream( composer.getVariable( "audioDir" ) .. "menu.mp3" )
+	buttonPlaySound = audio.loadStream( composer.getVariable( "audioDir" ) .. "sfx/play.mp3" )
+	buttonClickSound = audio.loadStream( composer.getVariable( "audioDir" ) .. "sfx/click.mp3" )
 
 
 	-- ----------------------------------------------------------------------------
@@ -221,7 +219,7 @@ function scene:destroy( event )
 	-- Code here runs prior to the removal of scene's view
 
 	-- delete music tracks
-	audio.dispose( menuTrack )
+	-- audio.dispose( menuTrack )
 	-- audio.dispose( buttonPlaySound )
 	-- audio.dispose( buttonClickSound )
 	

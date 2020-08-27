@@ -4,7 +4,6 @@ local composer = require( "composer" )
 local M = {}
 
 local uiDir = "assets/ui/" -- user interface assets di
-local audioDir = "audio/" -- audio dir
 
 local group
 
@@ -111,8 +110,8 @@ function M.init( displayGroup, options )
     windowScaleFactor = 1
     windowForceClose = false -- close the window on button exit button press
     onExitCallback = null
-    buttonCloseSound = audio.loadStream( audioDir .. "sfx/close.mp3" )
-    buttonClickSound = audio.loadStream( audioDir .. "sfx/click.mp3" )
+    buttonCloseSound = audio.loadStream( composer.getVariable( "audioDir" ) .. "sfx/close.mp3" )
+    buttonClickSound = audio.loadStream( composer.getVariable( "audioDir" ) .. "sfx/click.mp3" )
 
     -- showCloseButton
     if options.showCloseButton then 

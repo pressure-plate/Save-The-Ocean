@@ -14,7 +14,7 @@ local group
 
 
 -- to hide the current overlay
-function hideScene()
+local function hideScene()
     composer.hideOverlay( "fade", composer.getVariable( "windowFadingClosingTime" ) )
 end
 
@@ -50,9 +50,9 @@ function scene:create( event )
     local tabulatorOptions = {
         -- itemDir, scaleFactor, price
         items = {
-            { bubbleDir .. "1.png", 2, 0 },
-            { bubbleDir .. "2.png", 2, 14 },
-            { bubbleDir .. "3.png", 2, 22 }
+            { dir=bubbleDir .. "1.png", scaleFactor=2 },
+            { dir=bubbleDir .. "2.png", scaleFactor=2, label='14', alpha=0.5 },
+            { dir=bubbleDir .. "3.png", scaleFactor=2, label='22', alpha=0.5 }
         },
         colCount = 3,
         rowCount = 2,
@@ -64,7 +64,7 @@ function scene:create( event )
     -- create the table based on the global configuration
     -- load the items int the table
     tabulatorMod.init ( group, tabulatorOptions )
-    tabulatorMod.highlightItem(savedata.getGamedata( "backgroundWorld" ), false) -- highlight without play sond (on load)
+    tabulatorMod.highlightItem(savedata.getGamedata( "submarineBubbleSkin" ), false) -- highlight without play sond (on load)
 end
 
 
