@@ -111,17 +111,6 @@ Con il passare del tempo la velocità di gioco aumenta fino a raggiungere e mant
 
 Quando la partita termina compare la scritta "Game Over", e pochi secondi dopo la scena viene reindirizzata alla schermata iniziale. 
 
-\section{Implementazione}
-Il gioco è stato implementato utilizzando il framework coronaSDK, e scrivendo il codice in "Lua". 
-
-
-Il codice è stato diviso in moduli per avere una visione più completa del programma e per poter apportare modifiche più agevolemente. 
-Ogni modulo del gioco ha un template ben definito:
-\\\\
-
-
-\includegraphics[width=145mm]{module_template.png}\\
-
 \section{Gestione dell’efficieza nella generazione delle hitbox
 per gli ostacoli}
 
@@ -134,6 +123,16 @@ utilizzando come stringa di riferimento per la table il nome del path dove risie
 dunque ogni volta che è necessario creare l’outline di un ostacolo viene prima verificata la sua presenza in cache, se presente viene 
 estratto da li, se non presente viene generato, salvato in cache, e poi letto sempre dalla cache. Il sistema è dinamico e non si basa 
 su una tabella di nomi gia definita ma viene creata all’occorrenza e per qualsiasi nome di percorso.
+\section{Implementazione}
+Il gioco è stato implementato utilizzando il framework coronaSDK, e scrivendo il codice in "Lua". 
+
+
+Il codice è stato diviso in moduli per avere una visione più completa del programma e per poter apportare modifiche più agevolemente. 
+Ogni modulo del gioco ha un template ben definito:
+\\\\
+
+
+\includegraphics[width=145mm]{module_template.png}\\
 
 \subsection{Scene}
 Il gioco è strutturato in "scene", gestite utilizzando il \textbf{composer}, una libreria che fornisce agli sviluppatori  un modo semplice per creare e passare da una scena all'altra. Il ciclo di vita di composer inizia all'interno di main.lua. Tuttavia, main.lua stesso non è una scena del composer: viene semplicemente utilizzato per inizializzarlo, quindi avvia la prima scena tramite composer.gotoScene(). In questa chiamata, si specifica il nome della scena (file) da caricare. 
@@ -209,15 +208,13 @@ in particolare si occupa degli gli oggetti all'interno della gerarchia di sceneG
 \subsection{Funzioni implementate}
 In questo paragrafo verranno descritte le funzionalità implementate per realizzare le funzionalità citate in precedenza.
 \subsubsection{updateGameSpeed()}
-La funzione che aggiorna la velocità di scorrimento dello schermo è chiamata "updateGameSpeed". Inizialmente memorizza nella variabile 
-locale gs la velocità iniziale (impostata inizialmente a 1). Tale valore viene confrontato periodicamente (ogni 30 secondi)
-con la velocità massima raggiungibile (maxGameSpeed = 3):   
-
+La funzione che aggiorna la velocità di scorrimento dello schermo è chiamata "updateGameSpeed". Inizialmente memorizza nella variabile locale gs la velocità iniziale (impostata inizialmente a 1). Tale valore viene confrontato periodicamente (ogni 30 secondi) con la velocità massima raggiungibile (maxGameSpeed = 3): 
 
 
 \subsubsection{exitGame()}
 
 \subsubsection{gameOver()}
+La procedura gameOver(), si occupa di gestire il caso in cui la partita termini: ovvero quando si va a sbattere contro uno scoglio oppure quando la vita del mare cala fino a raggiungere lo 0\%. Quando si verifica uno di questi due casi, la variabile isGameOver assume valore "true" e si interrompono tutti i suoni, la fisica del gioco, il movimento del background. A quel punto viene visualizzato sullo schermo un background una schermata nera di Game Over e la scena viene reindirizzata al menù principale.
 
 \subsubsection{onCollision()}
 Per realizzare la procedura che gestisce la collisione tra gli oggetti è stato applicato il metodo dei filtri. 
@@ -236,8 +233,13 @@ collisione con qualsiasi tipo di oggetto precedente, i valori per quest'ultimo p
 
 
 \subsubsection{clearObject()}
+Questa procedura si occupa di rimuovere tutti gli oggetti che escono dalla parte sinistra dello schermo (quindi quelli che non sono stati raccolti dall'utente) mediante le operazioni display.remove( thisObject ) e table.remove( screenObjectsTable, i). ScreenObjectTable è una tabella in cui vengono messi tutti gli oggetti di gioco creati e quando si eliminano, vengono anche rimossi da questa tabella. \\
+Il ciclo for viene fatto partire dalla posizione finale della tabella, in quanto la funzione table.remove() è inefficiente (rimuovendo un oggetto dalla tabella, bisogna shiftare tutti gli oggetti in basso di una posizione in modo da mantenere la tabella compatta)
 
 \subsubsection{updateSeaLife()}
+Quando un oggetto non viene raccolto dall'utente la vita del mare cala del valore dell'oggetto perduto (ogni oggetto ha un valore differente). Questa funzione si occupa di aggiornare la vita quando si verifica la condizione appena citata ed utilizza la stessa tabella utilizzata nella funzione clearObject().\\
+Per avere una risposta più rapida sulla barra della vita del mare in questo caso si va a contare la vita persa quando la "x" dell'oggetto diventa minore di 0.
+Per ogni displayObject viene definito un attributo "mySeaLife", che viene utilizzato per evitare di contare più volte la vita del mare persa in base a questi oggetti (finchè l'oggetto, dopo essere uscito dallo schermo, non raggiunge -800, ogni volta che si va a richiamare il controllo per aggiornare la vita del mare si diminuisce la vita del valore di quell'oggetto).
 
 \subsubsection{setScoreMultiplier()}
 
