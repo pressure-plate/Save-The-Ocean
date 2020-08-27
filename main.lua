@@ -51,7 +51,8 @@ else
 end
 
 -- set audio root dir globally (this is done to simplify the introduction of different audio packs)
-composer.setVariable( "audioDir", "audio/" )
+-- composer.setVariable( "audioDir", "audio/" )
+composer.setVariable( "audioDir", "audio/specialEditionP/" )
 
 -- @DEBUG -----------------------------------------------------------------------------------------
 
