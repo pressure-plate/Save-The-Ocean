@@ -11,9 +11,9 @@ local bgMenuMod = require( "scenes.menu.background" ) -- required to reload the 
 local itemsDir = "assets/submarine/bubble/"
 
 itemsData = {
-    {inernalId='BubbleBee', dir='1.png', price=1, default=true},
-    {inernalId='GreenPisel', dir='2.png', price=30},
-    {inernalId='VioletLove', dir='3.png', price=130},
+    {inernalId='SoapBubble', dir='1.png', price=1, default=true},
+    {inernalId='CleanBubble', dir='2.png', price=300},
+    {inernalId='VioletBubble', dir='3.png', price=830},
 }
 
 local parent 
@@ -76,7 +76,7 @@ local function builditems()
             -- check if the item is set as default
             -- if is as defaut and is not owned then add the user owned set
             if not el.default then
-                item["label"] = el.price
+                item["label"] = el.price .. '$'
                 item['alpha'] = 0.5
             else
                 -- update the user owned data

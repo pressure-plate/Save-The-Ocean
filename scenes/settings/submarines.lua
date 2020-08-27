@@ -11,8 +11,8 @@ local itemsDir = "assets/submarine/"
 
 itemsData = {
     {inernalId='BubbleBee', dir='1.png', price=1, default=true},
-    {inernalId='GreenPisel', dir='2.png', price=30},
-    {inernalId='VioletLove', dir='3.png', price=130},
+    {inernalId='GreenPisel', dir='2.png', price=3210},
+    {inernalId='VioletLove', dir='3.png', price=666},
     {inernalId='ToiletBrownie', dir='4.png', price=2},
     {inernalId='LGBT+', dir='5.png', price=6969},
     {inernalId='AlphaDestroyer', dir='6.png', price=1000},
@@ -78,7 +78,7 @@ local function builditems()
             -- check if the item is set as default
             -- if is as defaut and is not owned then add the user owned set
             if not el.default then
-                item["label"] = el.price
+                item["label"] = el.price .. '$'
                 item['alpha'] = 0.5
             else
                 -- update the user owned data
