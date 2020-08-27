@@ -1,6 +1,5 @@
 
 local composer = require( "composer" )
-
 local scene = composer.newScene()
 
 -- -----------------------------------------------------------------------------------
@@ -12,24 +11,18 @@ local scene = composer.newScene()
 
 local fadeOutGame = 1400-- time to switch in game Mode
 
--- load background module
-local bgMod = require( "scenes.menu.background" )
 
--- load background module
-local windowMod = require( "scenes.menu.window" )
-
--- load the saved data
+-- Load all the neades modules
+local bgMod = require( "scenes.menu.background" ) -- load background module
+local titleMod = require( "scenes.menu.title" ) -- to display title and floating objects
 local savedata = require( "scenes.libs.savedata" ) -- load the save data module
-
-local buttonsMod = require( "scenes.libs.ui" )
+local buttonsMod = require( "scenes.libs.ui" )  -- ui lib to show buttons in the interface
 local badgesMod = require( "scenes.libs.ui" )
 
 -- assets directory
-local bgDir = "assets/menu/" -- user interface assets dir
 local audioDir = "audio/" -- audio dir
 
 -- display groups
-local bgGroup
 local uiGroup
 
 -- audio
@@ -47,42 +40,45 @@ function scene:create( event )
 	-- Code here runs when the scene is first created but has not yet appeared on screen
 	
 	-- set up groups for display objects
-	bgGroup = display.newGroup() -- display group for background
-	sceneGroup:insert( bgGroup ) -- insert into the scene's view group
+	local bgGroup1 = display.newGroup() -- display group for background and for the title
+	sceneGroup:insert( bgGroup1 ) -- insert into the scene's view group
+	bgMod.init( bgGroup1 ) -- load and set background module
+
+	-- load the title and the floating objects
+	local bgGroup2 = display.newGroup()
+	sceneGroup:insert( bgGroup2 )
+	titleMod.init( bgGroup2 )
 
 	uiGroup = display.newGroup() -- display group for UI
 	sceneGroup:insert( uiGroup ) -- insert into the scene's view group
-
-	-- load and set background
-	bgMod.init( bgGroup )
-
-	-- load and set settings window manager
-	windowMod.init( uiGroup )
 
 	-- load music
 	menuTrack = audio.loadStream( audioDir .. "menu.mp3" )
 	buttonPlaySound = audio.loadStream( audioDir .. "sfx/play.mp3" )
 	buttonClickSound = audio.loadStream( audioDir .. "sfx/click.mp3" )
 
-	-- set title on the menu
-	local titleImmage = display.newImageRect(uiGroup, bgDir .. "menu2.png", display.contentWidth, display.contentHeight) -- set title
-	titleImmage.x = display.contentCenterX
-	titleImmage.y = display.contentCenterY
-	
 
 	-- ----------------------------------------------------------------------------
 	-- cental buttons
 	-- ----------------------------------------------------------------------------
 	local function playCallback() 
 		audio.play( buttonPlaySound )
-		composer.gotoScene( "scenes.game", { time=fadeOutGame, effect="crossFade" } )
+		composer.gotoScene( "scenes.game", { time=fadeOutGame, effect="slideLeft" } )
 	end 
+
+	local function scoresCallback()
+		composer.showOverlay( "scenes.menu.scores", { time=composer.getVariable( "windowFadingOpenTime" ), effect="fade" } )
+	end
+
+	local function aboutCallback()
+		composer.showOverlay( "scenes.menu.about", { time=composer.getVariable( "windowFadingOpenTime" ), effect="fade" } )
+	end
 
 	local buttonsDescriptor = {
 		descriptor = {
-			{"buttonPlay3.png", playCallback},
-			{"buttonScores.png", windowMod.openHighscoresMenu},
-			{"buttonAbout.png", windowMod.openAboutMenu}
+			{ "buttonPlay3.png", playCallback },
+			{ "buttonScores.png", scoresCallback },
+			{ "buttonAbout.png", aboutCallback }
 		},
 		propagation = 'down',
 		position = 'center',
@@ -90,6 +86,7 @@ function scene:create( event )
 	}
 	buttonsMod.init(uiGroup, buttonsDescriptor)	
 	
+
 	-- ----------------------------------------------------------------------------
 	-- top right bagdes
 	-- ----------------------------------------------------------------------------
@@ -105,14 +102,33 @@ function scene:create( event )
 			savedata.setGamedata( "audioMute", true)
 		end 
 	end
+
+	local function worldsMenuCallback() 
+		composer.showOverlay( "scenes.settings.worlds", { time=composer.getVariable( "windowFadingOpenTime" ), effect="fade" } )
+	end
+
+	local function submarinesMenuCallback() 
+		composer.showOverlay( "scenes.settings.submarines", { time=composer.getVariable( "windowFadingOpenTime" ), effect="fade" } )
+	end
+
+	local function bubblesMenuCallback() 
+		composer.showOverlay( "scenes.settings.bubbles", { time=composer.getVariable( "windowFadingOpenTime" ), effect="fade" } )
+	end
 	
+	-- load the badges in the list
+	-- with the packIcon declared the menu will pack under the packIcon as hamburger menu
 	local badgesDescriptor = {
+		packIcon = "badgeSettings.png",
+		packRotation = 360,
 		descriptor={
-			{"badgeEdit.png", windowMod.openWorldsMenu},
-			{"badgeSubmarine.png", windowMod.openSubmarinesMenu},
-			{"badgeBubbles.png", windowMod.openBubblesMenu},
+			{"badgeEdit.png", worldsMenuCallback },
+			{"badgeSubmarine.png", submarinesMenuCallback },
+			{"badgeBubbles.png", bubblesMenuCallback },
 			{"badgeMute.png", muteMusicCallback}
-		}
+		},
+		-- yPropagationOffset = 180,
+		-- propagation = 'down',
+
 	}
 	badgesMod.init(uiGroup, badgesDescriptor)
 
@@ -135,6 +151,7 @@ function scene:create( event )
 	versionStamp:setFillColor( fontParams.colorR, fontParams.colorG, fontParams.colorB )
 
 	-- show label
+	-- Game Programming Lab
 	local gameProgrammingStamp = display.newText( 
         uiGroup, 
         'Laboratorio di Game Programing', 
@@ -178,10 +195,9 @@ function scene:hide( event )
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
 
-		-- clear background
-		bgMod.clear()
+		bgMod.clear() -- clear background
 
-		-- stop the music after the fadeout 
+		-- stop the music to let the game music begin
 		audio.stop( menuTrackPlayer )
 		menuTrackPlayer = nil
 
@@ -202,8 +218,8 @@ function scene:destroy( event )
 
 	-- delete music tracks
 	audio.dispose( menuTrack )
-	audio.dispose( buttonPlaySound )
-	audio.dispose( buttonClickSound )
+	-- audio.dispose( buttonPlaySound )
+	-- audio.dispose( buttonClickSound )
 	
 end
 

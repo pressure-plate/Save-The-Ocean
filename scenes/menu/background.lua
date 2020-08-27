@@ -8,7 +8,7 @@ local savedata = require( "scenes.libs.savedata" )
 -- background assets dir
 local bgDir = "assets/background/worlds/" -- dir to change between worlds
 
-local backgroundGroup -- the background group
+local group -- the background group
 
 -- background vars
 
@@ -17,8 +17,6 @@ local backgroundLayerNum = 6 -- num of the background layers to load from the as
 
 local bgLayerGroupTable
 
-
--- background scroller function
 local backgroundScrollDirection
 local backgroundmaxVel
 local backgroundSpeed
@@ -28,6 +26,7 @@ local backgroundLastUpdate -- time since the last update
 -- ----------------------------------------------------------------------------
 -- functions Background Scroller
 -- ----------------------------------------------------------------------------
+
 
 local function backgroundScroller( self, event )
 
@@ -45,7 +44,7 @@ local function backgroundScroller( self, event )
 	-- set a different speed for each layer
 	for i=1, backgroundLayerNum do
 		if ( self == bgLayerGroupTable[i] ) then
-            speed = i * backgroundSpeed
+            speed = (backgroundLayerNum-i+1) * backgroundSpeed
 		end
 	end
 
@@ -74,7 +73,7 @@ function M.updateBackground()
     -- set display groups for background scrolling
 	for i=1, backgroundLayerNum do
 		bgLayerGroupTable[i] = display.newGroup() -- define new group
-		backgroundGroup:insert( bgLayerGroupTable[i] ) -- insert in backgroundGroup
+		group:insert( bgLayerGroupTable[i] ) -- insert in group
 	end
     
     -- load all bgLayer groups
@@ -111,10 +110,12 @@ function M.updateBackground()
     backgroundSpeed = 0.1 -- reset the background speed
 end
 
--- init function
-function M.init( bgGroup )
 
-    backgroundGroup = bgGroup
+-- init function
+function M.init( viewGroup )
+
+    group = viewGroup -- for the background
+
     bgLayerGroupTable = {}
 
     -- set base data to make the background scroll
@@ -126,6 +127,7 @@ function M.init( bgGroup )
     -- load the actual background
     M.updateBackground()
 end
+
 
 -- clear function
 function M.clear()
