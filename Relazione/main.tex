@@ -12,6 +12,8 @@
 \usepackage{mathtools}
 \DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
 \usepackage{fancyhdr}
+\usepackage[final]{pdfpages}
+
 
 \pagestyle{fancy}
 \fancyhf{}
@@ -118,7 +120,7 @@ Ogni modulo del gioco ha un template ben definito:
 \\\\
 
 
-\includegraphics[width=152mm]{module_template.png}\\
+\includegraphics[width=145mm]{module_template.png}\\
 
 \section{Gestione dell’efficieza nella generazione delle hitbox
 per gli ostacoli}
@@ -207,6 +209,10 @@ in particolare si occupa degli gli oggetti all'interno della gerarchia di sceneG
 \subsection{Funzioni implementate}
 In questo paragrafo verranno descritte le funzionalità implementate per realizzare le funzionalità citate in precedenza.
 \subsubsection{updateGameSpeed()}
+La funzione che aggiorna la velocità di scorrimento dello schermo è chiamata "updateGameSpeed". Inizialmente memorizza nella variabile 
+locale gs la velocità iniziale (impostata inizialmente a 1). Tale valore viene confrontato periodicamente (ogni 30 secondi)
+con la velocità massima raggiungibile (maxGameSpeed = 3):   
+
 
 
 \subsubsection{exitGame()}
@@ -220,8 +226,12 @@ tabella assegnata al filtro durante la costruzione del corpo. Un oggetto entrer�
 categoryBits sono tra i maskBits assegnati. Normalmente, un oggetto avrà solo un valore di categoryBits assegnato, ma potrebbe avere 
 uno o più mskBits a seconda delle altre cose con cui dovrebbe entrare in collisione.
 
-I parametri dei filtri sono stati dichiarati come "globali" sul composer, in quanto se in un secondo momento si aggiungessero ulteriori 
-elementi di gioco, sarebbe necessario lavorare di nuovo su tutti i tipi di oggetto, perché se il nuovo tipo di oggetto dovesse entrare in 
+\begin{center}
+    \includegraphics[width=110mm]{tabella2.png}\\
+\end{center}
+
+I parametri dei filtri sono stati impostati come "globali" sul composer, in quanto se in un secondo momento si aggiungono ulteriori 
+elementi di gioco, è necessario lavorare di nuovo su tutti i tipi di oggetto, perché se il nuovo tipo di oggetto dovesse entrare in 
 collisione con qualsiasi tipo di oggetto precedente, i valori per quest'ultimo potrebbero cambiare. 
 
 
@@ -235,6 +245,8 @@ collisione con qualsiasi tipo di oggetto precedente, i valori per quest'ultimo p
 
 \section{Menu.lua}
 
+
+\section{Difficoltà riscontrate}
 
 
 \end{document}
