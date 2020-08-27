@@ -6,7 +6,6 @@ local scene = composer.newScene()
 local windowMod = require( "scenes.libs.window" )
 local tabulatorMod = require( "scenes.libs.tabulator" )
 local savedata = require( "scenes.libs.savedata" ) -- load the save data module
-local bgMenuMod = require( "scenes.menu.background" ) -- required to reload the home background
 
 local submarineDir = "assets/submarine/"
 
@@ -26,7 +25,6 @@ local function onSubmarineSelection( event )
     -- select the item, if the operation goes well, do actions
     if tabulatorMod.highlightItem(event.target.itemId, true) then
         savedata.setGamedata( "submarineSkin", event.target.itemId )
-        bgMenuMod.updateBackground() -- call the reload for the background menu
     end
 
 end
