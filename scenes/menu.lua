@@ -27,10 +27,26 @@ local uiGroup
 
 -- audio
 local menuTrack
+local menuTrackPlayer
+
 local buttonPlaySound
 local buttonClickSound
 
-local menuTrackPlayer
+local fontParams
+
+local moneyText -- value to where is stored the money text to be updated
+
+
+-- update the money amount
+local function updateMoneyText(x, y)
+
+	if moneyText then
+		display.remove( moneyText )
+	end
+
+	moneyText = display.newText( uiGroup, savedata.getGamedata( "money" ) .. '$', x, y, fontParams.path, 70 )
+	moneyText:setFillColor( fontParams.colorR, fontParams.colorG, fontParams.colorB )
+end
 
 
 -- create()
@@ -58,6 +74,9 @@ function scene:create( event )
 	menuTrack = audio.loadStream( composer.getVariable( "audioDir" ) .. "menu.mp3" )
 	buttonPlaySound = audio.loadStream( composer.getVariable( "audioDir" ) .. "sfx/play.mp3" )
 	buttonClickSound = audio.loadStream( composer.getVariable( "audioDir" ) .. "sfx/click.mp3" )
+
+	-- load the global fonts params
+	fontParams = composer.getVariable( "defaultFontParams" )
 
 
 	-- ----------------------------------------------------------------------------
@@ -128,11 +147,28 @@ function scene:create( event )
 			{"badgeBubbles.png", bubblesMenuCallback },
 			{"badgeMute.png", muteMusicCallback}
 		},
-		-- yPropagationOffset = 180,
-		-- propagation = 'down',
+		yPropagationOffset = 160,
+		propagation = 'down',
 
 	}
 	badgesMod.init(uiGroup, badgesDescriptor)
+
+	-- money display
+	local xPosition, yPosition = badgesMod.getPosition()
+
+	local moneyBadge = display.newImage( uiGroup, "assets/ui/badgeMoney.png" ) -- set mask
+	moneyBadge:scale( 0.3, 0.3 )
+	moneyBadge.x = xPosition - 280
+	moneyBadge.y = yPosition, 
+	moneyBadge:addEventListener( 
+		"tap", 
+		function ()
+			savedata.setGamedata( "money", savedata.getGamedata( "money" ) + 10 )
+			updateMoneyText(moneyBadge.x, moneyBadge.y)
+		end
+	)
+
+    updateMoneyText(moneyBadge.x, moneyBadge.y)
 
 
 	-- ----------------------------------------------------------------------------
@@ -140,8 +176,7 @@ function scene:create( event )
 	-- ----------------------------------------------------------------------------
 	
 	-- show version
-	local fontParams = composer.getVariable( "defaultFontParams" )
-
+	
 	local versionStamp = display.newText( 
         uiGroup, 
         'v ' .. composer.getVariable( "version" ), 
