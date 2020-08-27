@@ -3,7 +3,6 @@ local M = {}
 local composer = require( "composer" )
 
 local physics = require( "physics" )
-physics.start()
 
 local itemsDir = "assets/items/" -- dir to change between worlds
 
