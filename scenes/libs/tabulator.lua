@@ -28,7 +28,7 @@ local buttonHighlightSound
 local inTableItems
 local highlightSelected
 local currentHighlightItemId = 0
-local itemsPrices
+local itemsLables
 
 
 -- ----------------------------------------------------------------------------
@@ -42,21 +42,17 @@ function M.highlightItem( itemId, playSound )
     -- item id must be in range
     if (itemId < 1) or (itemId > #inTableItems) then return false end
 
-    -- if the item is already selected return
-    if currentHighlightItemId == itemId then return false end
-
     local item = inTableItems[itemId]
 
     -- if the item is locked abort
     -- the user have to unlock the item to use it
-    if item.isLocked then return false end
+    if item.alpha ~= 1 then return false end
 
     -- avoid to play the sound, if neaded
-    if playSound then
+    -- if the item is already selected do not play sound but reload it anyway (necessary)
+    if playSound and (currentHighlightItemId ~= itemId) then
         audio.play( buttonHighlightSound )
     end
-
-    
 
     display.remove( highlightSelected )
 
@@ -71,29 +67,28 @@ function M.highlightItem( itemId, playSound )
 end
 
 
--- if the item is to unlock
--- set price and alpha on the item
-local function setItemPrice( itemId, price )
+-- if the item is to unlock, or for the Scores
+-- set Text Over on the item
+local function setItemTextOver( itemId, textLaber )
 
     -- item id must be in range
     if (itemId < 1) or (itemId > #inTableItems) then return false end
 
     local item = inTableItems[itemId]
-    item.alpha = 0.5
 
     local fontParams = composer.getVariable( "defaultFontParams" )
 
-    local priceLabel = display.newText( 
+    local label = display.newText( 
         group, 
-        price .. ' $', 
+        textLaber, 
         item.x, 
         item.y, 
         fontParams.path, 
         100 
     )
-    priceLabel:setFillColor( fontParams.colorR, fontParams.colorG, fontParams.colorB )
+    label:setFillColor( fontParams.colorR, fontParams.colorG, fontParams.colorB )
 
-    table.insert(itemsPrices, priceLabel)
+    table.insert(itemsLables, label)
 end
 
 
@@ -107,8 +102,8 @@ function M.destroyTable()
 
     display.remove( highlightSelected )
 
-    for i=0, #itemsPrices do 
-        display.remove( itemsPrices[i] )
+    for i=0, #itemsLables do 
+        display.remove( itemsLables[i] )
     end
 end
 
@@ -126,27 +121,31 @@ local function createTable()
         -- loop col
         for col = 0, colCount - 1 do
             -- generate object
-            local dir = items[i][1]
-            local scaleFactor = items[i][2]
-            local price = items[i][3]
-
-            local isLocked = false
-            if price ~= 0 then isLocked = true end
+            local dir = items[i].dir
+            local scaleFactor = items[i].scaleFactor
+            local alpha = items[i].alpha
+            local label = items[i].label
 
             local item = display.newImage(group, dir)
             item:scale( scaleFactor, scaleFactor )
             item.x = tableOriginX + item.width*scaleFactor * col * tableReplicaDistanceFactorX
             item.y = tableOriginY + item.height*scaleFactor * row * tableReplicaDistanceFactorY
-            item.isLocked = isLocked
+
+            if alpha then
+                item.alpha = alpha
+            end
             item.itemId = i
+            
+            -- load the callback if exist
             if onTapCallback then 
                 item:addEventListener( "tap", onTapCallback ) -- tap listener
             end
+
             table.insert(inTableItems, item) -- save the submarine to remove it later
             
             -- set the price value on the locked stuff
-            if isLocked then
-                setItemPrice(i, price)
+            if label then
+                setItemTextOver(i, label)
             end
 
             i = i+1
@@ -227,7 +226,7 @@ function M.init( displayGroup, options )
     end
 
     inTableItems = {}
-    itemsPrices = {}
+    itemsLables = {}
     createTable()
 end
 

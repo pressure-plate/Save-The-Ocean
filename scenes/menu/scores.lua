@@ -4,6 +4,9 @@ local scene = composer.newScene()
 
 -- initialize variables -------------------------------------------------------
 local windowMod = require( "scenes.libs.window" )
+local tabulatorMod = require( "scenes.libs.tabulator" )
+
+local leaderboardDir = "assets/ui/leaderboard/"
 
 
 -- to hide the current overlay
@@ -24,7 +27,28 @@ function scene:create( event )
         windowTitle = "Scores"
     }
 
+    -- load the window in the background
     windowMod.init( group, windowsOptions )
+
+    local tabulatorOptions = {
+
+        items = {
+            { dir=leaderboardDir .. "1.png", scaleFactor=1.2, label='300' },
+            { dir=leaderboardDir .. "2.png", scaleFactor=1.2, label='289' },
+            { dir=leaderboardDir .. "3.png", scaleFactor=1.2, label='230' },
+            { dir=leaderboardDir .. "n.png", scaleFactor=1.2, label='300' },
+            { dir=leaderboardDir .. "n.png", scaleFactor=1.2, label='300' },
+            { dir=leaderboardDir .. "n.png", scaleFactor=1.2, label='300' },
+        },
+        colCount = 2,
+        rowCount = 5,
+        tableOriginX = display.contentCenterX - display.contentWidth/5.2,
+        tableOriginY = display.contentCenterY - display.contentHeight/4,
+        onTapCallback = function () return true end,
+    }
+    -- create the table based on the global configuration
+    -- load the items int the table
+    tabulatorMod.init ( group, tabulatorOptions )
 end
 
 

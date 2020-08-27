@@ -2,7 +2,6 @@
 local composer = require( "composer" )
 
 local physics = require( "physics" )
-physics.start()
 
 local scene = composer.newScene()
 
@@ -42,6 +41,8 @@ function scene:create( event )
 
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
+
+	physics.start() -- start/restart the physics, because on gameover it will be stopped
 	
 	-- set up groups for display objects
 	local bgGroup1 = display.newGroup() -- display group for background and for the title

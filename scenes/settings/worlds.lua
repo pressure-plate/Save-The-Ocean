@@ -52,10 +52,10 @@ function scene:create( event )
     local tabulatorOptions = {
         -- itemDir, scaleFactor, price
         items = {
-            { backgroundDir .. "1.png", 0.8, 0 },
-            { backgroundDir .. "2.png", 0.8, 0 },
-            { backgroundDir .. "3.png", 0.8, 22 },
-            { backgroundDir .. "4.png", 0.8, 24 },
+            { dir=backgroundDir .. "1.png", scaleFactor=0.8 },
+            { dir=backgroundDir .. "2.png", scaleFactor=0.8 },
+            { dir=backgroundDir .. "3.png", scaleFactor=0.8, label='22', alpha=0.5 },
+            { dir=backgroundDir .. "4.png", scaleFactor=0.8, label='24', alpha=0.5 },
         },
         colCount = 3,
         rowCount = 2,

@@ -49,12 +49,12 @@ function scene:create( event )
     local tabulatorOptions = {
         -- itemDir, scaleFactor, price
         items = {
-            { submarineDir .. "1.png", 0.8, 0 },
-            { submarineDir .. "2.png", 0.8, 0 },
-            { submarineDir .. "3.png", 0.8, 22 },
-            { submarineDir .. "4.png", 0.8, 24 },
-            { submarineDir .. "5.png", 0.8, 24 },
-            { submarineDir .. "6.png", 0.8, 24 },
+            { dir=submarineDir .. "1.png", scaleFactor=0.8 },
+            { dir=submarineDir .. "2.png", scaleFactor=0.8 },
+            { dir=submarineDir .. "3.png", scaleFactor=0.8, label='22', alpha=0.5 },
+            { dir=submarineDir .. "4.png", scaleFactor=0.8, label='24', alpha=0.5 },
+            { dir=submarineDir .. "5.png", scaleFactor=0.8, label='24', alpha=0.5 },
+            { dir=submarineDir .. "6.png", scaleFactor=0.8, label='24', alpha=0.5 },
         },
         colCount = 3,
         rowCount = 2,
@@ -66,7 +66,7 @@ function scene:create( event )
     -- create the table based on the global configuration
     -- load the items int the table
     tabulatorMod.init ( group, tabulatorOptions )
-    tabulatorMod.highlightItem(savedata.getGamedata( "backgroundWorld" ), false) -- highlight without play sond (on load)
+    tabulatorMod.highlightItem(savedata.getGamedata( "submarineSkin" ), false) -- highlight without play sond (on load)
 end
 
 
