@@ -164,6 +164,9 @@ function gameOver()
 	-- clear listeners, timers, etc for a clean stop
 	hideDid()
 
+	-- regain control of touch events
+	display.currentStage:setFocus( nil )
+	
 	-- save score
 	savedata.addNewScore( score )
 
