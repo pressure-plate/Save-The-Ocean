@@ -111,7 +111,7 @@ local function updateGameSpeed()
 	--print( "gameSpeed: ", gs ) -- TEST
 end
 
-local function exitGame()
+function scene:exitGame()
 	audio.play( buttonClickSound )
 	composer.gotoScene( "scenes.menu", { time=1400, effect="slideRight" } )
 end
@@ -179,26 +179,25 @@ local function gameOver()
 	badgesMod.clear()
 
 	-- set fading black screen
-	local blackScreen = display.newRect( uiGroup, display.contentCenterX, display.contentCenterY, 3000, 1080 )
+	blackScreen = display.newRect( uiGroup, display.contentCenterX, display.contentCenterY, 3000, 1080 )
 	blackScreen.alpha = 0.6
 	blackScreen:setFillColor( 0, 0, 0 ) -- black
 	
 	-- prevent further touch interactions with the game after the game over
 	blackScreen:addEventListener( "touch", function (event) return true end )
 
-	-- display game over
-	local gameOverText = display.newText( uiGroup, "GAME OVER", display.contentCenterX, display.contentCenterY-200, font.path, 140 )
-	gameOverText:setFillColor( font.colorR, font.colorG, font.colorB )
-
-	-- display score
-	local scoredText = display.newText( uiGroup, "SCORED: " .. score, display.contentCenterX, display.contentCenterY+100, font.path, 120 )
-	scoredText:setFillColor( font.colorR, font.colorG, font.colorB )
-
 	-- save score
 	savedata.addNewScore( score )
 
-	-- call exitGame function after a short delay
-	timer.performWithDelay( 4000, exitGame )
+	local gameoverOptions = {
+		effect = "fade",
+    	time = 400,
+		params = {
+			score = score
+		}
+	}
+	composer.showOverlay( "scenes.game.gameover", gameoverOptions )
+	
 end
 
 local function onCollision( event )
@@ -537,7 +536,7 @@ function scene:create( event )
 		packCallback = pauseResumeCallback,
 		packRotation = 360,
 		descriptor={
-			{"badgeBack.png", exitGame},
+			{"badgeBack.png", scene.exitGame},
 			{"badgeMute.png", muteMusicCallback},
 		},
 		yPropagationOffset = 160,
