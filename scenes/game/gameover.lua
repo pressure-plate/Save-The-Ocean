@@ -8,12 +8,14 @@ local scene = composer.newScene()
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
 -- -----------------------------------------------------------------------------------
 
+-- load modules
+local windowMod = require( "scenes.libs.window" )
+local buttonsMod = require( "scenes.libs.ui" ) 
+
 -- init vars
 local parentScene
 
 local font = composer.getVariable( "defaultFontParams" )
-local windowMod = require( "scenes.libs.window" )
-local buttonsMod = require( "scenes.libs.ui" ) 
 
 
 -- assets dir
@@ -65,6 +67,7 @@ function scene:create( event )
 	blackScreen.alpha = 0.6
 	blackScreen:setFillColor( 0, 0, 0 ) -- black
 
+	-- display window
 	local windowsOptions = {
 		showCloseButton = false,
 		fontTitleSize = 120,
@@ -90,13 +93,13 @@ function scene:create( event )
 
 	-- display score
 	local score = event.params.scoreParam
-	local scoredText = display.newText( sceneGroup, "SCORED: " .. score, display.contentCenterX, display.contentCenterY-80, font.path, 100 )
-	scoredText:setFillColor( font.colorR, font.colorG, font.colorB )
+	local scoreText = display.newText( sceneGroup, "SCORED: " .. score, display.contentCenterX, display.contentCenterY-80, font.path, 100 )
+	scoreText:setFillColor( font.colorR, font.colorG, font.colorB )
 
-	-- display score
+	-- display moneyGained
 	local moneyGained = event.params.moneyGainedParam
-	local scoredText = display.newText( sceneGroup, "GAINED: " .. moneyGained .. "$", display.contentCenterX, display.contentCenterY+20, font.path, 100 )
-	scoredText:setFillColor( font.colorR, font.colorG, font.colorB )
+	local moneyGainedText = display.newText( sceneGroup, "GAINED: " .. moneyGained .. "$", display.contentCenterX, display.contentCenterY+20, font.path, 100 )
+	moneyGainedText:setFillColor( font.colorR, font.colorG, font.colorB )
 end
 
 
