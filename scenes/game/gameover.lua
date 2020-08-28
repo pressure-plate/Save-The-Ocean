@@ -95,7 +95,7 @@ function scene:create( event )
 
 	-- display moneyGained
 	local moneyGained = event.params.moneyGainedParam
-	local moneyGainedText = display.newText( sceneGroup, "GAINED: " .. moneyGained .. "$", display.contentCenterX, display.contentCenterY+20, font.path, 100 )
+	local moneyGainedText = display.newText( sceneGroup, "GAINED: " .. moneyGained .. " $", display.contentCenterX, display.contentCenterY+20, font.path, 100 )
 	moneyGainedText:setFillColor( font.colorR, font.colorG, font.colorB )
 end
 

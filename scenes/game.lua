@@ -117,6 +117,7 @@ local hideDid
 -- ----------------------------------------------------------------------------
 -- game functions
 -- ----------------------------------------------------------------------------
+
 function exitGame( isRefresh )
 	
 	-- CRITICAL CHECK: check if the exitGame function has already been called
@@ -172,7 +173,7 @@ function gameOver()
 
 	-- gain money based on score
 	local money = savedata.getGamedata( "money" )
-	local moneyGained = math.ceil( score / 400 )
+	local moneyGained = math.ceil( score / 100 )
 	money = money + moneyGained
 	savedata.setGamedata( "money", money )
 
