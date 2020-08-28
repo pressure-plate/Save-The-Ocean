@@ -44,6 +44,8 @@ local seaLifeProgressView
 local maxGameSpeed = 3
 
 local isGameOver = false
+local isExitGame = false
+local isHideDid = false
 
 local updateGameSpeedTimer
 local clearObjectsTimer
@@ -86,6 +88,33 @@ composer.setVariable( "collFiltParams", {
 -- game functions
 -- ----------------------------------------------------------------------------
 
+local function hideDid()
+
+	-- CRITICAL CHECK: check if the hideDid function has already been called
+	if ( isHideDid == true ) then
+		return -- abort hideDid call
+	end
+
+	-- set hideDid as called
+	isHideDid = true
+
+	-- do the cleaning
+
+	-- remove Runtime listeners
+	Runtime:removeEventListener( "collision", onCollision )
+
+	-- cancel timers
+	timer.cancel( updateGameSpeedTimer )
+	timer.cancel( clearObjectsTimer )
+	timer.cancel( updateSeaLifeTimer )
+	timer.cancel( updateScoreMultiplierTimer )
+
+	-- clear loaded modules
+	bgMod.hideDid()
+	subMod.hideDid()
+	spawnMod.hideDid()
+end
+
 local function updateGameSpeed()
 
 	local gs = composer.getVariable( "gameSpeed" )
@@ -103,9 +132,30 @@ local function updateGameSpeed()
 	--print( "gameSpeed: ", gs ) -- TEST
 end
 
-local function exitGame()
+local function exitGame( isRefresh )
 	
-	composer.gotoScene( "scenes.menu", { time=800, effect="crossFade" } )
+	-- CRITICAL CHECK: check if the exitGame function has already been called
+	if ( isExitGame == true ) then
+		return -- abort exitGame call
+	end
+	
+	-- set exitGame as called
+	isExitGame = true
+
+	if ( isRefresh ) then
+		composer.gotoScene( "scenes.refresh", { time=400, effect="fade" } )
+
+	else
+		composer.gotoScene( "scenes.menu", { time=1000, effect="slideRight" } )
+	end
+end
+
+local function exitGameNormal()
+	exitGame( false )
+end
+
+local function exitGameRefresh()
+	exitGame( true )
 end
 
 local function gameOver()
@@ -126,27 +176,31 @@ local function gameOver()
 	physics.pause()
 	subMod.cancAllSubTrans()
 
-	-- set fading black screen
-	local blackScreen = display.newRect( uiGroup, display.contentCenterX, display.contentCenterY, 3000, 1080 )
-	blackScreen.alpha = 0.6
-	blackScreen:setFillColor( 0, 0, 0 ) -- black
-	
-	-- prevent further touch interactions with the game after the game over
-	blackScreen:addEventListener( "touch", function (event) return true end )
-
-	-- display game over
-	local gameOverText = display.newText( uiGroup, "GAME OVER", display.contentCenterX, display.contentCenterY-200, font.path, 140 )
-	gameOverText:setFillColor( font.colorR, font.colorG, font.colorB )
-
-	-- display score
-	local scoredText = display.newText( uiGroup, "SCORED: " .. score, display.contentCenterX, display.contentCenterY+100, font.path, 120 )
-	scoredText:setFillColor( font.colorR, font.colorG, font.colorB )
+	-- clear listeners, timers, etc for a clean stop
+	hideDid()
 
 	-- save score
 	savedata.addNewScore( score )
 
-	-- call exitGame function after a short delay
-	timer.performWithDelay( 4000, exitGame )
+	-- gain money based on score
+	local money = savedata.getGamedata( "money" )
+	local moneyGained = math.ceil( score / 1000 )
+	money = money + moneyGained
+	savedata.setGamedata( "money", money )
+
+	-- options table for the overlay scene
+	local options = {
+		isModal = true,
+		effect = "fade",
+		time = 400,
+		params = {
+			scoreParam = score,
+			moneyGainedParam = moneyGained
+		}
+	}
+
+	-- show the gameover overlay
+	composer.showOverlay( "scenes.game.gameover", options )
 end
 
 local function onCollision( event )
@@ -476,8 +530,24 @@ function scene:create( event )
 	-- set timer to trigger the update sea life at regular intervals
 	updateSeaLifeTimer = timer.performWithDelay( 1000, updateSeaLife, 0 )
 
+	-- display menu button in the upper-left corner
+	local homeButton = display.newImageRect( uiGroup, uiDir .. "badgeHome.png", 512, 512 )
+	homeButton.x = 10
+	homeButton.y = 10
+	local homeButtonScaleFact = 0.20
+	homeButton.xScale = homeButtonScaleFact
+	homeButton.yScale = homeButtonScaleFact
+	homeButton.anchorX = 0 -- align
+	homeButton.anchorY = 0 -- align
+	homeButton:addEventListener( "tap", exitGameNormal )
+
 	-- set timer to trigger the clear objects function at regular intervals
 	clearObjectsTimer = timer.performWithDelay( 2100, clearObjects, 0 )
+
+
+
+	-- TEST
+	--timer.performWithDelay(3000,gameOver,1)
 end
 
 
@@ -520,19 +590,7 @@ function scene:hide( event )
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
 
-		-- remove Runtime listeners
-		Runtime:removeEventListener( "collision", onCollision )
-
-		-- cancel timers
-		timer.cancel( updateGameSpeedTimer )
-		timer.cancel( clearObjectsTimer )
-		timer.cancel( updateSeaLifeTimer )
-		timer.cancel( updateScoreMultiplierTimer )
-
-		-- clear loaded modules
-		bgMod.hideDid()
-		subMod.hideDid()
-		spawnMod.hideDid()
+		hideDid() -- do all the cleaning
 
 		-- stop all audio playing
 		audio.stop()
@@ -560,6 +618,21 @@ function scene:destroy( event )
 	audio.dispose( deadSeaSound )
 	audio.dispose( multiplierUpSound )
 end
+
+
+-- scene methods to call from gameOver overlay --------------------------------
+
+function scene:gotoMenu()
+	exitGameNormal()
+end
+
+function scene:gotoRefresh()
+	exitGameRefresh()
+end
+
+
+
+-- ----------------------------------------------------------------------------
 
 
 -- -----------------------------------------------------------------------------------
