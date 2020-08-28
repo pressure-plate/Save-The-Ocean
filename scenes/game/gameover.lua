@@ -18,10 +18,6 @@ local parentScene
 local font = composer.getVariable( "defaultFontParams" )
 
 
--- assets dir
-local uiDir = "assets/ui/" -- user interface assets dir
-
-
 -- functions
 local function gotoMenu()
 
@@ -89,7 +85,7 @@ function scene:create( event )
 		position = 'center',
 		scaleFactor = 0.6
 	}
-	buttonsMod.init( sceneGroup, buttonsDescriptor )	
+	uiMod.init( sceneGroup, buttonsDescriptor )	
 
 	-- display score
 	local score = event.params.scoreParam
