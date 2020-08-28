@@ -27,6 +27,12 @@ local spawnMod = require( "scenes.game.spawner" )
 -- load savedata module
 local savedata = require( "scenes.libs.savedata" )
 
+-- ui lib to show buttons in the interface
+local badgesMod = require( "scenes.libs.ui" )
+
+-- load lib to do audio changes on the game
+local audioMod = require( "scenes.libs.audio" ) 
+
 -- initialize variables -------------------------------------------------------
 
 local font = composer.getVariable( "defaultFontParams" )
@@ -44,6 +50,7 @@ local seaLifeProgressView
 local maxGameSpeed = 3
 
 local isGameOver = false
+local blackScreen
 
 local updateGameSpeedTimer
 local clearObjectsTimer
@@ -56,6 +63,7 @@ local floatingObjPickSound
 local obstacleCollisionSound
 local deadSeaSound
 local multiplierUpSound
+local buttonClickSound
 
 -- display groups
 local bgGroup
@@ -103,9 +111,50 @@ local function updateGameSpeed()
 	--print( "gameSpeed: ", gs ) -- TEST
 end
 
-local function exitGame()
+function scene:exitGame()
+	audio.play( buttonClickSound )
+	composer.gotoScene( "scenes.menu", { time=1400, effect="slideRight" } )
+end
+
+-- ui
+local function muteMusicCallback()
+	audio.play( buttonClickSound )
+	audioMod.toggleMusic()
+end
+
+local function pauseResumeCallback( event ) 
 	
-	composer.gotoScene( "scenes.menu", { time=800, effect="crossFade" } )
+	audio.play( buttonClickSound )
+
+	if event.isPack then -- play
+
+		-- remove the black screen
+		display.remove( blackScreen )
+
+		-- resume the music
+		audio.resume( musicTrack )
+
+		-- stop screen objects movement
+		bgMod.setStopScrolling( false )
+		physics.start()
+
+	elseif event.isUnpack then -- pause
+		-- pause the music
+		audio.pause( 1 )
+
+		-- stop screen objects movement
+		bgMod.setStopScrolling( true )
+		physics.pause()
+		subMod.cancAllSubTrans()
+
+		-- set fading black screen
+		blackScreen = display.newRect( uiGroup, display.contentCenterX, display.contentCenterY, 3000, 1080 )
+		blackScreen.alpha = 0.6
+		blackScreen:setFillColor( 0, 0, 0 ) -- black
+		
+		-- prevent further touch interactions with the game after the game over
+		blackScreen:addEventListener( "touch", function (event) return true end )
+	end
 end
 
 local function gameOver()
@@ -126,27 +175,29 @@ local function gameOver()
 	physics.pause()
 	subMod.cancAllSubTrans()
 
+	-- remove badges on the ui
+	badgesMod.clear()
+
 	-- set fading black screen
-	local blackScreen = display.newRect( uiGroup, display.contentCenterX, display.contentCenterY, 3000, 1080 )
+	blackScreen = display.newRect( uiGroup, display.contentCenterX, display.contentCenterY, 3000, 1080 )
 	blackScreen.alpha = 0.6
 	blackScreen:setFillColor( 0, 0, 0 ) -- black
 	
 	-- prevent further touch interactions with the game after the game over
 	blackScreen:addEventListener( "touch", function (event) return true end )
 
-	-- display game over
-	local gameOverText = display.newText( uiGroup, "GAME OVER", display.contentCenterX, display.contentCenterY-200, font.path, 140 )
-	gameOverText:setFillColor( font.colorR, font.colorG, font.colorB )
-
-	-- display score
-	local scoredText = display.newText( uiGroup, "SCORED: " .. score, display.contentCenterX, display.contentCenterY+100, font.path, 120 )
-	scoredText:setFillColor( font.colorR, font.colorG, font.colorB )
-
 	-- save score
 	savedata.addNewScore( score )
 
-	-- call exitGame function after a short delay
-	timer.performWithDelay( 4000, exitGame )
+	local gameoverOptions = {
+		effect = "fade",
+    	time = 400,
+		params = {
+			score = score
+		}
+	}
+	composer.showOverlay( "scenes.game.gameover", gameoverOptions )
+
 end
 
 local function onCollision( event )
@@ -443,6 +494,7 @@ function scene:create( event )
 	obstacleCollisionSound = audio.loadSound( audioDir .. "sfx/explosion.wav" )
 	deadSeaSound = audio.loadSound( audioDir .. "sfx/deadSea.wav" )
 	multiplierUpSound = audio.loadSound( audioDir .. "sfx/multiplierUp.wav" )
+	buttonClickSound = audio.loadSound( audioDir .. "sfx/click.mp3" )
 
 	-- set event listener to update game speed
 	updateGameSpeedTimer = timer.performWithDelay( 1000, updateGameSpeed, 0 )
@@ -478,6 +530,23 @@ function scene:create( event )
 
 	-- set timer to trigger the clear objects function at regular intervals
 	clearObjectsTimer = timer.performWithDelay( 2100, clearObjects, 0 )
+
+	local badgesDescriptor = {
+		packIcon = { "badgePause.png", "badgePlay.png"},
+		packCallback = pauseResumeCallback,
+		packRotation = 360,
+		descriptor={
+			{"badgeBack.png", scene.exitGame},
+			{"badgeMute.png", muteMusicCallback},
+		},
+		yPropagationOffset = 160,
+		position = "bottom-right",
+		propagation = "up",
+
+	}
+	-- disable pause in game
+	-- badgesMod.init(uiGroup, badgesDescriptor)
+
 end
 
 
@@ -559,6 +628,7 @@ function scene:destroy( event )
 	audio.dispose( obstacleCollisionSound )
 	audio.dispose( deadSeaSound )
 	audio.dispose( multiplierUpSound )
+	audio.dispose( buttonClickSound )
 end
 
 

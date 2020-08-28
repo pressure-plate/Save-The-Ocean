@@ -10,6 +10,10 @@ local uiDir = "assets/ui/" -- user interface assets dir
 -- init vars
 local group
 
+local packIcon
+local packIconOpen
+local packCallback
+
 local xPropagationOffset -- the offet between each item in the x axe
 local yPropagationOffset -- the offet between each item in the y axe
 
@@ -37,34 +41,41 @@ local function computePropagation(count)
     if propagation == 'left' then
         xPropagation = xPropagationOffset * (count - 1) * -1
     
+    elseif propagation == 'right' then
+        xPropagation = xPropagationOffset * (count - 1)
+
+    elseif propagation == 'up' then
+        yPropagation = yPropagationOffset * (count - 1) * -1
+    
     elseif propagation == 'down' then
         yPropagation = yPropagationOffset * (count - 1)
     end
-    
+
     return xPropagation, yPropagation
 end
 
 -- get the x, y coords for the given position
 -- compute always with the entry point set on the center
 local function computePosition()
-    local xPosition = 0
-    local yPosition = 0
+    local xPosition = display.contentWidth/2.3
+    local yPosition = display.contentHeight/2.5
 
-    --[[
-    the 'center' position is not neaded
-    because the entry point is already the center
+    if position == "center" then
+        return 0, 0
 
-    if position == 'center' 
-        xPosition = 0
-        yPosition = 0
-    ]]--
+    elseif position == "top-left" then
+        return xPosition * -1, yPosition * -1
 
-    if position == 'top-right' then
-        xPosition = display.contentWidth/2.3
-        yPosition = display.contentHeight/2.5 * -1 -- negative value
+    elseif position == "top-right" then
+        return xPosition, yPosition * -1
+
+    elseif position == "bottom-left" then
+        return xPosition * -1, yPosition
+    
+    else 
+        return xPosition, yPosition -- "bottom-right"
     end
 
-    return xPosition, yPosition
 end
 
 
@@ -95,27 +106,36 @@ local function load()
     end
 end
 
+
+-- return the origin position of the UI
+-- to align other stuff to the buttons 
+function M.getPosition()
+    local xPosition, yPosition = computePosition()
+    return display.contentCenterX + xPosition, display.contentCenterY + yPosition
+end
+
 -- remove badges from the view
 -- if you want to hide the badge temporarely, this command will destroy them
 -- to reload the badges use M.reload
-function M.remove()
-    for i=0, table.getn( descriptor ) do 
-        display.remove( descriptor[i] )
+function M.clear()
+    for i=1, #loadedButtons do 
+        display.remove( loadedButtons[i] )
     end
-    descriptor = {}
+    loadedButtons = {}
 end
 
 
 -- reload badges if there are changes to apply
 -- example a new badge
 function M.reload()
-    M.remove()
+    M.clear()
     load()
 end
 
 
 -- hide all the badges
-function M.pack()
+local function pack()
+
     xPosition, yPosition = computePosition()
 
     for count = #descriptor, 1, -1 do
@@ -125,7 +145,15 @@ function M.pack()
                 time = packTime,
                 rotation = -packRotation,
                 x = display.contentCenterX + xPosition, 
-                y = display.contentCenterY + yPosition
+                y = display.contentCenterY + yPosition,
+                onComplete = function ()
+                    -- if there is set a icon change on pack/unpack do the switch
+                    if packIconOpen then
+                        M.clear()
+                        descriptor[1] = {packIcon, packCallback}
+                        load()
+                    end
+                end
             }
         )
     end
@@ -133,7 +161,8 @@ end
 
 
 -- show the hided badges
-function M.unpack()
+local function unpack()
+
     xPosition, yPosition = computePosition()
 
     for count = #descriptor, 1, -1 do
@@ -144,33 +173,18 @@ function M.unpack()
                 time = packTime,
                 rotation = packRotation,
                 x = display.contentCenterX + xPosition + xPropagation, 
-                y = display.contentCenterY + yPosition + yPropagation
+                y = display.contentCenterY + yPosition + yPropagation,
+                onComplete = function ()
+                    -- if there is set a icon change on pack/unpack do the switch
+                    if packIconOpen then
+                        M.clear()
+                        descriptor[1] = {packIconOpen, packCallback}
+                        load()
+                    end
+                end
             }
         )
     end
-    return true
-end
-
-
--- build in callback
--- this will be used as default if not overwritten in init options
-local function togglePackCallback()
-    if isPacked then
-        isPacked = false
-        M.unpack()
-    else
-        isPacked = true
-        M.pack()
-    end
-    return true
-end
-
-
--- return the origin position of the UI
--- to align other stuff to the buttons 
-function M.getPosition()
-    local xPosition, yPosition = computePosition()
-    return display.contentCenterX + xPosition, display.contentCenterY + yPosition
 end
 
 
@@ -194,6 +208,7 @@ function M.init( displayGroup, options )
     the follw declatations can be overwritten in options
 
     - packIcon -- the png file of the pack button
+    - packIconOpen -- the png file to show when the pack is open
     - packRotation -- rotate the item of deg x during pack/unpack
     - packCallback -- custom calback for the pack button
     - descriptor -- list of files
@@ -204,10 +219,10 @@ function M.init( displayGroup, options )
     - propagation -- the direction of other items generation
     ]]--
     
-    -- packIcon = ''
+    packIcon = null
+    packIconOpen = null
     packTime = 300
     packRotation = 0
-    packCallback = togglePackCallback
     isPacked = false
     descriptor = {}
     xPropagationOffset = 180
@@ -215,6 +230,38 @@ function M.init( displayGroup, options )
     scaleFactor = 0.3
     position = 'top-right' -- center, top-right, top-left, bottom-right, bottom-left
     propagation = 'left' -- left, right, up, down
+
+
+    -- build packCallback
+    -- this will be used only as onpen/close if no aditional callback is provided
+    local additionalPackCallback = function () end
+    if options.packCallback then
+        additionalPackCallback = options.packCallback
+    end
+    
+    -- packCallback function build
+    packCallback = function()
+
+        -- create the event to pass to the additionalPackCallback
+        -- to let outside know what action will be executed
+        local event = {
+            isPack = false,
+            isUnpack = false
+        }
+
+        if isPacked then
+            isPacked = false
+            unpack()
+            event["isUnpack"] = true
+            additionalPackCallback ( event )
+        else
+            isPacked = true
+            pack()
+            event["isPack"] = true
+            additionalPackCallback ( event )
+        end
+        return true
+    end
 
     -- packTime
     if options.packTime then 
@@ -225,15 +272,20 @@ function M.init( displayGroup, options )
     if options.packRotation then 
         packRotation = options.packRotation 
     end
-
-    -- packCallback
-    if options.packCallback then 
-        packCallback = options.packCallback 
-    end
-
+    
     -- add the packIcon with is callback to the descriptor
     if options.packIcon then 
-        table.insert(descriptor, {options.packIcon, packCallback})
+
+        if type(options.packIcon) == "string" then
+            packIcon = options.packIcon
+
+        else -- it is a table { icon1, icon2 }
+            packIcon = options.packIcon[1]
+            packIconOpen = options.packIcon[2]
+        end
+
+        -- insert the icon as first element
+        table.insert(descriptor, {packIcon, packCallback })
         isPacked = true
     end
 
