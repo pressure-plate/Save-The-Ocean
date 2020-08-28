@@ -27,12 +27,6 @@ local spawnMod = require( "scenes.game.spawner" )
 -- load savedata module
 local savedata = require( "scenes.libs.savedata" )
 
--- ui lib to show buttons in the interface
-local badgesMod = require( "scenes.libs.ui" )
-
--- load lib to do audio changes on the game
-local audioMod = require( "scenes.libs.audio" ) 
-
 -- initialize variables -------------------------------------------------------
 
 local font = composer.getVariable( "defaultFontParams" )
@@ -64,7 +58,6 @@ local floatingObjPickSound
 local obstacleCollisionSound
 local deadSeaSound
 local multiplierUpSound
-local buttonClickSound
 
 -- display groups
 local bgGroup
@@ -173,7 +166,7 @@ function gameOver()
 
 	-- gain money based on score
 	local money = savedata.getGamedata( "money" )
-	local moneyGained = math.ceil( score / 100 )
+	local moneyGained = math.ceil( score / 15 )
 	money = money + moneyGained
 	savedata.setGamedata( "money", money )
 
@@ -530,7 +523,6 @@ function scene:create( event )
 	obstacleCollisionSound = audio.loadSound( audioDir .. "sfx/explosion.wav" )
 	deadSeaSound = audio.loadSound( audioDir .. "sfx/deadSea.wav" )
 	multiplierUpSound = audio.loadSound( audioDir .. "sfx/multiplierUp.wav" )
-	buttonClickSound = audio.loadSound( audioDir .. "sfx/click.mp3" )
 
 	-- set event listener to update game speed
 	updateGameSpeedTimer = timer.performWithDelay( 1000, updateGameSpeed, 0 )
@@ -646,7 +638,6 @@ function scene:destroy( event )
 	audio.dispose( obstacleCollisionSound )
 	audio.dispose( deadSeaSound )
 	audio.dispose( multiplierUpSound )
-	audio.dispose( buttonClickSound )
 end
 
 
