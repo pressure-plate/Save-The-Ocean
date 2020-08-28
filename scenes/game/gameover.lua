@@ -1,105 +1,159 @@
+
 local composer = require( "composer" )
+
 local scene = composer.newScene()
 
+-- -----------------------------------------------------------------------------------
+-- Code outside of the scene event functions below will only be executed ONCE unless
+-- the scene is removed entirely (not recycled) via "composer.removeScene()"
+-- -----------------------------------------------------------------------------------
 
--- initialize variables -------------------------------------------------------
-local windowMod = require( "scenes.libs.window" )
-local buttonsMod = require( "scenes.libs.ui" )
+-- init vars
+local parentScene
 
-local parent 
-local group
-
-local autoExitTimer
-
-local buttonClickSound
+local font = composer.getVariable( "defaultFontParams" )
 
 
-local function playAgaing()
-    audio.play( buttonClickSound )
-    timer.cancel( autoExitTimer )
-	composer.gotoScene( "scenes.game", { time=1400, effect="slideLeft" } )
+-- assets dir
+local uiDir = "assets/ui/" -- user interface assets dir
+
+
+-- functions
+local function gotoMenu()
+
+	--[[
+	NOTE: 
+		composer.hideOverlay() can be called from the overlay scene, from the parent scene,
+		or from some event handler like an Android "back" key handler.
+		Attempting to go to another scene via composer.gotoScene() will automatically hide the overlay as well.
+
+		So we call a function in the parentScene which will call a composer.gotoScene(), hiding the overlay as well
+	--]]
+
+	parentScene:gotoMenu()
+end
+
+local function gotoRefresh()
+
+	--[[
+	NOTE: 
+		composer.hideOverlay() can be called from the overlay scene, from the parent scene,
+		or from some event handler like an Android "back" key handler.
+		Attempting to go to another scene via composer.gotoScene() will automatically hide the overlay as well.
+
+		So we call a function in the parentScene which will call a composer.gotoScene(), hiding the overlay as well
+	--]]
+
+	parentScene:gotoRefresh()
 end
 
 
--- call the parent function to exit the game
-local function exitGame() 
-    timer.cancel( autoExitTimer ) 
-    parent.exitGame() 
-end
+-- -----------------------------------------------------------------------------------
+-- Scene event functions
+-- -----------------------------------------------------------------------------------
 
-
-function scene:show( event )
-    parent = event.parent  -- Reference to the parent scene object
-end
-
-
+-- create()
 function scene:create( event )
 
-    local sceneGroup = self.view
+	local sceneGroup = self.view
+	-- Code here runs when the scene is first created but has not yet appeared on screen
 
-    group = display.newGroup() -- display group for background
-    sceneGroup:insert( group )
+	-- set fading black screen
+	local blackScreen = display.newRect( sceneGroup, display.contentCenterX, display.contentCenterY, 3000, 1080 )
+	blackScreen.alpha = 0.6
+	blackScreen:setFillColor( 0, 0, 0 ) -- black
 
-    buttonClickSound = audio.loadStream( composer.getVariable( "audioDir" ) .. "sfx/click.mp3" )
-    local font = composer.getVariable( "defaultFontParams" )
+	-- display menu window
+	local window = display.newImageRect( sceneGroup, uiDir .. "window2.png", 1024, 726 )
+	window.x = display.contentCenterX
+	window.y = display.contentCenterY
+	local windowScaleFact = 1
+	window.xScale = windowScaleFact
+	window.yScale = windowScaleFact
 
-    -- display game over
-	local gameOverText = display.newText( 
-        group, 
-        "GAME OVER", 
-        display.contentCenterX, 
-        display.contentCenterY-260, 
-        font.path, 130 
-    )
-    gameOverText:setFillColor( font.colorR, font.colorG, font.colorB )
-    
-    -- display score
-	local scoredText = display.newText( 
-        group, 
-        "SCORED: " .. event.params.score, 
-        display.contentCenterX, 
-        display.contentCenterY-130, 
-        font.path, 
-        100 
-    )
+	-- display home button
+	local homeButton = display.newImageRect( sceneGroup, uiDir .. "badgeHome.png", 512, 512 )
+	homeButton.x = display.contentCenterX - 270
+	homeButton.y = display.contentCenterY + 320
+	local homeButtonScaleFact = 0.40
+	homeButton.xScale = homeButtonScaleFact
+	homeButton.yScale = homeButtonScaleFact
+	homeButton:addEventListener( "tap", gotoMenu )
+
+	-- display refresh button
+	local refreshButton = display.newImageRect( sceneGroup, uiDir .. "badgeBack.png", 512, 512 )
+	refreshButton.x = display.contentCenterX + 270
+	refreshButton.y = display.contentCenterY + 320
+	local refreshButtonScaleFact = 0.40
+	refreshButton.xScale = refreshButtonScaleFact
+	refreshButton.yScale = refreshButtonScaleFact
+	refreshButton:addEventListener( "tap", gotoRefresh )
+
+	-- display game over text
+	local gameOverText = display.newText( sceneGroup, "GAME OVER", display.contentCenterX, display.contentCenterY-270, font.path, 120 )
+	gameOverText:setFillColor( font.colorR, font.colorG, font.colorB )
+
+	-- display score
+	local score = event.params.scoreParam
+	local scoredText = display.newText( sceneGroup, "SCORED: " .. score, display.contentCenterX, display.contentCenterY-50, font.path, 100 )
 	scoredText:setFillColor( font.colorR, font.colorG, font.colorB )
 
-    local buttonsDescriptor = {
-		descriptor = {
-			{ "buttonRestart.png", playAgaing },
-			{ "buttonMenu.png", exitGame }
-		},
-		propagation = 'down',
-		position = 'center',
-		scaleFactor = 0.6
-	}
-    buttonsMod.init( group, buttonsDescriptor )
-    
-    -- call exitGame function after a short delay
-	autoExitTimer = timer.performWithDelay( 8000, exitGame )
-
+	-- display score
+	local moneyGained = event.params.moneyGainedParam
+	local scoredText = display.newText( sceneGroup, "GAINED: " .. moneyGained .. "$", display.contentCenterX, display.contentCenterY+100, font.path, 100 )
+	scoredText:setFillColor( font.colorR, font.colorG, font.colorB )
 end
 
 
+-- show()
+function scene:show( event )
+
+	local sceneGroup = self.view
+	local phase = event.phase
+
+	if ( phase == "will" ) then
+		-- Code here runs when the scene is still off screen (but is about to come on screen)
+		parentScene = event.parent
+
+	elseif ( phase == "did" ) then
+		-- Code here runs when the scene is entirely on screen
+
+	end
+end
+
+
+-- hide()
 function scene:hide( event )
-    local sceneGroup = self.view
-    local phase = event.phase
-    local parent = event.parent  -- Reference to the parent scene object
-    
-    -- delete the auto exit timer
 
-    if ( phase == "will" ) then
-        
-    end
+	local sceneGroup = self.view
+	local phase = event.phase
+
+	if ( phase == "will" ) then
+		-- Code here runs when the scene is on screen (but is about to go off screen)
+
+	elseif ( phase == "did" ) then
+		-- Code here runs immediately after the scene goes entirely off screen
+
+	end
 end
 
+
+-- destroy()
 function scene:destroy( event )
 
+	local sceneGroup = self.view
+	-- Code here runs prior to the removal of scene's view
+
 end
 
+
+-- -----------------------------------------------------------------------------------
+-- Scene event function listeners
+-- -----------------------------------------------------------------------------------
 scene:addEventListener( "create", scene )
 scene:addEventListener( "show", scene )
 scene:addEventListener( "hide", scene )
-
+scene:addEventListener( "destroy", scene )
+-- -----------------------------------------------------------------------------------
 
 return scene
