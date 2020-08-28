@@ -89,7 +89,7 @@ function scene:create( event )
 
 	local buttonsDescriptor = {
 		descriptor = {
-			{ "buttonPlay3.png", playCallback },
+			{ "buttonPlay2.png", playCallback },
 			{ "buttonScores.png", scoresCallback },
 			{ "buttonAbout.png", aboutCallback }
 		},

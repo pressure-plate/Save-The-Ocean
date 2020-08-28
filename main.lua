@@ -26,9 +26,14 @@ math.randomseed( os.time() )
 -- set default font params on the composer
 local fontParams = {}
 fontParams.path = "fonts/AlloyInk"
-fontParams.colorR = 0.9
-fontParams.colorG = 0.5
-fontParams.colorB = 0.1
+fontParams.colorR = 0.98
+fontParams.colorG = 0.69
+fontParams.colorB = 0.23
+
+fontParams.colorR2 = 0.9
+fontParams.colorG2 = 0.5
+fontParams.colorB2 = 0.1
+
 composer.setVariable( "defaultFontParams", fontParams )
 
 -- fading times for windows

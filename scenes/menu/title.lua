@@ -108,7 +108,7 @@ function M.init( viewGroup )
     spawnFloatingObjects()
 
     -- set title on the menu
-	titleImmage = display.newImage(group, "assets/menu/menu3.png") -- set title
+	titleImmage = display.newImage(group, "assets/menu/menu1.png") -- set title
 	titleImmage.x = display.contentCenterX
 	titleImmage.y = display.contentCenterY
 end

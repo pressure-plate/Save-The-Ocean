@@ -7,6 +7,7 @@ local windowMod = require( "scenes.libs.window" )
 local tabulatorMod = require( "scenes.libs.tabulator" )
 local savedata = require( "scenes.libs.savedata" ) -- load the save data module
 local bgMenuMod = require( "scenes.menu.background" ) -- required to reload the home background
+local audioMod = require( "scenes.libs.audio" ) -- load lib to do audio changes on the game
 
 local itemsDir = "assets/submarine/bubble/"
 
