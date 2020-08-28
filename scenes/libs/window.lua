@@ -62,7 +62,7 @@ local function openWindow()
     end
 
     -- show the menu window
-    local settingsWindow = display.newImage(group, uiDir .. "window2.png") -- set title
+    local settingsWindow = display.newImage(group, uiDir .. "window1.png") -- set title
     settingsWindow:scale( 1.5*windowScaleFactor, 1.2*windowScaleFactor)
 	settingsWindow.x = display.contentCenterX
     settingsWindow.y = display.contentCenterY
@@ -87,7 +87,7 @@ local function openWindow()
             fontParams.path, 
             fontTitleSize 
         )
-        windowTitle:setFillColor( fontParams.colorR, fontParams.colorG, fontParams.colorB )
+        windowTitle:setFillColor( fontParams.colorR2, fontParams.colorG2, fontParams.colorB2 )
         table.insert(windowObjects, windowTitle)
     end
 
