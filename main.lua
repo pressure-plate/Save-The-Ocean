@@ -7,8 +7,8 @@
 -- load the composer
 local composer = require( "composer" )
 
--- load the savedata module
-local savedata = require( "scenes.libs.savedata" )
+-- load the audio module
+local audioMod = require( "scenes.libs.audio" )
 
 -- load physics module
 local physics = require( "physics" )
@@ -26,9 +26,14 @@ math.randomseed( os.time() )
 -- set default font params on the composer
 local fontParams = {}
 fontParams.path = "fonts/AlloyInk"
-fontParams.colorR = 0.9
-fontParams.colorG = 0.5
-fontParams.colorB = 0.1
+fontParams.colorR = 0.98
+fontParams.colorG = 0.69
+fontParams.colorB = 0.23
+
+fontParams.colorR2 = 0.9
+fontParams.colorG2 = 0.5
+fontParams.colorB2 = 0.1
+
 composer.setVariable( "defaultFontParams", fontParams )
 
 -- fading times for windows
@@ -41,17 +46,9 @@ composer.setVariable( "version", "0.9.5" )
 -- reserve channel 1 for background music
 audio.reserveChannels( 1 )
 
--- reduce the overall volume of the channel
-local audioMute = savedata.getGamedata( "audioMute" )
-print(audioMute)
-if audioMute then
-    audio.setVolume( 0, { channel=1 } )
-else
-    audio.setVolume( 0.7, { channel=1 } )
-end
+-- set the audio from a save
+audioMod.setFromSave()
 
--- set audio root dir globally (this is done to simplify the introduction of different audio packs)
-composer.setVariable( "audioDir", "audio/" )
 
 -- @DEBUG -----------------------------------------------------------------------------------------
 
