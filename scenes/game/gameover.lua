@@ -10,7 +10,7 @@ local scene = composer.newScene()
 
 -- load modules
 local windowMod = require( "scenes.libs.window" )
-local buttonsMod = require( "scenes.libs.ui" ) 
+local uiMod = require( "scenes.libs.ui" ) 
 
 -- init vars
 local parentScene
@@ -19,6 +19,7 @@ local font = composer.getVariable( "defaultFontParams" )
 
 
 -- functions
+
 local function gotoMenu()
 
 	--[[
