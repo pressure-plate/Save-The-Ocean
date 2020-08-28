@@ -159,13 +159,13 @@ function gameOver()
 
 	-- regain control of touch events
 	display.currentStage:setFocus( nil )
-	
+
 	-- save score
 	savedata.addNewScore( score )
 
 	-- gain money based on score
 	local money = savedata.getGamedata( "money" )
-	local moneyGained = math.ceil( score / 1000 )
+	local moneyGained = math.ceil( score / 400 )
 	money = money + moneyGained
 	savedata.setGamedata( "money", money )
 
@@ -487,7 +487,7 @@ end
 
 -- create()
 function scene:create( event )
-	print("create game")
+	
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
 
@@ -568,17 +568,12 @@ function scene:create( event )
 
 	-- set timer to trigger the clear objects function at regular intervals
 	clearObjectsTimer = timer.performWithDelay( 2100, clearObjects, 0 )
-
-
-
-	-- TEST
-	--timer.performWithDelay(3000,gameOver,1)
 end
 
 
 -- show()
 function scene:show( event )
-	print("show game")
+	
 	local sceneGroup = self.view
 	local phase = event.phase
 
@@ -605,7 +600,7 @@ end
 
 -- hide()
 function scene:hide( event )
-	print("hide game")
+	
 	local sceneGroup = self.view
 	local phase = event.phase
 
@@ -631,7 +626,7 @@ end
 
 -- destroy()
 function scene:destroy( event )
-	print("destroy game")
+	
 	local sceneGroup = self.view
 	-- Code here runs prior to the removal of scene's view
 
