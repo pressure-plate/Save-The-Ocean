@@ -197,7 +197,7 @@ local function gameOver()
 		}
 	}
 	composer.showOverlay( "scenes.game.gameover", gameoverOptions )
-	
+
 end
 
 local function onCollision( event )
@@ -544,7 +544,8 @@ function scene:create( event )
 		propagation = "up",
 
 	}
-	badgesMod.init(uiGroup, badgesDescriptor)
+	-- disable pause in game
+	-- badgesMod.init(uiGroup, badgesDescriptor)
 
 end
 
