@@ -13,11 +13,7 @@ local parentScene
 
 local font = composer.getVariable( "defaultFontParams" )
 local windowMod = require( "scenes.libs.window" )
-local buttonsMod = require( "scenes.libs.ui" ) 
-
-
--- assets dir
-local uiDir = "assets/ui/" -- user interface assets dir
+local uiMod = require( "scenes.libs.ui" ) 
 
 
 -- functions
@@ -86,7 +82,7 @@ function scene:create( event )
 		position = 'center',
 		scaleFactor = 0.6
 	}
-	buttonsMod.init( sceneGroup, buttonsDescriptor )	
+	uiMod.init( sceneGroup, buttonsDescriptor )	
 
 	-- display score
 	local score = event.params.scoreParam

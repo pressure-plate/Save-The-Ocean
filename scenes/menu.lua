@@ -19,8 +19,7 @@ local fadeOutGame = 1400-- time to switch in game Mode
 local bgMod = require( "scenes.menu.background" ) -- load background module
 local titleMod = require( "scenes.menu.title" ) -- to display title and floating objects
 local savedata = require( "scenes.libs.savedata" ) -- load the save data module
-local buttonsMod = require( "scenes.libs.ui" )  -- ui lib to show buttons in the interface
-local badgesMod = require( "scenes.libs.ui" )
+local uiMod = require( "scenes.libs.ui" ) -- ui lib to show buttons in the interface
 local audioMod = require( "scenes.libs.audio" ) -- load lib to do audio changes on the game
 
 -- display groups
@@ -103,7 +102,7 @@ function scene:create( event )
 		position = 'center',
 		scaleFactor = 0.6
 	}
-	buttonsMod.init(uiGroup, buttonsDescriptor)	
+	uiMod.init(uiGroup, buttonsDescriptor)	
 	
 
 	-- ----------------------------------------------------------------------------
@@ -146,14 +145,14 @@ function scene:create( event )
 		propagation = 'down',
 
 	}
-	badgesMod.init(uiGroup, badgesDescriptor)
+	uiMod.init(uiGroup, badgesDescriptor)
 
 	
 	-- ----------------------------------------------------------------------------
 	-- money display
 	-- ----------------------------------------------------------------------------
 
-	local xPosition, yPosition = badgesMod.getPosition()
+	local xPosition, yPosition = uiMod.getPosition()
 
 	local moneyBadge = display.newImage( uiGroup, "assets/ui/badgeMoney.png" ) -- set mask
 	moneyBadge:scale( 0.3, 0.3 )
