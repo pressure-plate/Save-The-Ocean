@@ -30,6 +30,9 @@ local savedata = require( "scenes.libs.savedata" )
 -- ui lib to show buttons in the interface
 local badgesMod = require( "scenes.libs.ui" )
 
+-- load lib to do audio changes on the game
+local audioMod = require( "scenes.libs.audio" ) 
+
 -- initialize variables -------------------------------------------------------
 
 local font = composer.getVariable( "defaultFontParams" )
@@ -114,16 +117,8 @@ end
 
 -- ui
 local function muteMusicCallback()
-	local audioMute = savedata.getGamedata( "audioMute" )
-	if audioMute then
-		audio.setVolume( 0.7, { channel=1 } )
-		audio.play( buttonClickSound )
-		savedata.setGamedata( "audioMute", false)
-	else
-		audio.play( buttonClickSound )
-		audio.setVolume( 0, { channel=1 } )
-		savedata.setGamedata( "audioMute", true)
-	end 
+	audio.play( buttonClickSound )
+	audioMod.toggleMusic()
 end
 
 local function pauseResumeCallback( event ) 
@@ -137,7 +132,7 @@ local function pauseResumeCallback( event )
 		bgMod.setStopScrolling( false )
 		physics.start()
 
-	elseif event.isUnpack then -- play
+	elseif event.isUnpack then -- pause
 		-- pause the music
 		audio.pause( musicTrack )
 

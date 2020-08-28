@@ -21,6 +21,7 @@ local titleMod = require( "scenes.menu.title" ) -- to display title and floating
 local savedata = require( "scenes.libs.savedata" ) -- load the save data module
 local buttonsMod = require( "scenes.libs.ui" )  -- ui lib to show buttons in the interface
 local badgesMod = require( "scenes.libs.ui" )
+local audioMod = require( "scenes.libs.audio" ) -- load lib to do audio changes on the game
 
 -- display groups
 local uiGroup
@@ -109,16 +110,8 @@ function scene:create( event )
 	-- top right bagdes
 	-- ----------------------------------------------------------------------------
 	local function muteMusicCallback()
-		local audioMute = savedata.getGamedata( "audioMute" )
-		if audioMute then
-			audio.setVolume( 0.7, { channel=1 } )
-			audio.play( buttonClickSound )
-			savedata.setGamedata( "audioMute", false)
-		else
-			audio.play( buttonClickSound )
-			audio.setVolume( 0, { channel=1 } )
-			savedata.setGamedata( "audioMute", true)
-		end 
+		audio.play( buttonClickSound )
+		audioMod.toggleMusic()
 	end
 
 	local function worldsMenuCallback() 
