@@ -43,7 +43,7 @@ audio.reserveChannels( 1 )
 
 -- reduce the overall volume of the channel
 local audioMute = savedata.getGamedata( "audioMute" )
-print(audioMute)
+
 if audioMute then
     audio.setVolume( 0, { channel=1 } )
 else

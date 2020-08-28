@@ -62,6 +62,7 @@ function scene:create( event )
 	local bgGroup2 = display.newGroup()
 	sceneGroup:insert( bgGroup2 )
 	titleMod.init( bgGroup2 )
+	updateMovementTimer = timer.performWithDelay( 2000, titleMod.updateMovement , 0)
 
 	uiGroup = display.newGroup() -- display group for UI
 	sceneGroup:insert( uiGroup ) -- insert into the scene's view group
@@ -131,11 +132,16 @@ function scene:create( event )
 	local function bubblesMenuCallback() 
 		composer.showOverlay( "scenes.settings.bubbles", { time=composer.getVariable( "windowFadingOpenTime" ), effect="fade" } )
 	end
+
+	local function settingsCallback( event ) 
+		audio.play( buttonClickSound )
+	end
 	
 	-- load the badges in the list
 	-- with the packIcon declared the menu will pack under the packIcon as hamburger menu
 	local badgesDescriptor = {
 		packIcon = "badgeSettings.png",
+		packCallback = settingsCallback,
 		packRotation = 360,
 		descriptor={
 			{"badgeEdit.png", worldsMenuCallback },
@@ -160,6 +166,7 @@ function scene:create( event )
 		"tap", 
 		function ()
 			savedata.setGamedata( "money", savedata.getGamedata( "money" ) + 10 )
+			audio.play( buttonClickSound )
 			scene.updateMoneyView()
 		end
 	)
@@ -220,7 +227,6 @@ function scene:show( event )
 		-- re-start physics engine ( previously stopped in create() )
 		physics.start()
 		
-		updateMovementTimer = timer.performWithDelay( 2000, titleMod.updateMovement , 0)
 		menuTrackPlayer = audio.play( menuTrack, { channel=1, loops=-1 } )
 	end
 end
