@@ -14,8 +14,10 @@ local packIcon
 local packIconOpen
 local packCallback
 
-local xPropagationOffset -- the offet between each item in the x axe
-local yPropagationOffset -- the offet between each item in the y axe
+local offsetX
+local offsetY
+local propagationOffsetX -- the offet between each item in the x axe
+local propagationOffsetY -- the offet between each item in the y axe
 
 local scaleFactor
 local descriptor
@@ -30,50 +32,50 @@ local loadedButtons
 
 -- get the x, y coords for the given propagation
 local function computePropagation(count)
-    local xPropagation = 0
+    local propagationX = 0
     local yPropagation = 0
 
     -- avoid propagation calculation if the items are packed
     if isPacked then
-        return xPropagation, yPropagation
+        return propagationX, yPropagation
     end
 
     if propagation == 'left' then
-        xPropagation = xPropagationOffset * (count - 1) * -1
+        propagationX = propagationOffsetX * (count - 1) * -1
     
     elseif propagation == 'right' then
-        xPropagation = xPropagationOffset * (count - 1)
+        propagationX = propagationOffsetX * (count - 1)
 
     elseif propagation == 'up' then
-        yPropagation = yPropagationOffset * (count - 1) * -1
+        yPropagation = propagationOffsetY * (count - 1) * -1
     
     elseif propagation == 'down' then
-        yPropagation = yPropagationOffset * (count - 1)
+        yPropagation = propagationOffsetY * (count - 1)
     end
 
-    return xPropagation, yPropagation
+    return propagationX, yPropagation
 end
 
 -- get the x, y coords for the given position
 -- compute always with the entry point set on the center
 local function computePosition()
-    local xPosition = display.contentWidth/2.3
-    local yPosition = display.contentHeight/2.5
+    local positionX = display.contentWidth/2.3
+    local positionY = display.contentHeight/2.5
 
     if position == "center" then
         return 0, 0
 
     elseif position == "top-left" then
-        return xPosition * -1, yPosition * -1
+        return positionX * -1, positionY * -1
 
     elseif position == "top-right" then
-        return xPosition, yPosition * -1
+        return positionX, positionY * -1
 
     elseif position == "bottom-left" then
-        return xPosition * -1, yPosition
+        return positionX * -1, positionY
     
     else 
-        return xPosition, yPosition -- "bottom-right"
+        return positionX, positionY -- "bottom-right"
     end
 
 end
@@ -87,19 +89,19 @@ local function load()
         return
     end
     
-    local xPosition, yPosition = computePosition()
+    local positionX, positionY = computePosition()
 
     for count = #descriptor, 1, -1 do
 		local d = descriptor[count]
 		local dir = d[1]
         local callback = d[2]
         
-        local xPropagation, yPropagation = computePropagation(count)
+        local propagationX, yPropagation = computePropagation(count)
 
 		local obj = display.newImage(group, uiDir .. dir) -- set mask
         obj:scale( scaleFactor, scaleFactor )
-		obj.x = display.contentCenterX + xPosition + xPropagation
-        obj.y = display.contentCenterY + yPosition + yPropagation
+		obj.x = display.contentCenterX + offsetX + positionX + propagationX
+        obj.y = display.contentCenterY + offsetY + positionY + yPropagation
         obj:addEventListener( "tap", callback ) -- tap listener
 
         table.insert(loadedButtons, obj)
@@ -110,8 +112,8 @@ end
 -- return the origin position of the UI
 -- to align other stuff to the buttons 
 function M.getPosition()
-    local xPosition, yPosition = computePosition()
-    return display.contentCenterX + xPosition, display.contentCenterY + yPosition
+    local positionX, positionY = computePosition()
+    return display.contentCenterX + positionX, display.contentCenterY + positionY
 end
 
 -- remove badges from the view
@@ -136,7 +138,7 @@ end
 -- hide all the badges
 local function pack()
 
-    xPosition, yPosition = computePosition()
+    positionX, positionY = computePosition()
 
     for count = #descriptor, 1, -1 do
         transition.to(
@@ -144,8 +146,8 @@ local function pack()
             { 
                 time = packTime,
                 rotation = -packRotation,
-                x = display.contentCenterX + xPosition, 
-                y = display.contentCenterY + yPosition,
+                x = display.contentCenterX + offsetX + positionX, 
+                y = display.contentCenterY + offsetY + positionY,
                 onComplete = function ()
                     -- if there is set a icon change on pack/unpack do the switch
                     if packIconOpen then
@@ -163,17 +165,17 @@ end
 -- show the hided badges
 local function unpack()
 
-    xPosition, yPosition = computePosition()
+    positionX, positionY = computePosition()
 
     for count = #descriptor, 1, -1 do
-        local xPropagation, yPropagation = computePropagation(count)
+        local propagationX, yPropagation = computePropagation(count)
         transition.to(
             loadedButtons[#descriptor - count + 1], 
             { 
                 time = packTime,
                 rotation = packRotation,
-                x = display.contentCenterX + xPosition + xPropagation, 
-                y = display.contentCenterY + yPosition + yPropagation,
+                x = display.contentCenterX + offsetX + positionX + propagationX, 
+                y = display.contentCenterY + offsetY + positionY + yPropagation,
                 onComplete = function ()
                     -- if there is set a icon change on pack/unpack do the switch
                     if packIconOpen then
@@ -212,8 +214,8 @@ function M.init( displayGroup, options )
     - packRotation -- rotate the item of deg x during pack/unpack
     - packCallback -- custom calback for the pack button
     - descriptor -- list of files
-    - xPropagationOffset -- distance between 2 object on the x axe
-    - yPropagationOffset -- distance between 2 object on the y axe
+    - propagationOffsetX -- distance between 2 object on the x axe
+    - propagationOffsetY -- distance between 2 object on the y axe
     - scaleFactor -- the scale of the obj
     - position -- the origin of the first item generated
     - propagation -- the direction of other items generation
@@ -225,8 +227,10 @@ function M.init( displayGroup, options )
     packRotation = 0
     isPacked = false
     descriptor = {}
-    xPropagationOffset = 180
-    yPropagationOffset = 150
+    offsetX = 0
+    offsetY = 0
+    propagationOffsetX = 180
+    propagationOffsetY = 150
     scaleFactor = 0.3
     position = 'top-right' -- center, top-right, top-left, bottom-right, bottom-left
     propagation = 'left' -- left, right, up, down
@@ -296,14 +300,24 @@ function M.init( displayGroup, options )
         end
     end
 
-    -- xPropagationOffset the offet between each item in the x axe
-    if options.xPropagationOffset then 
-        xPropagationOffset = options.xPropagationOffset 
+    -- offsetX the offet from the origin
+    if options.offsetX then 
+        offsetX = options.offsetX 
     end
 
-    -- yPropagationOffset the offet between each item in the y axe
-    if options.yPropagationOffset then 
-        yPropagationOffset = options.yPropagationOffset 
+    -- offsetY the offet from the origin
+    if options.offsetY then 
+        offsetY = options.offsetY 
+    end
+
+    -- propagationOffsetX the offet between each item in the x axe
+    if options.propagationOffsetX then 
+        propagationOffsetX = options.propagationOffsetX 
+    end
+
+    -- propagationOffsetY the offet between each item in the y axe
+    if options.propagationOffsetY then 
+        propagationOffsetY = options.propagationOffsetY 
     end
 
     -- scaleFactor

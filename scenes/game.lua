@@ -27,12 +27,6 @@ local spawnMod = require( "scenes.game.spawner" )
 -- load savedata module
 local savedata = require( "scenes.libs.savedata" )
 
--- ui lib to show buttons in the interface
-local badgesMod = require( "scenes.libs.ui" )
-
--- load lib to do audio changes on the game
-local audioMod = require( "scenes.libs.audio" ) 
-
 -- initialize variables -------------------------------------------------------
 
 local font = composer.getVariable( "defaultFontParams" )
@@ -50,7 +44,8 @@ local seaLifeProgressView
 local maxGameSpeed = 3
 
 local isGameOver = false
-local blackScreen
+local isExitGame = false
+local isHideDid = false
 
 local updateGameSpeedTimer
 local clearObjectsTimer
@@ -63,7 +58,6 @@ local floatingObjPickSound
 local obstacleCollisionSound
 local deadSeaSound
 local multiplierUpSound
-local buttonClickSound
 
 -- display groups
 local bgGroup
@@ -91,73 +85,59 @@ composer.setVariable( "collFiltParams", {
 
 
 -- ----------------------------------------------------------------------------
+-- IMPORTANT: LUA DOESN'T HAVE A CONCEPT OF FUNCTION PROTOTYPES (LIKE C)
+-- 				SO WE CREATE A SORT OF FUNCTION PROTOTYPE WITH A FORWARD DECLARATION OF ALL FUNCTION NAMES
+-- ----------------------------------------------------------------------------
+-- FORWARD FUNCTION NAMES DECLARATION -----------------------------------------
+
+local exitGame
+local exitGameNormal
+local exitGameRefresh
+local gameOver
+
+local updateGameSpeed
+local onCollision
+local clearObjects
+local updateSeaLife
+local newProgressView
+
+local setScoreMultiplier
+local updateScoreMultiplier
+
+local hideDid
+
+
+-- ----------------------------------------------------------------------------
 -- game functions
 -- ----------------------------------------------------------------------------
 
-local function updateGameSpeed()
-
-	local gs = composer.getVariable( "gameSpeed" )
-
-	-- limit game speed to maxGameSpeed
-	if ( gs < maxGameSpeed ) then 
-
-		local st = composer.getVariable( "startTime" )
-		gs = 1 + ( (os.time() - st) / 100 )
-		--gs = 1 + ( (os.time() - st) / 10 ) -- TEST
-		--gs = 3 -- TEST
-		composer.setVariable( "gameSpeed", gs )
-	end
-
-	--print( "gameSpeed: ", gs ) -- TEST
-end
-
-function scene:exitGame()
-	audio.play( buttonClickSound )
-	composer.gotoScene( "scenes.menu", { time=1400, effect="slideRight" } )
-end
-
--- ui
-local function muteMusicCallback()
-	audio.play( buttonClickSound )
-	audioMod.toggleMusic()
-end
-
-local function pauseResumeCallback( event ) 
+function exitGame( isRefresh )
 	
-	audio.play( buttonClickSound )
+	-- CRITICAL CHECK: check if the exitGame function has already been called
+	if ( isExitGame == true ) then
+		return -- abort exitGame call
+	end
+	
+	-- set exitGame as called
+	isExitGame = true
 
-	if event.isPack then -- play
+	if ( isRefresh ) then
+		composer.gotoScene( "scenes.refresh" )
 
-		-- remove the black screen
-		display.remove( blackScreen )
-
-		-- resume the music
-		audio.resume( musicTrack )
-
-		-- stop screen objects movement
-		bgMod.setStopScrolling( false )
-		physics.start()
-
-	elseif event.isUnpack then -- pause
-		-- pause the music
-		audio.pause( 1 )
-
-		-- stop screen objects movement
-		bgMod.setStopScrolling( true )
-		physics.pause()
-		subMod.cancAllSubTrans()
-
-		-- set fading black screen
-		blackScreen = display.newRect( uiGroup, display.contentCenterX, display.contentCenterY, 3000, 1080 )
-		blackScreen.alpha = 0.6
-		blackScreen:setFillColor( 0, 0, 0 ) -- black
-		
-		-- prevent further touch interactions with the game after the game over
-		blackScreen:addEventListener( "touch", function (event) return true end )
+	else
+		composer.gotoScene( "scenes.menu", { time=1000, effect="slideRight" } )
 	end
 end
 
-local function gameOver()
+function exitGameNormal()
+	exitGame( false )
+end
+
+function exitGameRefresh()
+	exitGame( true )
+end
+
+function gameOver()
 
 	-- CRITICAL CHECK: check if the gameOver function has already been called
 	if ( isGameOver == true ) then
@@ -175,32 +155,54 @@ local function gameOver()
 	physics.pause()
 	subMod.cancAllSubTrans()
 
-	-- remove badges on the ui
-	badgesMod.clear()
+	-- clear listeners, timers, etc for a clean stop
+	hideDid()
 
-	-- set fading black screen
-	blackScreen = display.newRect( uiGroup, display.contentCenterX, display.contentCenterY, 3000, 1080 )
-	blackScreen.alpha = 0.6
-	blackScreen:setFillColor( 0, 0, 0 ) -- black
-	
-	-- prevent further touch interactions with the game after the game over
-	blackScreen:addEventListener( "touch", function (event) return true end )
+	-- regain control of touch events
+	display.currentStage:setFocus( nil )
 
 	-- save score
 	savedata.addNewScore( score )
 
-	local gameoverOptions = {
+	-- gain money based on score
+	local money = savedata.getGamedata( "money" )
+	local moneyGained = math.ceil( score / 15 )
+	money = money + moneyGained
+	savedata.setGamedata( "money", money )
+
+	-- options table for the overlay scene
+	local options = {
+		isModal = true,
 		effect = "fade",
-    	time = 400,
+		time = 400,
 		params = {
-			score = score
+			scoreParam = score,
+			moneyGainedParam = moneyGained
 		}
 	}
-	composer.showOverlay( "scenes.game.gameover", gameoverOptions )
 
+	-- show the gameover overlay
+	composer.showOverlay( "scenes.game.gameover", options )
 end
 
-local function onCollision( event )
+function updateGameSpeed()
+
+	local gs = composer.getVariable( "gameSpeed" )
+
+	-- limit game speed to maxGameSpeed
+	if ( gs < maxGameSpeed ) then 
+
+		local st = composer.getVariable( "startTime" )
+		gs = 1 + ( (os.time() - st) / 100 )
+		--gs = 1 + ( (os.time() - st) / 10 ) -- TEST
+		--gs = 3 -- TEST
+		composer.setVariable( "gameSpeed", gs )
+	end
+
+	--print( "gameSpeed: ", gs ) -- TEST
+end
+
+function onCollision( event )
  
     -- detect "began" phase of collision
     if ( event.phase == "began" ) then
@@ -302,7 +304,7 @@ local function onCollision( event )
     end
 end
 
-local function clearObjects()
+function clearObjects()
  
 	-- remove objects which have drifted off screen
 
@@ -320,7 +322,7 @@ local function clearObjects()
     end
 end
 
-local function updateSeaLife()
+function updateSeaLife()
  
 	-- update sea life when you miss an item to pick
 
@@ -367,7 +369,7 @@ local function updateSeaLife()
 	seaLifeProgressView:setProgress( seaLife / seaLifeMax )
 end
 
-local function newProgressView( percent, xPos, yPos )
+function newProgressView( percent, xPos, yPos )
 	
 	local assetWidth = 512
 	local assetHeight = 60
@@ -422,7 +424,7 @@ local function newProgressView( percent, xPos, yPos )
     return progressView
 end
 
-local function setScoreMultiplier( newValue )
+function setScoreMultiplier( newValue )
 
     if ( scoreMultiplier ~= newValue ) then
 
@@ -444,12 +446,39 @@ local function setScoreMultiplier( newValue )
 	end
 end
 
-local function updateScoreMultiplier()
+function updateScoreMultiplier()
 
 	-- play multiplierUpSound
 	audio.play( multiplierUpSound )
 
     setScoreMultiplier( scoreMultiplier + 0.25 )
+end
+
+function hideDid()
+
+	-- CRITICAL CHECK: check if the hideDid function has already been called
+	if ( isHideDid == true ) then
+		return -- abort hideDid call
+	end
+
+	-- set hideDid as called
+	isHideDid = true
+
+	-- do the cleaning
+
+	-- remove Runtime listeners
+	Runtime:removeEventListener( "collision", onCollision )
+
+	-- cancel timers
+	timer.cancel( updateGameSpeedTimer )
+	timer.cancel( clearObjectsTimer )
+	timer.cancel( updateSeaLifeTimer )
+	timer.cancel( updateScoreMultiplierTimer )
+
+	-- clear loaded modules
+	bgMod.hideDid()
+	subMod.hideDid()
+	spawnMod.hideDid()
 end
 
 
@@ -459,7 +488,7 @@ end
 
 -- create()
 function scene:create( event )
-
+	
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
 
@@ -494,7 +523,6 @@ function scene:create( event )
 	obstacleCollisionSound = audio.loadSound( audioDir .. "sfx/explosion.wav" )
 	deadSeaSound = audio.loadSound( audioDir .. "sfx/deadSea.wav" )
 	multiplierUpSound = audio.loadSound( audioDir .. "sfx/multiplierUp.wav" )
-	buttonClickSound = audio.loadSound( audioDir .. "sfx/click.mp3" )
 
 	-- set event listener to update game speed
 	updateGameSpeedTimer = timer.performWithDelay( 1000, updateGameSpeed, 0 )
@@ -528,31 +556,25 @@ function scene:create( event )
 	-- set timer to trigger the update sea life at regular intervals
 	updateSeaLifeTimer = timer.performWithDelay( 1000, updateSeaLife, 0 )
 
+	-- display menu button in the upper-left corner
+	local homeButton = display.newImageRect( uiGroup, uiDir .. "badgeHome.png", 512, 512 )
+	homeButton.x = 10
+	homeButton.y = 10
+	local homeButtonScaleFact = 0.20
+	homeButton.xScale = homeButtonScaleFact
+	homeButton.yScale = homeButtonScaleFact
+	homeButton.anchorX = 0 -- align
+	homeButton.anchorY = 0 -- align
+	homeButton:addEventListener( "tap", exitGameNormal )
+
 	-- set timer to trigger the clear objects function at regular intervals
 	clearObjectsTimer = timer.performWithDelay( 2100, clearObjects, 0 )
-
-	local badgesDescriptor = {
-		packIcon = { "badgePause.png", "badgePlay.png"},
-		packCallback = pauseResumeCallback,
-		packRotation = 360,
-		descriptor={
-			{"badgeBack.png", scene.exitGame},
-			{"badgeMute.png", muteMusicCallback},
-		},
-		yPropagationOffset = 160,
-		position = "bottom-right",
-		propagation = "up",
-
-	}
-	-- disable pause in game
-	-- badgesMod.init(uiGroup, badgesDescriptor)
-
 end
 
 
 -- show()
 function scene:show( event )
-
+	
 	local sceneGroup = self.view
 	local phase = event.phase
 
@@ -579,7 +601,7 @@ end
 
 -- hide()
 function scene:hide( event )
-
+	
 	local sceneGroup = self.view
 	local phase = event.phase
 
@@ -589,19 +611,7 @@ function scene:hide( event )
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
 
-		-- remove Runtime listeners
-		Runtime:removeEventListener( "collision", onCollision )
-
-		-- cancel timers
-		timer.cancel( updateGameSpeedTimer )
-		timer.cancel( clearObjectsTimer )
-		timer.cancel( updateSeaLifeTimer )
-		timer.cancel( updateScoreMultiplierTimer )
-
-		-- clear loaded modules
-		bgMod.hideDid()
-		subMod.hideDid()
-		spawnMod.hideDid()
+		hideDid() -- do all the cleaning
 
 		-- stop all audio playing
 		audio.stop()
@@ -617,7 +627,7 @@ end
 
 -- destroy()
 function scene:destroy( event )
-
+	
 	local sceneGroup = self.view
 	-- Code here runs prior to the removal of scene's view
 
@@ -628,8 +638,20 @@ function scene:destroy( event )
 	audio.dispose( obstacleCollisionSound )
 	audio.dispose( deadSeaSound )
 	audio.dispose( multiplierUpSound )
-	audio.dispose( buttonClickSound )
 end
+
+
+-- scene methods to call from gameOver overlay --------------------------------
+
+function scene:gotoMenu()
+	exitGameNormal()
+end
+
+function scene:gotoRefresh()
+	exitGameRefresh()
+end
+
+-- ----------------------------------------------------------------------------
 
 
 -- -----------------------------------------------------------------------------------

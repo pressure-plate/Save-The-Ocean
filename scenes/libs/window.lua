@@ -3,12 +3,15 @@ local composer = require( "composer" )
 
 local M = {}
 
+local audioMod = require( "scenes.libs.audio" ) -- load lib to do audio changes on the game
+
 local uiDir = "assets/ui/" -- user interface assets di
 
 local group
 
 local showCloseButton
 local windowTitle
+local fontTitleSize
 local windowScaleFactor
 local windowForceClose
 local onExitCallback
@@ -59,7 +62,7 @@ local function openWindow()
     end
 
     -- show the menu window
-    local settingsWindow = display.newImage(group, uiDir .. "window2.png") -- set title
+    local settingsWindow = display.newImage(group, uiDir .. "window1.png") -- set title
     settingsWindow:scale( 1.5*windowScaleFactor, 1.2*windowScaleFactor)
 	settingsWindow.x = display.contentCenterX
     settingsWindow.y = display.contentCenterY
@@ -68,7 +71,7 @@ local function openWindow()
     settingsWindow:addEventListener( "tap", function () return true end )  
     table.insert(windowObjects, settingsWindow)
 
-    local yTitleBar = settingsWindow.y/1.6 -- the level of the title bar in the window
+    local yTitleBar = settingsWindow.y/1.6 * windowScaleFactor -- the level of the title bar in the window
 
     -- set the window title
     -- write the title only if is declared
@@ -82,9 +85,9 @@ local function openWindow()
             display.contentCenterX, 
             display.contentCenterY - yTitleBar, 
             fontParams.path, 
-            100 
+            fontTitleSize 
         )
-        windowTitle:setFillColor( fontParams.colorR, fontParams.colorG, fontParams.colorB )
+        windowTitle:setFillColor( fontParams.colorR2, fontParams.colorG2, fontParams.colorB2 )
         table.insert(windowObjects, windowTitle)
     end
 
@@ -107,20 +110,26 @@ function M.init( displayGroup, options )
 
     showCloseButton = true
     windowTitle = null
+    fontTitleSize = 100
     windowScaleFactor = 1
     windowForceClose = false -- close the window on button exit button press
     onExitCallback = null
-    buttonCloseSound = audio.loadStream( composer.getVariable( "audioDir" ) .. "sfx/close.mp3" )
-    buttonClickSound = audio.loadStream( composer.getVariable( "audioDir" ) .. "sfx/click.mp3" )
+    buttonCloseSound = audioMod.buttonCloseSound
+    buttonClickSound = audioMod.buttonClickSound
 
     -- showCloseButton
-    if options.showCloseButton then 
+    if options.showCloseButton == false then 
         showCloseButton = options.showCloseButton 
     end
 
     -- windowTitle
     if options.windowTitle then 
         windowTitle = options.windowTitle 
+    end
+
+    -- fontTitleSize
+    if options.fontTitleSize then 
+        fontTitleSize = options.fontTitleSize 
     end
 
     -- windowScaleFactor
