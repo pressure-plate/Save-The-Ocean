@@ -22,7 +22,10 @@ end
 
 
 -- call the parent function to exit the game
-local function exitGame() parent.exitGame() end
+local function exitGame() 
+    timer.cancel( autoExitTimer ) 
+    parent.exitGame() 
+end
 
 
 function scene:show( event )
@@ -73,7 +76,7 @@ function scene:create( event )
     buttonsMod.init( group, buttonsDescriptor )
     
     -- call exitGame function after a short delay
-	autoExitTimer = timer.performWithDelay( 4000, exitGame )
+	autoExitTimer = timer.performWithDelay( 8000, exitGame )
 
 end
 
