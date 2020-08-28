@@ -97,9 +97,12 @@ function scene:create( event )
 		descriptor = {
 			{ "buttonPlay3.png", playCallback },
 			{ "buttonScores.png", scoresCallback },
-			{ "buttonAbout.png", aboutCallback }
+			-- { "buttonAbout.png", aboutCallback }
 		},
-		propagation = 'down',
+		offsetY = display.contentCenterX / 6, -- remove
+		offsetX = - display.contentCenterX / 6, -- remove
+		propagationOffsetX = 360, -- remove
+		propagation = 'right', -- down
 		position = 'center',
 		scaleFactor = 0.6
 	}
@@ -142,7 +145,7 @@ function scene:create( event )
 			{"badgeBubbles.png", bubblesMenuCallback },
 			{"badgeMute.png", muteMusicCallback}
 		},
-		yPropagationOffset = 160,
+		propagationOffsetY = 160,
 		propagation = 'down',
 
 	}
