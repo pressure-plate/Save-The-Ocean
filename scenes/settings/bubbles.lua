@@ -45,6 +45,10 @@ local function onBubbleSelection( event )
 
             -- update the money value
             parent:updateMoneyView()
+            audio.play( audioMod.paySound );
+            return
+        else
+            audio.play( audioMod.noMoneySound );
         end
     end
     
@@ -133,14 +137,12 @@ end
 
 
 function scene:hide( event )
-    local sceneGroup = self.view
-    local phase = event.phase
-    local parent = event.parent  -- Reference to the parent scene object
  
     if ( phase == "will" ) then
         -- update the mony view before leave the window
         parent:updateMoneyView()
     end
+
 end
 
 

@@ -6,6 +6,7 @@ local scene = composer.newScene()
 local windowMod = require( "scenes.libs.window" )
 local tabulatorMod = require( "scenes.libs.tabulator" )
 local savedata = require( "scenes.libs.savedata" ) -- load the save data module
+local audioMod = require( "scenes.libs.audio" ) -- load lib to do audio changes on the game
 
 local itemsDir = "assets/submarine/"
 
@@ -47,6 +48,10 @@ local function onSubmarineSelection( event )
 
             -- update the money value
             parent:updateMoneyView()
+            audio.play( audioMod.paySound );
+            return
+        else
+            audio.play( audioMod.noMoneySound );
         end
     end
     
@@ -135,14 +140,12 @@ end
 
 
 function scene:hide( event )
-    local sceneGroup = self.view
-    local phase = event.phase
-    local parent = event.parent  -- Reference to the parent scene object
- 
+
     if ( phase == "will" ) then
         -- update the mony view before leave the window
         parent:updateMoneyView()
     end
+    
 end
 
 
