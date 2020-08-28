@@ -173,7 +173,7 @@ function gameOver()
 
 	-- gain money based on score
 	local money = savedata.getGamedata( "money" )
-	local moneyGained = math.ceil( score / 100 )
+	local moneyGained = math.ceil( score / 15 )
 	money = money + moneyGained
 	savedata.setGamedata( "money", money )
 
