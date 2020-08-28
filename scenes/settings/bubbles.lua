@@ -19,9 +19,6 @@ itemsData = {
 local parent 
 local group
 
-local paySound
-local noMoneySound
-
 
 -- to hide the current overlay
 local function hideScene()
@@ -48,10 +45,10 @@ local function onBubbleSelection( event )
 
             -- update the money value
             parent:updateMoneyView()
-            audio.play( paySound );
+            audio.play( audioMod.paySound );
             return
         else
-            audio.play( noMoneySound );
+            audio.play( audioMod.noMoneySound );
         end
     end
     
@@ -112,9 +109,6 @@ function scene:create( event )
 
     group = display.newGroup() -- display group for background
     sceneGroup:insert( group )
-
-    paySound = audio.loadStream( composer.getVariable( "audioDir" ) .. "sfx/pay.mp3" )
-    noMoneySound = audio.loadStream( composer.getVariable( "audioDir" ) .. "sfx/noMoney.mp3" )
 
     local windowsOptions = {
         onExitCallback = hideScene,

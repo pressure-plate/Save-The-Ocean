@@ -3,6 +3,8 @@ local composer = require( "composer" )
 
 local M = {}
 
+local audioMod = require( "scenes.libs.audio" ) -- load lib to do audio changes on the game
+
 local uiDir = "assets/ui/" -- user interface assets di
 
 local group
@@ -112,8 +114,8 @@ function M.init( displayGroup, options )
     windowScaleFactor = 1
     windowForceClose = false -- close the window on button exit button press
     onExitCallback = null
-    buttonCloseSound = audio.loadStream( composer.getVariable( "audioDir" ) .. "sfx/close.mp3" )
-    buttonClickSound = audio.loadStream( composer.getVariable( "audioDir" ) .. "sfx/click.mp3" )
+    buttonCloseSound = audioMod.buttonCloseSound
+    buttonClickSound = audioMod.buttonClickSound
 
     -- showCloseButton
     if options.showCloseButton == false then 

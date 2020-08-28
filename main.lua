@@ -44,8 +44,6 @@ audio.reserveChannels( 1 )
 -- set the audio from a save
 audioMod.setFromSave()
 
--- set audio root dir globally (this is done to simplify the introduction of different audio packs)
-composer.setVariable( "audioDir", "audio/" )
 
 -- @DEBUG -----------------------------------------------------------------------------------------
 
