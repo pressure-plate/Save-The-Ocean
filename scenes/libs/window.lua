@@ -9,6 +9,7 @@ local group
 
 local showCloseButton
 local windowTitle
+local fontTitleSize
 local windowScaleFactor
 local windowForceClose
 local onExitCallback
@@ -68,7 +69,7 @@ local function openWindow()
     settingsWindow:addEventListener( "tap", function () return true end )  
     table.insert(windowObjects, settingsWindow)
 
-    local yTitleBar = settingsWindow.y/1.6 -- the level of the title bar in the window
+    local yTitleBar = settingsWindow.y/1.6 * windowScaleFactor -- the level of the title bar in the window
 
     -- set the window title
     -- write the title only if is declared
@@ -82,7 +83,7 @@ local function openWindow()
             display.contentCenterX, 
             display.contentCenterY - yTitleBar, 
             fontParams.path, 
-            100 
+            fontTitleSize 
         )
         windowTitle:setFillColor( fontParams.colorR, fontParams.colorG, fontParams.colorB )
         table.insert(windowObjects, windowTitle)
@@ -107,6 +108,7 @@ function M.init( displayGroup, options )
 
     showCloseButton = true
     windowTitle = null
+    fontTitleSize = 100
     windowScaleFactor = 1
     windowForceClose = false -- close the window on button exit button press
     onExitCallback = null
@@ -114,13 +116,18 @@ function M.init( displayGroup, options )
     buttonClickSound = audio.loadStream( composer.getVariable( "audioDir" ) .. "sfx/click.mp3" )
 
     -- showCloseButton
-    if options.showCloseButton then 
+    if options.showCloseButton == false then 
         showCloseButton = options.showCloseButton 
     end
 
     -- windowTitle
     if options.windowTitle then 
         windowTitle = options.windowTitle 
+    end
+
+    -- fontTitleSize
+    if options.fontTitleSize then 
+        fontTitleSize = options.fontTitleSize 
     end
 
     -- windowScaleFactor
