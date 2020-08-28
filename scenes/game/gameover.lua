@@ -20,12 +20,30 @@ local uiDir = "assets/ui/" -- user interface assets dir
 
 -- functions
 local function gotoMenu()
-	composer.hideOverlay()
+
+	--[[
+	NOTE: 
+		composer.hideOverlay() can be called from the overlay scene, from the parent scene,
+		or from some event handler like an Android "back" key handler.
+		Attempting to go to another scene via composer.gotoScene() will automatically hide the overlay as well.
+
+		So we call a function in the parentScene which will call a composer.gotoScene(), hiding the overlay as well
+	--]]
+
 	parentScene:gotoMenu()
 end
 
 local function gotoRefresh()
-	composer.hideOverlay()
+
+	--[[
+	NOTE: 
+		composer.hideOverlay() can be called from the overlay scene, from the parent scene,
+		or from some event handler like an Android "back" key handler.
+		Attempting to go to another scene via composer.gotoScene() will automatically hide the overlay as well.
+
+		So we call a function in the parentScene which will call a composer.gotoScene(), hiding the overlay as well
+	--]]
+
 	parentScene:gotoRefresh()
 end
 

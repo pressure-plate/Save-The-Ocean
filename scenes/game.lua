@@ -85,54 +85,32 @@ composer.setVariable( "collFiltParams", {
 
 
 -- ----------------------------------------------------------------------------
+-- IMPORTANT: LUA DOESN'T HAVE A CONCEPT OF FUNCTION PROTOTYPES (LIKE C)
+-- 				SO WE CREATE A SORT OF FUNCTION PROTOTYPE WITH A FORWARD DECLARATION OF ALL FUNCTION NAMES
+-- ----------------------------------------------------------------------------
+-- FORWARD FUNCTION NAMES DECLARATION -----------------------------------------
+
+local exitGame
+local exitGameNormal
+local exitGameRefresh
+local gameOver
+
+local updateGameSpeed
+local onCollision
+local clearObjects
+local updateSeaLife
+local newProgressView
+
+local setScoreMultiplier
+local updateScoreMultiplier
+
+local hideDid
+
+
+-- ----------------------------------------------------------------------------
 -- game functions
 -- ----------------------------------------------------------------------------
-
-local function hideDid()
-
-	-- CRITICAL CHECK: check if the hideDid function has already been called
-	if ( isHideDid == true ) then
-		return -- abort hideDid call
-	end
-
-	-- set hideDid as called
-	isHideDid = true
-
-	-- do the cleaning
-
-	-- remove Runtime listeners
-	Runtime:removeEventListener( "collision", onCollision )
-
-	-- cancel timers
-	timer.cancel( updateGameSpeedTimer )
-	timer.cancel( clearObjectsTimer )
-	timer.cancel( updateSeaLifeTimer )
-	timer.cancel( updateScoreMultiplierTimer )
-
-	-- clear loaded modules
-	bgMod.hideDid()
-	subMod.hideDid()
-	spawnMod.hideDid()
-end
-
-local function updateGameSpeed()
-
-	local gs = composer.getVariable( "gameSpeed" )
-
-	-- limit game speed to maxGameSpeed
-	if ( gs < maxGameSpeed ) then 
-
-		local st = composer.getVariable( "startTime" )
-		gs = 1 + ( (os.time() - st) / 100 )
-		--gs = 1 + ( (os.time() - st) / 10 ) -- TEST
-		--gs = 3 -- TEST
-		composer.setVariable( "gameSpeed", gs )
-	end
-
-	--print( "gameSpeed: ", gs ) -- TEST
-end
-
-local function exitGame( isRefresh )
+function exitGame( isRefresh )
 	
 	-- CRITICAL CHECK: check if the exitGame function has already been called
 	if ( isExitGame == true ) then
@@ -143,22 +121,22 @@ local function exitGame( isRefresh )
 	isExitGame = true
 
 	if ( isRefresh ) then
-		composer.gotoScene( "scenes.refresh", { time=400, effect="fade" } )
+		composer.gotoScene( "scenes.refresh" )
 
 	else
 		composer.gotoScene( "scenes.menu", { time=1000, effect="slideRight" } )
 	end
 end
 
-local function exitGameNormal()
+function exitGameNormal()
 	exitGame( false )
 end
 
-local function exitGameRefresh()
+function exitGameRefresh()
 	exitGame( true )
 end
 
-local function gameOver()
+function gameOver()
 
 	-- CRITICAL CHECK: check if the gameOver function has already been called
 	if ( isGameOver == true ) then
@@ -203,7 +181,24 @@ local function gameOver()
 	composer.showOverlay( "scenes.game.gameover", options )
 end
 
-local function onCollision( event )
+function updateGameSpeed()
+
+	local gs = composer.getVariable( "gameSpeed" )
+
+	-- limit game speed to maxGameSpeed
+	if ( gs < maxGameSpeed ) then 
+
+		local st = composer.getVariable( "startTime" )
+		gs = 1 + ( (os.time() - st) / 100 )
+		--gs = 1 + ( (os.time() - st) / 10 ) -- TEST
+		--gs = 3 -- TEST
+		composer.setVariable( "gameSpeed", gs )
+	end
+
+	--print( "gameSpeed: ", gs ) -- TEST
+end
+
+function onCollision( event )
  
     -- detect "began" phase of collision
     if ( event.phase == "began" ) then
@@ -305,7 +300,7 @@ local function onCollision( event )
     end
 end
 
-local function clearObjects()
+function clearObjects()
  
 	-- remove objects which have drifted off screen
 
@@ -323,7 +318,7 @@ local function clearObjects()
     end
 end
 
-local function updateSeaLife()
+function updateSeaLife()
  
 	-- update sea life when you miss an item to pick
 
@@ -370,7 +365,7 @@ local function updateSeaLife()
 	seaLifeProgressView:setProgress( seaLife / seaLifeMax )
 end
 
-local function newProgressView( percent, xPos, yPos )
+function newProgressView( percent, xPos, yPos )
 	
 	local assetWidth = 512
 	local assetHeight = 60
@@ -425,7 +420,7 @@ local function newProgressView( percent, xPos, yPos )
     return progressView
 end
 
-local function setScoreMultiplier( newValue )
+function setScoreMultiplier( newValue )
 
     if ( scoreMultiplier ~= newValue ) then
 
@@ -447,12 +442,39 @@ local function setScoreMultiplier( newValue )
 	end
 end
 
-local function updateScoreMultiplier()
+function updateScoreMultiplier()
 
 	-- play multiplierUpSound
 	audio.play( multiplierUpSound )
 
     setScoreMultiplier( scoreMultiplier + 0.25 )
+end
+
+function hideDid()
+
+	-- CRITICAL CHECK: check if the hideDid function has already been called
+	if ( isHideDid == true ) then
+		return -- abort hideDid call
+	end
+
+	-- set hideDid as called
+	isHideDid = true
+
+	-- do the cleaning
+
+	-- remove Runtime listeners
+	Runtime:removeEventListener( "collision", onCollision )
+
+	-- cancel timers
+	timer.cancel( updateGameSpeedTimer )
+	timer.cancel( clearObjectsTimer )
+	timer.cancel( updateSeaLifeTimer )
+	timer.cancel( updateScoreMultiplierTimer )
+
+	-- clear loaded modules
+	bgMod.hideDid()
+	subMod.hideDid()
+	spawnMod.hideDid()
 end
 
 
@@ -462,7 +484,7 @@ end
 
 -- create()
 function scene:create( event )
-
+	print("create game")
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
 
@@ -553,7 +575,7 @@ end
 
 -- show()
 function scene:show( event )
-
+	print("show game")
 	local sceneGroup = self.view
 	local phase = event.phase
 
@@ -580,7 +602,7 @@ end
 
 -- hide()
 function scene:hide( event )
-
+	print("hide game")
 	local sceneGroup = self.view
 	local phase = event.phase
 
@@ -606,7 +628,7 @@ end
 
 -- destroy()
 function scene:destroy( event )
-
+	print("destroy game")
 	local sceneGroup = self.view
 	-- Code here runs prior to the removal of scene's view
 
@@ -629,8 +651,6 @@ end
 function scene:gotoRefresh()
 	exitGameRefresh()
 end
-
-
 
 -- ----------------------------------------------------------------------------
 
