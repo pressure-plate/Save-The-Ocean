@@ -2,7 +2,8 @@
 local composer = require( "composer" )
 
 -- set audio root dir globally (this is done to simplify the introduction of different audio packs)
-composer.setVariable( "audioDir", "audio/" )
+--composer.setVariable( "audioDir", "audio/" )
+composer.setVariable( "audioDir", "audio/extremeVersionP/" )
 
 local M = {
     buttonPlaySound = audio.loadStream( composer.getVariable( "audioDir" ) .. "sfx/play.mp3" ),
