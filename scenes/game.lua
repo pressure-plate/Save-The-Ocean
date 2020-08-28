@@ -50,6 +50,7 @@ local seaLifeProgressView
 local maxGameSpeed = 3
 
 local isGameOver = false
+local blackScreen
 
 local updateGameSpeedTimer
 local clearObjectsTimer
@@ -122,9 +123,14 @@ local function muteMusicCallback()
 end
 
 local function pauseResumeCallback( event ) 
+	
 	audio.play( buttonClickSound )
 
 	if event.isPack then -- play
+
+		-- remove the black screen
+		display.remove( blackScreen )
+
 		-- resume the music
 		audio.resume( musicTrack )
 
@@ -134,12 +140,20 @@ local function pauseResumeCallback( event )
 
 	elseif event.isUnpack then -- pause
 		-- pause the music
-		audio.pause( musicTrack )
+		audio.pause( 1 )
 
 		-- stop screen objects movement
 		bgMod.setStopScrolling( true )
 		physics.pause()
 		subMod.cancAllSubTrans()
+
+		-- set fading black screen
+		blackScreen = display.newRect( uiGroup, display.contentCenterX, display.contentCenterY, 3000, 1080 )
+		blackScreen.alpha = 0.6
+		blackScreen:setFillColor( 0, 0, 0 ) -- black
+		
+		-- prevent further touch interactions with the game after the game over
+		blackScreen:addEventListener( "touch", function (event) return true end )
 	end
 end
 
