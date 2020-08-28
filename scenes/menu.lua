@@ -21,6 +21,7 @@ local titleMod = require( "scenes.menu.title" ) -- to display title and floating
 local savedata = require( "scenes.libs.savedata" ) -- load the save data module
 local buttonsMod = require( "scenes.libs.ui" )  -- ui lib to show buttons in the interface
 local badgesMod = require( "scenes.libs.ui" )
+local audioMod = require( "scenes.libs.audio" ) -- load lib to do audio changes on the game
 
 -- display groups
 local uiGroup
@@ -62,6 +63,7 @@ function scene:create( event )
 	local bgGroup2 = display.newGroup()
 	sceneGroup:insert( bgGroup2 )
 	titleMod.init( bgGroup2 )
+	updateMovementTimer = timer.performWithDelay( 2000, titleMod.updateMovement , 0)
 
 	uiGroup = display.newGroup() -- display group for UI
 	sceneGroup:insert( uiGroup ) -- insert into the scene's view group
@@ -108,16 +110,8 @@ function scene:create( event )
 	-- top right bagdes
 	-- ----------------------------------------------------------------------------
 	local function muteMusicCallback()
-		local audioMute = savedata.getGamedata( "audioMute" )
-		if audioMute then
-			audio.setVolume( 0.7, { channel=1 } )
-			audio.play( buttonClickSound )
-			savedata.setGamedata( "audioMute", false)
-		else
-			audio.play( buttonClickSound )
-			audio.setVolume( 0, { channel=1 } )
-			savedata.setGamedata( "audioMute", true)
-		end 
+		audio.play( buttonClickSound )
+		audioMod.toggleMusic()
 	end
 
 	local function worldsMenuCallback() 
@@ -131,11 +125,16 @@ function scene:create( event )
 	local function bubblesMenuCallback() 
 		composer.showOverlay( "scenes.settings.bubbles", { time=composer.getVariable( "windowFadingOpenTime" ), effect="fade" } )
 	end
+
+	local function settingsCallback( event ) 
+		audio.play( buttonClickSound )
+	end
 	
 	-- load the badges in the list
 	-- with the packIcon declared the menu will pack under the packIcon as hamburger menu
 	local badgesDescriptor = {
 		packIcon = "badgeSettings.png",
+		packCallback = settingsCallback,
 		packRotation = 360,
 		descriptor={
 			{"badgeEdit.png", worldsMenuCallback },
@@ -143,13 +142,17 @@ function scene:create( event )
 			{"badgeBubbles.png", bubblesMenuCallback },
 			{"badgeMute.png", muteMusicCallback}
 		},
-		yPropagationOffset = 160,
+		propagationOffsetY = 160,
 		propagation = 'down',
 
 	}
 	badgesMod.init(uiGroup, badgesDescriptor)
 
+	
+	-- ----------------------------------------------------------------------------
 	-- money display
+	-- ----------------------------------------------------------------------------
+
 	local xPosition, yPosition = badgesMod.getPosition()
 
 	local moneyBadge = display.newImage( uiGroup, "assets/ui/badgeMoney.png" ) -- set mask
@@ -160,6 +163,7 @@ function scene:create( event )
 		"tap", 
 		function ()
 			savedata.setGamedata( "money", savedata.getGamedata( "money" ) + 10 )
+			audio.play( buttonClickSound )
 			scene.updateMoneyView()
 		end
 	)
@@ -180,7 +184,6 @@ function scene:create( event )
 	-- ----------------------------------------------------------------------------
 	
 	-- show version
-	
 	local versionStamp = display.newText( 
         uiGroup, 
         'v ' .. composer.getVariable( "version" ), 
@@ -191,11 +194,10 @@ function scene:create( event )
 	)
 	versionStamp:setFillColor( fontParams.colorR, fontParams.colorG, fontParams.colorB )
 
-	-- show label
-	-- Game Programming Lab
+	-- show label: Game Programming Lab
 	local gameProgrammingStamp = display.newText( 
         uiGroup, 
-        'Laboratorio di Game Programing', 
+        'Laboratorio di Game Programming', 
         display.contentCenterX + display.contentWidth/4.1, 
         display.contentCenterY + display.contentHeight/2.3, 
         fontParams.path, 
@@ -205,28 +207,21 @@ function scene:create( event )
 end
 
 
--- show()
 function scene:show( event )
 
 	local sceneGroup = self.view
 	local phase = event.phase
 
-	if ( phase == "will" ) then
-		-- Code here runs when the scene is still off screen (but is about to come on screen)
-
-	elseif ( phase == "did" ) then
-		-- Code here runs when the scene is entirely on screen
+	if ( phase == "did" ) then -- Code here runs when the scene is entirely on screen
 
 		-- re-start physics engine ( previously stopped in create() )
 		physics.start()
 		
-		updateMovementTimer = timer.performWithDelay( 2000, titleMod.updateMovement , 0)
 		menuTrackPlayer = audio.play( menuTrack, { channel=1, loops=-1 } )
 	end
 end
 
 
--- hide()
 function scene:hide( event )
 
 	local sceneGroup = self.view
@@ -254,27 +249,12 @@ function scene:hide( event )
 end
 
 
--- destroy()
-function scene:destroy( event )
-
-	local sceneGroup = self.view
-	-- Code here runs prior to the removal of scene's view
-
-	-- delete music tracks
-	-- audio.dispose( menuTrack )
-	-- audio.dispose( buttonPlaySound )
-	-- audio.dispose( buttonClickSound )
-	
-end
-
-
 -- -----------------------------------------------------------------------------------
 -- Scene event function listeners
 -- -----------------------------------------------------------------------------------
 scene:addEventListener( "create", scene )
 scene:addEventListener( "show", scene )
 scene:addEventListener( "hide", scene )
-scene:addEventListener( "destroy", scene )
 -- -----------------------------------------------------------------------------------
 
 return scene

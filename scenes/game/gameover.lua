@@ -12,6 +12,8 @@ local scene = composer.newScene()
 local parentScene
 
 local font = composer.getVariable( "defaultFontParams" )
+local windowMod = require( "scenes.libs.window" )
+local buttonsMod = require( "scenes.libs.ui" ) 
 
 
 -- assets dir
@@ -63,44 +65,37 @@ function scene:create( event )
 	blackScreen.alpha = 0.6
 	blackScreen:setFillColor( 0, 0, 0 ) -- black
 
-	-- display menu window
-	local window = display.newImageRect( sceneGroup, uiDir .. "window2.png", 1024, 726 )
-	window.x = display.contentCenterX
-	window.y = display.contentCenterY
-	local windowScaleFact = 1
-	window.xScale = windowScaleFact
-	window.yScale = windowScaleFact
-
-	-- display home button
-	local homeButton = display.newImageRect( sceneGroup, uiDir .. "badgeHome.png", 512, 512 )
-	homeButton.x = display.contentCenterX - 270
-	homeButton.y = display.contentCenterY + 320
-	local homeButtonScaleFact = 0.40
-	homeButton.xScale = homeButtonScaleFact
-	homeButton.yScale = homeButtonScaleFact
-	homeButton:addEventListener( "tap", gotoMenu )
-
-	-- display refresh button
-	local refreshButton = display.newImageRect( sceneGroup, uiDir .. "badgeBack.png", 512, 512 )
-	refreshButton.x = display.contentCenterX + 270
-	refreshButton.y = display.contentCenterY + 320
-	local refreshButtonScaleFact = 0.40
-	refreshButton.xScale = refreshButtonScaleFact
-	refreshButton.yScale = refreshButtonScaleFact
-	refreshButton:addEventListener( "tap", gotoRefresh )
-
-	-- display game over text
-	local gameOverText = display.newText( sceneGroup, "GAME OVER", display.contentCenterX, display.contentCenterY-270, font.path, 120 )
-	gameOverText:setFillColor( font.colorR, font.colorG, font.colorB )
+	local windowsOptions = {
+		showCloseButton = false,
+		fontTitleSize = 120,
+		windowScaleFactor = 0.8,
+        windowTitle = "Game Over"
+    }
+	windowMod.init( sceneGroup, windowsOptions ) -- load the window in the background
+	
+	-- display buttons
+	local buttonsDescriptor = {
+		descriptor = {
+			{ "buttonMenu.png", gotoMenu },
+			{ "buttonRestart.png", gotoRefresh },
+		},
+		offsetY = display.contentCenterX / 5,
+		offsetX = - display.contentCenterX / 6,
+		propagationOffsetX = 360,
+		propagation = 'right',
+		position = 'center',
+		scaleFactor = 0.6
+	}
+	buttonsMod.init( sceneGroup, buttonsDescriptor )	
 
 	-- display score
 	local score = event.params.scoreParam
-	local scoredText = display.newText( sceneGroup, "SCORED: " .. score, display.contentCenterX, display.contentCenterY-50, font.path, 100 )
+	local scoredText = display.newText( sceneGroup, "SCORED: " .. score, display.contentCenterX, display.contentCenterY-80, font.path, 100 )
 	scoredText:setFillColor( font.colorR, font.colorG, font.colorB )
 
 	-- display score
 	local moneyGained = event.params.moneyGainedParam
-	local scoredText = display.newText( sceneGroup, "GAINED: " .. moneyGained .. "$", display.contentCenterX, display.contentCenterY+100, font.path, 100 )
+	local scoredText = display.newText( sceneGroup, "GAINED: " .. moneyGained .. "$", display.contentCenterX, display.contentCenterY+20, font.path, 100 )
 	scoredText:setFillColor( font.colorR, font.colorG, font.colorB )
 end
 
