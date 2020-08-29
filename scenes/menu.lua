@@ -28,9 +28,7 @@ local uiGroup
 -- audio
 local menuTrack
 local menuTrackPlayer
-
-local buttonPlaySound
-local buttonClickSound
+local getMoneySound
 
 local updateMovementTimer
 
@@ -69,8 +67,7 @@ function scene:create( event )
 
 	-- load music
 	menuTrack = audio.loadStream( composer.getVariable( "audioDir" ) .. "menu.mp3" )
-	buttonPlaySound = audio.loadStream( composer.getVariable( "audioDir" ) .. "sfx/play.mp3" )
-	buttonClickSound = audio.loadStream( composer.getVariable( "audioDir" ) .. "sfx/click.mp3" )
+	getMoneySound = audio.loadStream( composer.getVariable( "audioDir" ) .. "sfx/getMoney.mp3" )
 
 	-- load the global fonts params
 	fontParams = composer.getVariable( "defaultFontParams" )
@@ -80,7 +77,7 @@ function scene:create( event )
 	-- cental buttons
 	-- ----------------------------------------------------------------------------
 	local function playCallback() 
-		audio.play( buttonPlaySound )
+		audio.play( audioMod.buttonPlaySound )
 		composer.gotoScene( "scenes.game", { time=fadeOutGame, effect="slideLeft" } )
 	end 
 
@@ -94,7 +91,7 @@ function scene:create( event )
 
 	local buttonsDescriptor = {
 		descriptor = {
-			{ "buttonPlay3.png", playCallback },
+			{ "buttonPlay2.png", playCallback },
 			{ "buttonScores.png", scoresCallback },
 			{ "buttonAbout.png", aboutCallback }
 		},
@@ -109,7 +106,7 @@ function scene:create( event )
 	-- top right bagdes
 	-- ----------------------------------------------------------------------------
 	local function muteMusicCallback()
-		audio.play( buttonClickSound )
+		audio.play( audioMod.buttonClickSound )
 		audioMod.toggleMusic()
 	end
 
@@ -126,7 +123,7 @@ function scene:create( event )
 	end
 
 	local function settingsCallback( event ) 
-		audio.play( buttonClickSound )
+		audio.play( audioMod.buttonClickSound )
 	end
 	
 	-- load the badges in the list
@@ -161,8 +158,8 @@ function scene:create( event )
 	moneyBadge:addEventListener( 
 		"tap", 
 		function ()
-			savedata.setGamedata( "money", savedata.getGamedata( "money" ) + 10 )
-			audio.play( buttonClickSound )
+			savedata.setGamedata( "money", savedata.getGamedata( "money" ) + 100 )
+			audio.play( getMoneySound )
 			scene.updateMoneyView()
 		end
 	)
@@ -237,6 +234,9 @@ function scene:hide( event )
 
 		-- stop the music to let the game music begin
 		audio.stop( menuTrackPlayer )
+		
+		audio.dispose( menuTrack )
+		audio.dispose( getMoneySound )
 		menuTrackPlayer = nil
 
 		-- remove the scene from cache 

@@ -7,6 +7,7 @@ local windowMod = require( "scenes.libs.window" )
 local tabulatorMod = require( "scenes.libs.tabulator" )
 local savedata = require( "scenes.libs.savedata" ) -- load the save data module
 local bgMenuMod = require( "scenes.menu.background" ) -- required to reload the home background
+local audioMod = require( "scenes.libs.audio" ) -- load lib to do audio changes on the game
 
 local itemsDir = "assets/submarine/bubble/"
 
@@ -18,9 +19,6 @@ itemsData = {
 
 local parent 
 local group
-
-local paySound
-local noMoneySound
 
 
 -- to hide the current overlay
@@ -48,10 +46,10 @@ local function onBubbleSelection( event )
 
             -- update the money value
             parent:updateMoneyView()
-            audio.play( paySound );
+            audio.play( audioMod.paySound );
             return
         else
-            audio.play( noMoneySound );
+            audio.play( audioMod.noMoneySound );
         end
     end
     
@@ -112,9 +110,6 @@ function scene:create( event )
 
     group = display.newGroup() -- display group for background
     sceneGroup:insert( group )
-
-    paySound = audio.loadStream( composer.getVariable( "audioDir" ) .. "sfx/pay.mp3" )
-    noMoneySound = audio.loadStream( composer.getVariable( "audioDir" ) .. "sfx/noMoney.mp3" )
 
     local windowsOptions = {
         onExitCallback = hideScene,
