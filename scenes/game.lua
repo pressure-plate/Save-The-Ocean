@@ -517,7 +517,7 @@ function scene:create( event )
 
 	-- load audio (sounds and streams)
 	local audioDir = composer.getVariable( "audioDir" )
-	musicTrack = audio.loadStream( audioDir .. "F777-TheSevenSeas.mp3" )
+	musicTrack = audio.loadStream( audioDir .. "game.mp3" )
 	groundObjPickSound = audio.loadSound( audioDir .. "sfx/pickGroundObj.wav" )
 	floatingObjPickSound = audio.loadSound( audioDir .. "sfx/pickFloatingObj.wav" )
 	obstacleCollisionSound = audio.loadSound( audioDir .. "sfx/explosion.wav" )
