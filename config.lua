@@ -13,13 +13,11 @@ application =
 		height = 1920,
 		scale = "letterbox",
 		fps = 60,
-		
-		--[[
-		imageSuffix =
-		{
-			    ["@2x"] = 2,
-			    ["@4x"] = 4,
-		},
-		--]]
 	},
+	-- load screen on app enter
+	splashScreen = 
+    {
+        enable = true,
+        image = "splashScreen.png"
+    },
 }
