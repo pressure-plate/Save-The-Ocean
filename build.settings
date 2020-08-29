@@ -55,4 +55,11 @@ settings =
 		all = { "Icon.png", "Icon-*dpi.png", "Images.xcassets", },
 		android = { "LaunchScreen.storyboardc", },
 	},
+
+	-- load screen on app enter
+	splashScreen = 
+    {
+        enable = true,
+        image = "assets/splashScreen.png"
+    },
 }
