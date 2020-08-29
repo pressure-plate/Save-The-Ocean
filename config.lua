@@ -14,10 +14,4 @@ application =
 		scale = "letterbox",
 		fps = 60,
 	},
-	-- load screen on app enter
-	splashScreen = 
-    {
-        enable = true,
-        image = "splashScreen.png"
-    },
 }
