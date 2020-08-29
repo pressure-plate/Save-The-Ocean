@@ -41,7 +41,7 @@ local seaLifeMax = 1500
 local seaLife = seaLifeMax
 local seaLifeProgressView
 
-local maxGameSpeed = 3
+local maxGameSpeed = 4
 
 local isGameOver = false
 local isExitGame = false
@@ -193,7 +193,7 @@ function updateGameSpeed()
 	if ( gs < maxGameSpeed ) then 
 
 		local st = composer.getVariable( "startTime" )
-		gs = 1 + ( (os.time() - st) / 100 )
+		gs = 1 + ( (os.time() - st) / 40 )
 		--gs = 1 + ( (os.time() - st) / 10 ) -- TEST
 		--gs = 3 -- TEST
 		composer.setVariable( "gameSpeed", gs )
@@ -582,7 +582,7 @@ function scene:show( event )
 		-- Code here runs when the scene is still off screen (but is about to come on screen)
 
 		-- set timer to update the score multiplier (+0.25 every 30secs)
-		updateScoreMultiplierTimer = timer.performWithDelay( 30000, updateScoreMultiplier, 0)
+		updateScoreMultiplierTimer = timer.performWithDelay( 20000, updateScoreMultiplier, 0)
 
 	elseif ( phase == "did" ) then
 		-- Code here runs when the scene is entirely on screen
