@@ -37,11 +37,11 @@ local scoreText
 local scoreMultiplier = 1
 local scoreMultiplierText
 
-local seaLifeMax = 1500
+local seaLifeMax = 800
 local seaLife = seaLifeMax
 local seaLifeProgressView
 
-local maxGameSpeed = 4
+local maxGameSpeed = 3.5
 
 local isGameOver = false
 local isExitGame = false
@@ -193,7 +193,7 @@ function updateGameSpeed()
 	if ( gs < maxGameSpeed ) then 
 
 		local st = composer.getVariable( "startTime" )
-		gs = 1 + ( (os.time() - st) / 60 )
+		gs = gs + ( (os.time() - st) / 80 )
 		--gs = 1 + ( (os.time() - st) / 10 ) -- TEST
 		--gs = 3 -- TEST
 		composer.setVariable( "gameSpeed", gs )
@@ -497,7 +497,7 @@ function scene:create( event )
 
 	-- set composer game vars
 	composer.setVariable( "startTime", os.time() ) -- save game start time
-	composer.setVariable( "gameSpeed", 2.5 ) -- set initial game speed
+	composer.setVariable( "gameSpeed", 1.8 ) -- set initial game speed
 	composer.setVariable( "screenObjectsTable", {} ) -- keep a table of screen objects to clear during game and other purposes
 	
 
