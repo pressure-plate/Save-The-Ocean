@@ -28,6 +28,7 @@ local uiGroup
 -- audio
 local menuTrack
 local menuTrackPlayer
+local getMoneySound
 
 local updateMovementTimer
 
@@ -66,6 +67,7 @@ function scene:create( event )
 
 	-- load music
 	menuTrack = audio.loadStream( composer.getVariable( "audioDir" ) .. "menu.mp3" )
+	getMoneySound = audio.loadStream( composer.getVariable( "audioDir" ) .. "sfx/getMoney.mp3" )
 
 	-- load the global fonts params
 	fontParams = composer.getVariable( "defaultFontParams" )
@@ -156,8 +158,8 @@ function scene:create( event )
 	moneyBadge:addEventListener( 
 		"tap", 
 		function ()
-			savedata.setGamedata( "money", savedata.getGamedata( "money" ) + 10 )
-			audio.play( audioMod.buttonClickSound )
+			savedata.setGamedata( "money", savedata.getGamedata( "money" ) + 100 )
+			audio.play( getMoneySound )
 			scene.updateMoneyView()
 		end
 	)
@@ -234,7 +236,7 @@ function scene:hide( event )
 		audio.stop( menuTrackPlayer )
 		
 		audio.dispose( menuTrack )
-
+		audio.dispose( getMoneySound )
 		menuTrackPlayer = nil
 
 		-- remove the scene from cache 

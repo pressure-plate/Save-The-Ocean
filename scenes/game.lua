@@ -517,7 +517,7 @@ function scene:create( event )
 
 	-- load audio (sounds and streams)
 	local audioDir = composer.getVariable( "audioDir" )
-	musicTrack = audio.loadStream( audioDir .. "F777-TheSevenSeas.mp3" )
+	musicTrack = audio.loadStream( audioDir .. "game.mp3" )
 	groundObjPickSound = audio.loadSound( audioDir .. "sfx/pickGroundObj.wav" )
 	floatingObjPickSound = audio.loadSound( audioDir .. "sfx/pickFloatingObj.wav" )
 	obstacleCollisionSound = audio.loadSound( audioDir .. "sfx/explosion.wav" )
@@ -557,12 +557,10 @@ function scene:create( event )
 	updateSeaLifeTimer = timer.performWithDelay( 1000, updateSeaLife, 0 )
 
 	-- display menu button in the upper-left corner
-	local homeButton = display.newImageRect( uiGroup, uiDir .. "badgeHome.png", 512, 512 )
+	local homeButton = display.newImage( uiGroup, uiDir .. "backArrow.png" )
+	homeButton:scale( 0.2, 0.2 )
 	homeButton.x = 10
 	homeButton.y = 10
-	local homeButtonScaleFact = 0.20
-	homeButton.xScale = homeButtonScaleFact
-	homeButton.yScale = homeButtonScaleFact
 	homeButton.anchorX = 0 -- align
 	homeButton.anchorY = 0 -- align
 	homeButton:addEventListener( "tap", exitGameNormal )
