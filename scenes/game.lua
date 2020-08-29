@@ -193,7 +193,7 @@ function updateGameSpeed()
 	if ( gs < maxGameSpeed ) then 
 
 		local st = composer.getVariable( "startTime" )
-		gs = 1 + ( (os.time() - st) / 40 )
+		gs = 1 + ( (os.time() - st) / 60 )
 		--gs = 1 + ( (os.time() - st) / 10 ) -- TEST
 		--gs = 3 -- TEST
 		composer.setVariable( "gameSpeed", gs )
@@ -497,7 +497,7 @@ function scene:create( event )
 
 	-- set composer game vars
 	composer.setVariable( "startTime", os.time() ) -- save game start time
-	composer.setVariable( "gameSpeed", 1 ) -- set initial game speed
+	composer.setVariable( "gameSpeed", 2.5 ) -- set initial game speed
 	composer.setVariable( "screenObjectsTable", {} ) -- keep a table of screen objects to clear during game and other purposes
 	
 
@@ -525,7 +525,7 @@ function scene:create( event )
 	multiplierUpSound = audio.loadSound( audioDir .. "sfx/multiplierUp.wav" )
 
 	-- set event listener to update game speed
-	updateGameSpeedTimer = timer.performWithDelay( 1000, updateGameSpeed, 0 )
+	updateGameSpeedTimer = timer.performWithDelay( 500, updateGameSpeed, 0 )
 
 	-- create background
 	bgMod.create( bgGroup )	
@@ -580,7 +580,7 @@ function scene:show( event )
 		-- Code here runs when the scene is still off screen (but is about to come on screen)
 
 		-- set timer to update the score multiplier (+0.25 every 30secs)
-		updateScoreMultiplierTimer = timer.performWithDelay( 20000, updateScoreMultiplier, 0)
+		updateScoreMultiplierTimer = timer.performWithDelay( 10000, updateScoreMultiplier, 0)
 
 	elseif ( phase == "did" ) then
 		-- Code here runs when the scene is entirely on screen
