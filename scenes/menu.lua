@@ -232,11 +232,9 @@ function scene:hide( event )
 
 		bgMod.clear() -- clear background
 
-		-- stop the music to let the game music begin
-		audio.stop( menuTrackPlayer )
-		
-		audio.dispose( menuTrack )
-		audio.dispose( getMoneySound )
+		-- stop all audio playing
+		audio.stop()
+
 		menuTrackPlayer = nil
 
 		-- remove the scene from cache 
@@ -248,12 +246,25 @@ function scene:hide( event )
 end
 
 
+-- destroy()
+function scene:destroy( event )
+	
+	local sceneGroup = self.view
+	-- Code here runs prior to the removal of scene's view
+
+	-- dispose loaded audio
+	audio.dispose( menuTrack )
+	audio.dispose( getMoneySound )
+end
+
+
 -- -----------------------------------------------------------------------------------
 -- Scene event function listeners
 -- -----------------------------------------------------------------------------------
 scene:addEventListener( "create", scene )
 scene:addEventListener( "show", scene )
 scene:addEventListener( "hide", scene )
+scene:addEventListener( "destroy", scene )
 -- -----------------------------------------------------------------------------------
 
 return scene
