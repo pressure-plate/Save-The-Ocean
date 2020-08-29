@@ -29,11 +29,11 @@ function scene:create( event )
     windowMod.init( group, windowsOptions )
 
     aboutText = display.newImage(group, "assets/menu/about1.png") -- set title
-	aboutText.x = display.contentCenterX
-    aboutText.y = display.contentCenterY + display.contentHeight/15
+	aboutText.x = display.contentCenterX - display.contentHeight/20
+    aboutText.y = display.contentCenterY + display.contentHeight/10
     aboutText:addEventListener( 
         "tap",
-        function () system.openURL( 'https://github.com/pressure-plate/SaveTheOcean' ) end 
+        function () system.openURL( 'https://github.com/pressure-plate/Save-The-Ocean' ) end 
     )
 end
 
