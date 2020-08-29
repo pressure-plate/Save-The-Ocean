@@ -6,12 +6,12 @@ local composer = require( "composer" )
 composer.setVariable( "audioDir", "audio/extremeVersionP/" )
 
 local M = {
-    buttonPlaySound = audio.loadStream( composer.getVariable( "audioDir" ) .. "sfx/play.mp3" ),
-    buttonClickSound = audio.loadStream( composer.getVariable( "audioDir" ) .. "sfx/click.mp3" ),
-    buttonCloseSound = audio.loadStream( composer.getVariable( "audioDir" ) .. "sfx/close.mp3" ),
-    buttonClickSound = audio.loadStream( composer.getVariable( "audioDir" ) .. "sfx/click.mp3" ),
-    paySound = audio.loadStream( composer.getVariable( "audioDir" ) .. "sfx/pay.mp3" ),
-    noMoneySound = audio.loadStream( composer.getVariable( "audioDir" ) .. "sfx/noMoney.mp3" ),
+    buttonPlaySound = audio.loadSound( composer.getVariable( "audioDir" ) .. "sfx/play.mp3" ),
+    buttonClickSound = audio.loadSound( composer.getVariable( "audioDir" ) .. "sfx/click.mp3" ),
+    buttonCloseSound = audio.loadSound( composer.getVariable( "audioDir" ) .. "sfx/close.mp3" ),
+    buttonClickSound = audio.loadSound( composer.getVariable( "audioDir" ) .. "sfx/click.mp3" ),
+    paySound = audio.loadSound( composer.getVariable( "audioDir" ) .. "sfx/pay.mp3" ),
+    noMoneySound = audio.loadSound( composer.getVariable( "audioDir" ) .. "sfx/noMoney.mp3" ),
 }
 
 -- load the savedata module
