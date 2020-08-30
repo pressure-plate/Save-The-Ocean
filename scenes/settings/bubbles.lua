@@ -38,23 +38,29 @@ local function onBubbleSelection( event )
 
             -- update the user owned data
             local ownedData = savedata.getGamedata( "submarineBubblesOwned" )
-            ownedData[itemsData[event.target.itemId].inernalId] = true
+            
+            -- set the submarine just buyed
+            ownedData[itemsData[event.target.itemId].inernalId] = true 
+            savedata.setGamedata( "submarineBubblesOwned", ownedData )
 
             -- display the object as owned
             event.target.alpha = 1
             tabulatorMod.removeItemTextOver( event.target.itemId )
 
-            -- update the money value
+            -- update the money value on the parent scene
             parent:updateMoneyView()
+
+            -- play sound to coumicate succes with the transaction
             audio.play( audioMod.paySound );
-            return
+
         else
+            -- play audio to communicate that the user don't have enough money to buy the item
             audio.play( audioMod.noMoneySound );
         end
-    end
     
+    -- concatenate actions with else if, so the user have to click again to select the item
     -- select the item, if the operation goes well, do actions
-    if tabulatorMod.highlightItem(event.target.itemId, true) then
+    elseif tabulatorMod.highlightItem( event.target.itemId, true ) then
         savedata.setGamedata( "submarineBubbleSkin", event.target.itemId )
     end
 
@@ -63,35 +69,35 @@ end
 
 -- generate the items table to display the items
 local function builditems()
-    local itemsOwned = savedata.getGamedata( "submarineBubblesOwned")
+    local itemsOwned = savedata.getGamedata( "submarineBubblesOwned" )
     local items = {}
 
     for count, el in pairs ( itemsData ) do
         
-
         -- set the base data of the item
         local item = { 
             dir=itemsDir .. el.dir, 
             scaleFactor=2,
         }
         
-        -- if the user dont own the item set the price to buy it
+        -- if the user don't own the item set the price to buy it
         if not itemsOwned[el.inernalId] then
 
-            -- check if the item is set as default
-            -- if is as defaut and is not owned then add the user owned set
-            if not el.default then
-                item["label"] = el.price .. '$'
-                item['alpha'] = 0.5
+            -- check if the item is a default one
+            -- the default value is used to set in the itemsOwned the default items on the first load of the game
+            -- if it is a default item then save it in the user itemsOwned
+            if el.default then
+                -- update the user owned data with the default item
+                itemsOwned[el.inernalId] = true
+                savedata.setGamedata( "submarineBubblesOwned", itemsOwned )
             else
-                -- update the user owned data
-                local ownedData = savedata.getGamedata( "submarineBubblesOwned" )
-                ownedData[el.inernalId] = true
+                item["label"] = el.price .. '$' -- set the price to show over the item
+                item['alpha'] = 0.5 -- edit opacity to emphasize that the item is disabled
             end
 
         end
 
-        table.insert(items, item) -- append to the table
+        table.insert( items, item ) -- append to the table the built item
 
     end
 
@@ -121,7 +127,6 @@ function scene:create( event )
 
     -- options
     local tabulatorOptions = {
-        -- itemDir, scaleFactor, price
         items = builditems(),
         colCount = 3,
         rowCount = 2,
@@ -131,24 +136,13 @@ function scene:create( event )
         onTapCallback = onBubbleSelection,
     }
     -- create the table based on the global configuration
-    -- load the items int the table
+    -- load the items in the table to display them with the builted pproprieties
     tabulatorMod.init ( group, tabulatorOptions )
     tabulatorMod.highlightItem(savedata.getGamedata( "submarineBubbleSkin" ), false) -- highlight without play sond (on load)
 end
 
 
-function scene:hide( event )
- 
-    if ( phase == "will" ) then
-        -- update the mony view before leave the window
-        parent:updateMoneyView()
-    end
-
-end
-
-
 scene:addEventListener( "create", scene )
 scene:addEventListener( "show", scene )
-scene:addEventListener( "hide", scene )
 
 return scene

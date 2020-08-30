@@ -74,7 +74,7 @@ function scene:create( event )
 
 
 	-- ----------------------------------------------------------------------------
-	-- cental buttons
+	-- main cental buttons
 	-- ----------------------------------------------------------------------------
 	local function playCallback() 
 		audio.play( audioMod.buttonPlaySound )
@@ -129,7 +129,7 @@ function scene:create( event )
 	-- load the badges in the list
 	-- with the packIcon declared the menu will pack under the packIcon as hamburger menu
 	local badgesDescriptor = {
-		packIcon = "badgeSettings.png",
+		packIcon = "badgeSettings.png", -- activate the pack system with this icon
 		packCallback = settingsCallback,
 		packRotation = 360,
 		descriptor={
@@ -149,8 +149,10 @@ function scene:create( event )
 	-- money display
 	-- ----------------------------------------------------------------------------
 
+	-- obtain the position of the settings badge, to align the money display  
 	local xPosition, yPosition = uiMod.getPosition()
 
+	-- load the badge where display the money value
 	local moneyBadge = display.newImage( uiGroup, "assets/ui/badgeMoney.png" ) -- set mask
 	moneyBadge:scale( 0.3, 0.3 )
 	moneyBadge.x = xPosition - 280
@@ -158,12 +160,14 @@ function scene:create( event )
 	moneyBadge:addEventListener( 
 		"tap", 
 		function ()
+			-- give user money each time he tap on the money display 
 			savedata.setGamedata( "money", savedata.getGamedata( "money" ) + 100 )
 			audio.play( getMoneySound )
 			scene.updateMoneyView()
 		end
 	)
 
+	-- print the text over the badge
     moneyText = display.newText( 
 		uiGroup, 
 		savedata.getGamedata( "money" ) .. '$',
