@@ -22,10 +22,6 @@ local bubbleSkin
 local submarineUpForce = 15
 local submarineGravityScale = 4
 
--- submarine skin set -- TODO DEPRECATED
-M.submarineSkin = 1
-M.bubbleSkin = 1
-
 -- submarine assets dir
 local submarineDir = "assets/submarine/"
 local bubbleDir = "assets/submarine/bubble/"
@@ -109,7 +105,8 @@ local function spawnBubble()
 	-- create bubble
 	newBubble = display.newRect( bubbleGroup, submarine.x-120, submarine.y+15, 85, 85 )
 	newBubble.fill = bubblePaint
-	physics.addBody( newBubble, "kinematic", {isSensor=true} )
+	local collFiltParams = composer.getVariable( "collFiltParams" ) -- get collision filter params
+	physics.addBody( newBubble, "kinematic", { isSensor=true, filter=collFiltParams.submarineBubbleFilter } )
 	
 	-- set random scale
 	local randScale = math.random( 10, 50 ) / 100
@@ -139,7 +136,7 @@ function M.create( submarineGroup, mainGroup )
 	group = submarineGroup
 	bubbleGroup = mainGroup
 	submarineSkin = savedata.getGamedata( "submarineSkin" )
-	bubbleSkin = savedata.getGamedata( "bubbleSkin" )
+	bubbleSkin = savedata.getGamedata( "submarineBubbleSkin" )
 
 	-- load submarine skin
 	local submarinePaint = {
@@ -155,7 +152,8 @@ function M.create( submarineGroup, mainGroup )
 	submarine.fill = submarinePaint
 
 	-- set physics
-	physics.addBody( submarine, { radius=70, bounce=0 } )
+	local collFiltParams = composer.getVariable( "collFiltParams" ) -- get collision filter params
+	physics.addBody( submarine, { radius=70, bounce=0, filter=collFiltParams.submarineFilter } )
 	submarine.myName = "submarine"
 
 	-- set gravity scale
@@ -174,13 +172,15 @@ function M.create( submarineGroup, mainGroup )
 
 	-- create physical bodies as bounds for the submarine
 	-- no need to access these vars elsewhere in the code so we keep them local here
+	local collFiltParams = composer.getVariable( "collFiltParams" ) -- get collision filter params
+
 	local floor = display.newRect( group, submarine.x, display.contentHeight, 300, 1 )
 	floor.isVisible = false
-	physics.addBody( floor, "static", { bounce=0 } )
+	physics.addBody( floor, "static", { bounce=0, filter=collFiltParams.submarinePlatformFilter } )
 
 	local ceiling = display.newRect( group, submarine.x, 0, 300, 1 )
 	ceiling.isVisible = false
-	physics.addBody( ceiling, "static", { bounce=0 } )
+	physics.addBody( ceiling, "static", { bounce=0, filter=collFiltParams.submarinePlatformFilter } )
 
 end
 
