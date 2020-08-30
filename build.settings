@@ -7,15 +7,11 @@ settings =
 {
 	orientation =
 	{
-		-- Supported values for orientation:
-		-- portrait, portraitUpsideDown, landscapeLeft, landscapeRight
 		default = "landscapeRight",
 		supported = { "landscapeRight", },
 	},
 
-	--
-	-- Android section
-	--
+	-- Android settings
 	android =
 	{
 		versionCode = "11",
@@ -25,9 +21,7 @@ settings =
 		},
 	},
 
-	--
-	-- iOS section
-	--
+	-- iOS settings
 	iphone =
 	{
 		xcassets = "Images.xcassets",
@@ -38,21 +32,17 @@ settings =
 		},
 	},
 
-	--
-	-- Plugins section
-	--
-	plugins =
-	{
-
-	},
-
-	--
-	-- Project section
-	--
 	excludeFiles =
 	{
 		-- Exclude unnecessary files for each platform
 		all = { "Icon.png", "Icon-*dpi.png", "Images.xcassets", },
 		android = { "LaunchScreen.storyboardc", },
 	},
+
+	-- load screen on app enter
+	splashScreen = 
+    {
+        enable = true,
+        image = "splashScreen.png"
+    },
 }
