@@ -11,11 +11,22 @@ local audioMod = require( "scenes.libs.audio" ) -- load lib to do audio changes 
 
 local itemsDir = "assets/background/"
 
+--[[
+    This table represents the available item that can be used in game
+        
+    - internalId: how will be saved in the save file
+    - dir: the relative path to the file
+    - price: how much the user have to pay to unlock the item
+    - defaut: the item will be added automatically to the user owned items
+    - selected: the item used in game on the first load of te game 
+        selected item must be also default or can't apply! 
+        if no selected is provided it will automatically fallback on the first item of the table
+]]--
 itemsData = {
-    {inernalId='TornadoOcean', dir='1.png', price=9000, default=true},
-    {inernalId='GreenPisel', dir='2.png', price=8000},
-    {inernalId='DeathLand', dir='3.png', price=8500},
-    {inernalId='RomanTemple', dir='4.png', price=9000},
+    {inernalId='TornadoOcean', dir='1.png', price=9000, layers=6, default=true, selected=true},
+    {inernalId='GreenPisel', dir='2.png', price=8000, layers=6},
+    {inernalId='DeathLand', dir='3.png', price=1, layers=5},
+    {inernalId='RomanTemple', dir='4.png', price=9000, layers=7},
 }
 
 local parent 
@@ -62,8 +73,10 @@ local function onWorldStikerSelection( event )
     
     -- concatenate actions with else if, so the user have to click again to select the item
     -- select the item, if the operation goes well, do actions
+    -- set also the layers of the world
     elseif tabulatorMod.highlightItem( event.target.itemId, true ) then
         savedata.setGamedata( "backgroundWorld", event.target.itemId )
+        savedata.setGamedata( "backgroundLayerNum", itemsData[event.target.itemId].layers )
     end
 
 end
@@ -89,9 +102,14 @@ local function builditems()
             -- the default value is used to set in the itemsOwned the default items on the first load of the game
             -- if it is a default item then save it in the user itemsOwned
             if el.default then
+                
                 -- update the user owned data with the default item
                 itemsOwned[el.inernalId] = true
                 savedata.setGamedata( "backgroundsOwned", itemsOwned )
+
+                -- set the item as selected in game
+                if el.selected then savedata.setGamedata( "backgroundWorld", count ) end
+
             else
                 item["label"] = el.price .. '$' -- set the price to show over the item
                 item['alpha'] = 0.5 -- edit opacity to emphasize that the item is disabled
