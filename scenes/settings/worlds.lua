@@ -25,7 +25,7 @@ local itemsDir = "assets/background/"
 itemsData = {
     {inernalId='TornadoOcean', dir='1.png', price=9000, layers=6, default=true, selected=true},
     {inernalId='GreenPisel', dir='2.png', price=8000, layers=6},
-    {inernalId='DeathLand', dir='3.png', price=1, layers=5},
+    {inernalId='DeathLand', dir='3.png', price=8500, layers=5},
     {inernalId='RomanTemple', dir='4.png', price=9000, layers=7},
 }
 
