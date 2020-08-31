@@ -47,7 +47,7 @@ local function onWorldStikerSelection( event )
     if event.target.alpha ~= 1 then
 
         -- try to pay
-        if savedata.pay( itemsData[event.target.itemId].price) then
+        if savedata.pay( itemsData[event.target.itemId].price ) then
     
             -- update the user owned data
             local ownedData = savedata.getGamedata( "backgroundsOwned" )
@@ -74,9 +74,11 @@ local function onWorldStikerSelection( event )
     -- concatenate actions with else if, so the user have to click again to select the item
     -- select the item, if the operation goes well, do actions
     -- set also the layers of the world
-    elseif tabulatorMod.highlightItem( event.target.itemId, true ) then
+    elseif tabulatorMod.highlightItem( event.target.itemId ) then
+        audio.play( audioMod.buttonSelectSound )
         savedata.setGamedata( "backgroundWorld", event.target.itemId )
         savedata.setGamedata( "backgroundLayerNum", itemsData[event.target.itemId].layers )
+        bgMenuMod.updateBackground() -- update the background in the menu after the highlightItem
     end
 
 end
@@ -158,7 +160,7 @@ function scene:create( event )
     -- create the table based on the global configuration
     -- load the items in the table to display them with the builted pproprieties
     tabulatorMod.init ( group, tabulatorOptions )
-    tabulatorMod.highlightItem(savedata.getGamedata( "backgroundWorld" ), false) -- highlight without play sond (on load)
+    tabulatorMod.highlightItem(savedata.getGamedata( "backgroundWorld" ), true) -- highlight without play sond (on load)
 end
 
 

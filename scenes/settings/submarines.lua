@@ -71,7 +71,8 @@ local function onSubmarineSelection( event )
             audio.play( audioMod.noMoneySound );
         end
     
-    elseif tabulatorMod.highlightItem( event.target.itemId, true ) then
+    elseif tabulatorMod.highlightItem( event.target.itemId ) then
+        audio.play( audioMod.buttonSelectSound )
         savedata.setGamedata( "submarineSkin", event.target.itemId )
     end
 
@@ -154,7 +155,7 @@ function scene:create( event )
     -- create the table based on the global configuration
     -- load the items in the table to display them with the builted pproprieties
     tabulatorMod.init ( group, tabulatorOptions )
-    tabulatorMod.highlightItem(savedata.getGamedata( "submarineSkin" ), false) -- highlight without play sond (on load)
+    tabulatorMod.highlightItem(savedata.getGamedata( "submarineSkin" ), true) -- highlight without play sond (on load)
 end
 
 

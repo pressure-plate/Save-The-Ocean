@@ -20,7 +20,6 @@ local colCount
 local rowCount
 local items 
 local onTapCallback
-local buttonHighlightSound
 
 -- in lib vars
 local inTableItems
@@ -34,7 +33,7 @@ local currentHighlightItemId = 0
 
 -- function to visually check the selected item
 -- this function is called by the event that handle the clicked object
-function M.highlightItem( itemId, playSound )
+function M.highlightItem( itemId, onLoad )
     
     -- item id must be in range
     if (itemId < 1) or (itemId > #inTableItems) then return false end
@@ -46,10 +45,10 @@ function M.highlightItem( itemId, playSound )
     -- the user have to unlock the item to use it
     if item.alpha ~= 1 then return false end
 
-    -- avoid to play the sound, if neaded
-    -- if the item is already selected do not play sound but reload it anyway (necessary)
-    if playSound and (currentHighlightItemId ~= itemId) then
-        audio.play( buttonHighlightSound )
+    -- if the item is already selected do not reload it
+    -- on load we must reload the currentHighlightItemId on load
+    if ( currentHighlightItemId == itemId ) and ( not onLoad ) then
+        return false
     end
 
     display.remove( highlightSelected )
@@ -106,9 +105,9 @@ function M.removeItemTextOver( itemId )
 end
 
 
--- public function to destroy the loaded content
+-- to manually clear mem and visual loaded from this module, without destroy the scene
 -- call to remove all the objects in the table from the screen
-function M.destroyTable()
+function M.destroy()
     for i=0, #inTableItems do 
         display.remove( inTableItems[i] )
     end
@@ -209,8 +208,6 @@ function M.init( displayGroup, options )
     - rowCount -- the number of row in the table
     - items -- the item list
     - onTapCallback -- function to call when a item is tapped
-    - buttonHighlightSound -- the sound dir to play when a item is selected
-
     ]]--
 
     highlightItemDir = "assets/ui/badgeHighlight.png"
@@ -222,7 +219,6 @@ function M.init( displayGroup, options )
     rowCount = 2
     items = {}
     onTapCallback = null
-    buttonHighlightSound = audio.loadStream( composer.getVariable( "audioDir" ) .. "sfx/select.mp3" )
 
     -- highlightItemDir
     if options.highlightItemDir then 
@@ -269,20 +265,8 @@ function M.init( displayGroup, options )
         onTapCallback = options.onTapCallback
     end
 
-    -- buttonHighlightSound
-    if options.buttonHighlightSound then 
-        buttonHighlightSound = options.buttonHighlightSound 
-    end
-
     inTableItems = {}
     createTable()
-end
-
-
--- to manually clear mem and visual loaded from this module, without destroy the scene
-function M.destroy()
-    M.destroyTable()
-    audio.dispose( buttonHighlightSound )
 end
 
 

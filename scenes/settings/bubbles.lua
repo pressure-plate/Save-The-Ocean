@@ -71,7 +71,8 @@ local function onBubbleSelection( event )
     
     -- concatenate actions with else if, so the user have to click again to select the item
     -- select the item, if the operation goes well, do actions
-    elseif tabulatorMod.highlightItem( event.target.itemId, true ) then
+    elseif tabulatorMod.highlightItem( event.target.itemId ) then
+        audio.play( audioMod.buttonSelectSound )
         savedata.setGamedata( "submarineBubbleSkin", event.target.itemId )
     end
 
@@ -154,7 +155,7 @@ function scene:create( event )
     -- create the table based on the global configuration
     -- load the items in the table to display them with the builted pproprieties
     tabulatorMod.init ( group, tabulatorOptions )
-    tabulatorMod.highlightItem(savedata.getGamedata( "submarineBubbleSkin" ), false) -- highlight without play sond (on load)
+    tabulatorMod.highlightItem(savedata.getGamedata( "submarineBubbleSkin" ), true) -- highlight without play sond (on load)
 end
 
 
