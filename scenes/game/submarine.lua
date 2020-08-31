@@ -187,7 +187,7 @@ end
 -- insert in scene:hide() in "did" phase
 function M.hideDid()
 
-    -- clear Runtime listeners
+    -- remove Runtime listeners
     Runtime:removeEventListener( "touch", submarine )
     Runtime:removeEventListener( "enterFrame", submarine )
 	
@@ -195,8 +195,6 @@ function M.hideDid()
 	timer.cancel( bubbleSpawnTimer )
 
     -- cancel transitions
-
-	-- dispose loaded audio
 	
 end
 

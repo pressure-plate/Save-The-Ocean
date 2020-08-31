@@ -194,7 +194,7 @@ local function spawnHandler()
     -- select random spawn event based on probabilities
     local randEvent = math.random( 100 )
 
-    if ( randEvent <= 85 ) then -- 85% prob of floating obj
+    if ( randEvent <= 85 ) then -- 85% prob of pickable objects or single obstacle
         -- select random spawn object based on probabilities
         local randObj = math.random( 100 )
 
@@ -275,14 +275,12 @@ end
 -- insert in scene:hide() in "did" phase
 function M.hideDid()
 
-    -- remove Runtime listeners (do before removing references to the objects to be removed)
+    -- remove Runtime listeners
 
     -- cancel timers
     timer.cancel( spawnHandlerTimer )
 
     -- cancel transitions
-
-    -- dispose loaded audio
 
 end
 

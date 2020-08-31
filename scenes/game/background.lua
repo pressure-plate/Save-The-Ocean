@@ -110,8 +110,6 @@ function M.hideDid()
 
     -- cancel transitions
 
-    -- dispose loaded audio
-
 end
 
 -- stop the background movement
