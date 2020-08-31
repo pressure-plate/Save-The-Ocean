@@ -169,18 +169,25 @@ function M.getGamedata( varName )
     return gamedataTable[ varName ]
 end
 
+function M.pay( price )
 
-function M.pay( amount )
+    -- pay for an item in the store
     
-    -- chek the amount and pay for an object
-    if amount > gamedataTable.money then
+    -- check if we have enough money
+    if ( price > gamedataTable.money ) then
+        -- not enough money, abort payment
         return false
+
+    else
+        -- pay for the item and update the money value
+        gamedataTable.money = gamedataTable.money - price
+
+        -- write gamedata to file
+        saveGamedata()
+
+        -- payment completed
+        return true
     end
-
-    --  update the money value
-    gamedataTable.money = gamedataTable.money - amount
-    return true
-
 end
 
 

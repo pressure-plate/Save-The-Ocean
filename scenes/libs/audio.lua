@@ -9,6 +9,7 @@ local M = {
     buttonClickSound = audio.loadSound( composer.getVariable( "audioDir" ) .. "sfx/click.mp3" ),
     buttonCloseSound = audio.loadSound( composer.getVariable( "audioDir" ) .. "sfx/close.mp3" ),
     buttonClickSound = audio.loadSound( composer.getVariable( "audioDir" ) .. "sfx/click.mp3" ),
+    buttonSelectSound = audio.loadSound( composer.getVariable( "audioDir" ) .. "sfx/select.mp3" ),
     paySound = audio.loadSound( composer.getVariable( "audioDir" ) .. "sfx/pay.mp3" ),
     noMoneySound = audio.loadSound( composer.getVariable( "audioDir" ) .. "sfx/noMoney.mp3" ),
 }

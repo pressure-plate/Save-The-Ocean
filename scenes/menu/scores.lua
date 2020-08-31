@@ -16,28 +16,34 @@ local function hideScene()
 end
 
 
+-- generate the scores to display in the table
 local function buildScores()
+
     local scores = savedata.getScores()
     local items = {}
 
+    -- load up to 8 scores this is the maximum that the window can properly show
     for count = 1, 8 do
-        
-        local score = scores[count]
-
-        -- set the dir based on the number of the score
+    
+        -- set the dir based on the count of the score
+        -- load the proper scoreboard for the first 3 places
+        -- after the 3rd palce load the std scoreboard
         local dir = count
         if count > 3 then dir = 'n' end
 
+        -- rappresent the tem as a table
+        -- eg {dir=./1.png, scaleFactor=1.1, label=2332}
         local item = { 
             dir=leaderboardDir  .. dir .. ".png", 
             scaleFactor=1.1,
-            label=score
+            label=scores[count]
         }
         
-        table.insert(items, item) -- append to the table
+        table.insert(items, item) -- append the score to the table
 
         -- if there are no more scores then break
         -- do this at the end so you can load at least one tab
+        -- if there are no scores jet, the score tab will display just the first place with 0 points
         if scores[count+1] == 0 then break end
     end
 
@@ -49,19 +55,17 @@ function scene:create( event )
 
     local sceneGroup = self.view
 
-    local group = display.newGroup() -- display group for background
+    -- create a new display group
+    local group = display.newGroup()
     sceneGroup:insert( group )
 
     local windowsOptions = {
         onExitCallback = hideScene,
         windowTitle = "Scores"
     }
-
-    -- load the window in the background
-    windowMod.init( group, windowsOptions )
+    windowMod.init( group, windowsOptions ) -- display the window
 
     local tabulatorOptions = {
-
         items = buildScores(),
         colCount = 2,
         rowCount = 5,
@@ -75,19 +79,6 @@ function scene:create( event )
 end
 
 
-function scene:hide( event )
-    local sceneGroup = self.view
-    local phase = event.phase
-    local parent = event.parent  -- Reference to the parent scene object
- 
-    if ( phase == "will" ) then
-        -- Call the "resumeGame()" function in the parent scene
-        -- parent:resumeGame()
-    end
-end
-
-
 scene:addEventListener( "create", scene )
-scene:addEventListener( "hide", scene )
 
 return scene
