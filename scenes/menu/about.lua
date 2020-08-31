@@ -5,8 +5,6 @@ local scene = composer.newScene()
 -- initialize variables -------------------------------------------------------
 local windowMod = require( "scenes.libs.window" )
 
-local aboutText
-
 
 -- to hide the current overlay
 local function hideScene()
@@ -18,17 +16,19 @@ function scene:create( event )
 
     local sceneGroup = self.view
 
-    local group = display.newGroup() -- display group for background
+    -- create a new display group
+    local group = display.newGroup() 
     sceneGroup:insert( group )
 
     local windowsOptions = {
         onExitCallback = hideScene,
         windowTitle = "About"
     }
+    windowMod.init( group, windowsOptions ) -- display the window
 
-    windowMod.init( group, windowsOptions )
-
-    aboutText = display.newImage(group, "assets/menu/about1.png") -- set title
+    -- set the about immage
+    -- the callback will open the link to the github repo
+    local aboutText = display.newImage(group, "assets/menu/about1.png")
 	aboutText.x = display.contentCenterX - display.contentHeight/20
     aboutText.y = display.contentCenterY + display.contentHeight/10
     aboutText:addEventListener( 
@@ -38,19 +38,6 @@ function scene:create( event )
 end
 
 
-function scene:hide( event )
-    local sceneGroup = self.view
-    local phase = event.phase
-    local parent = event.parent  -- Reference to the parent scene object
- 
-    if ( phase == "will" ) then
-        -- Call the "resumeGame()" function in the parent scene
-        -- parent:resumeGame()
-    end
-end
-
-
 scene:addEventListener( "create", scene )
-scene:addEventListener( "hide", scene )
 
 return scene
