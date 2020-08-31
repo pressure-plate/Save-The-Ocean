@@ -46,23 +46,19 @@
 %	AUTHOR SECTION
 %----------------------------------------------------------------------------------------
 
-\begin{minipage}{0.4\textwidth}
+\begin{minipage}{1\textwidth}
 \begin{flushleft} \large
 \emph{Autore:}\\
-Fedrigo Mattia\\
-Maestrutti Andrea\\
-Mauro Luca\\
-Not Simone 139032\\
+Fedrigo Mattia 138180 - fedrigo.mattia001@spes.uniud.it\\
+Maestrutti Andrea 138461 - maestrutti.andrea@spes.uniud.it\\
+Mauro Luca 138106 - mauro.luca001@spes.uniud.it\\
+Not Simone 139032 - not.simone@spes.uniud.it\\
 
 \end{flushleft}
 \end{minipage}
 ~
 \begin{minipage}{0.4\textwidth}
-\begin{flushright} 
-\emph{email:}\\
-not.simone@spes.uniud.it\\
-maestrutti.andrea@spes.uniud.it
-\end{flushright}
+
 \end{minipage}\\[2cm]
 
 % If you don't want a supervisor, uncomment the two lines below and remove the section above
@@ -91,8 +87,11 @@ maestrutti.andrea@spes.uniud.it
 Il progetto d’esame relativo all’insegnamento di Laboratorio di Game Programming (LGP) consiste nell’implementazione di un videogioco utilizzando il framework di sviluppo CoronaSDK. Il tema del videogioco è l'ambiente. 
 
 Ai fini dello sviluppo è stato utilizzato il linguaggio di programmazione "Lua", che è un linguaggio utilizzato prevalentemente per scripting.
+\\
+
+La costruzione di un gioco su tematiche serie e istruttive quali l'ecologia e l'ambiente non è mai un compito facile, specie per quanto concerne le componenenti di coinvolgimento e giocabilità che, parlando di un videogioco, devono essere tra gli aspetti principali. Abbiampo quindi deciso di creare un format ispirato ai classici del gioco mobile, con comandi semplicficati al massimo, e gameplay ispirati a successi internazionali: come jetpack joyride (per il movimento) e geometry dash (atmosfera di gioco e grande precisione nei controlli rihiesta nelle fasi avanzate del gioco). Abbiamo lavorato su questi elementi base, a cui abbiamo aggiunto le tematiche ambientali in modo coerente, stilizzando l'aspetto dei rifiuti e inserendo una meccanica abbastanza distintiva nel panarama dei runner infiniti, una barra della vita del mare, che si abbassa quando gli oggetti non vengono raccolti.
 \\\\
-\textbf{NOTA}: Il codice, con i relativi moduli, è stato scritto interamente da noi. Si assicura che nulla è stato copiato o scaricato da progetti già esistenti. Le immagini sono state realizzate utilizzando il software "Adobe Illustrator".
+\textbf{NOTA}: Il codice, con i relativi moduli, è stato scritto interamente da noi. Si assicura che nulla è stato copiato o scaricato da progetti già esistenti. Gli assets sono stati realizzati utilizzando il software "Adobe Illustrator".
 
 \section{Meccaniche di gioco}
 \subsection{Spiegazione del gioco}
@@ -130,9 +129,7 @@ Il sistema è dinamico quindi non si basa
 su una tabella di nomi gia definita ma viene creata all’occorrenza e per qualsiasi nome di percorso.
 
 \section{Librerie}
-In questo capitolo verranno illustrate brevemente le principali liberire implementate, utilizzate per il corretto funzionamento del gioco:
-\\
-\\\\
+In questo capitolo verranno illustrate brevemente le principali liberire implementate, utilizzate per il corretto funzionamento del gioco:\\
 \begin{itemize}
     \item Librerie Interne: 
     \begin{itemize}
@@ -246,7 +243,10 @@ L'evento show() ha due sottoeventi chiamati "will" e "did". Nel "will" si aggiun
 
 \subsection{hide()}
 Evento hide() viene usato per nascondere la scena, in particolare le sue funzioni vengono chiamate nella fase "did". Quando la scena è completamente off-screen, vengono eliminati i listener RunTime e i timer creati in precedenza. Una funzione particolarmente importante è "removeScene()" che rimuove completamente la scena, tutti gli oggetti e le variabili al suo interno,
-in particolare si occupa degli gli oggetti all'interno della gerarchia di sceneGroup (NOTA: non rimuove cose come timer o listener collegati all'oggetto "Runtime". Essi vengono eliminati manualmente).
+in particolare si occupa degli oggetti all'interno della gerarchia di sceneGroup 
+\\
+
+NOTA: non rimuove cose come timer o listener collegati all'oggetto "Runtime". Essi vengono eliminati manualmente.
 
 \subsection{destroy()}
 L'evento destroy() viene utilizzato per eliminare l'audio prima della rimozione della scena.
@@ -308,12 +308,41 @@ La funzione create() comincia la sua esecuzione impostando le variabili dei "dis
 Dopo di che viene gestita la velocità del background (inizialmente impostata a 0.1) all'interno della finestra del menù. Essendo la velocità impostata a 0.1, il background si muoveva molto lentamente, in modo tale da dare la sensazione di trovarsi effettivamente sott'acqua. A questo proposito viene usata la funzione "timer.performWithDelay()", che chiama una funzione specifica (BackgroundSpeedUpdate) dopo un intervallo di tempo stabilito. Tale funzione viene utilizzata per invertire il verso di scorrimento del background dopo un delay di 4 secondi. 
 \\
 
-Nel create vengono inserite le immagini relative al titolo da visualizzare ed i vari pulsanti (play, scores, about...). Le immagini degli assets sono memorizzate all'interno di una cartella, e vengono caricate all'interno del gioco mediante la funzione "display.newImageRect" in cui si indica: il groupObject in cui inserire l'immagine; il file da cui caricare l'immagine; la directory di base in cui si trova filename; larghezza dell'immagine; l'altezza dell'immagine. 
+Nel create vengono inserite le immagini relative al titolo da visualizzare ed i vari pulsanti (play, scores, about...). Le immagini 
+degli assets sono memorizzate all'interno di una cartella, e vengono caricate all'interno del gioco mediante la funzione "display.newImageRect" in cui si indica: il groupObject in cui inserire l'immagine; il file da cui caricare l'immagine; la directory di base in cui si trova filename; larghezza dell'immagine; l'altezza dell'immagine. 
+\\
 
+I soldi posseduti dall'utente (che verranno poi utilizzati per acquistare skin del sottomarino, bolle oppure ambienti di gioco) sono 
+indicati all'interno di un badge rettangolare con gli angoli arrotondati. Anche in questo caso i vari asset sono stati caricati 
+utilizzando la funzione "display.newImageRect". 
+\\
 
+Nella parte bassa della scena del menù viene indicata la versione attuale del gioco e il titolo del corso. Entrambe sono state 
+realizzate utilizzando la funzione "display.newText()", la quale crea un "text object". Dopo di che vengono impostati i valori degli 
+attributi relativi all'altezza, alla larghezza, al colore e al posizionamento all'interno della scena. 
+\\
+\\
+\textbf{NOTA:} come ausilio per il controllo del funzionamento degli acquisti, è possibile cliccare sopra il badge che contine la 
+cifra dei soldi in possesso del giocatore per farli aumentare di 100\$ 
 
+\subsection{show()}
+Nel modulo relativo al menù, la funzione "show()" è stata implementata con lo scopo di riprodurre l'audio musicale su un canale, 
+mediante la funzione "audio.play()".
+
+\subsection{hide()}
+La funzione "hide()", come detto in precedenza, è composta da due sottoeventi:  nel "will" viene aggiornato il movimento del 
+background mediante la funzione "timer.canel()"; nel "did" viene stoppato tutto l'audio in esecuzione utilizzando "audio.stop()" 
+(senza argomenti).
+
+\subsection{destroy()}
+Nel "destroy()" viene utilizzata la funzione "audio.dispose()" per stoppare l'audio relativo alla soundtrack del menù. 
+
+\section{Savedata.lua}
 
 \section{Difficoltà riscontrate}
-
+Per quanto riguarda le difficoltà riscontrate una delle principali riguarda la mancanza di documentazione adeguata relativa alle 
+caratteristiche del linguaggio lua (es. scoping) e la scarsità di problematiche già risolte su siti appositi come StackOverflow. 
+Dal lato implementativo, le uniche difficoltà sono state nella ricerca di eventuali errori, dovute all'assenza di strumenti di 
+debugging.
 
 \end{document}
