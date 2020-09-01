@@ -84,115 +84,37 @@ Not Simone 139032 - not.simone@spes.uniud.it\\
 \tableofcontents
 \clearpage
 \section{Il problema}
-Il progetto d’esame relativo all’insegnamento di Laboratorio di Game Programming (LGP) consiste nell’implementazione di un videogioco utilizzando il framework di sviluppo CoronaSDK. Il tema del videogioco è l'ambiente. 
+Il progetto d’esame relativo all’insegnamento di Laboratorio di Game Programming (LGP) consiste nell’implementazione di un videogioco utilizzando il framework di sviluppo CoronaSDK. Il tema del videogioco è l'ecologia e l'ambiente. 
 
 Ai fini dello sviluppo è stato utilizzato il linguaggio di programmazione "Lua", che è un linguaggio utilizzato prevalentemente per scripting.
 \\
 
-La costruzione di un gioco su tematiche serie e istruttive quali l'ecologia e l'ambiente non è mai un compito facile, specie per quanto concerne le componenenti di coinvolgimento e giocabilità che, parlando di un videogioco, devono essere tra gli aspetti principali. Abbiampo quindi deciso di creare un format ispirato ai classici del gioco mobile, con comandi semplicficati al massimo, e gameplay ispirati a successi internazionali: come jetpack joyride (per il movimento) e geometry dash (atmosfera di gioco e grande precisione nei controlli rihiesta nelle fasi avanzate del gioco). Abbiamo lavorato su questi elementi base, a cui abbiamo aggiunto le tematiche ambientali in modo coerente, stilizzando l'aspetto dei rifiuti e inserendo una meccanica abbastanza distintiva nel panarama dei runner infiniti, una barra della vita del mare, che si abbassa quando gli oggetti non vengono raccolti.
 \\\\
-\textbf{NOTA}: Il codice, con i relativi moduli, è stato scritto interamente da noi. Si assicura che nulla è stato copiato o scaricato da progetti già esistenti. Gli assets sono stati realizzati utilizzando il software "Adobe Illustrator".
+\textbf{NOTA}: Il codice, con i relativi moduli, è stato scritto interamente da noi. Si assicura che nulla è stato copiato o scaricato da progetti già esistenti. Buona parte degli assets sono stati realizzati utilizzando il software "Adobe Illustrator".
+\subsection{Considerazioni}
+La costruzione di un gioco su tematiche serie e istruttive quali l'ecologia e l'ambiente, non è mai un compito facile, specie per quanto concerne le componenenti di coinvolgimento e giocabilità che, parlando di un videogioco, devono essere tra gli aspetti principali. Abbiampo quindi deciso di creare un format ispirato ai classici del gioco mobile, con comandi semplificati al massimo, e gameplay ispirati a successi internazionali: come jetpack joyride (per il movimento) e geometry dash (atmosfera di gioco e grande precisione nei controlli rihiesta nelle fasi avanzate del gioco). Abbiamo lavorato su questi elementi base, a cui abbiamo aggiunto le tematiche ambientali in modo coerente, stilizzando l'aspetto dei rifiuti e inserendo una meccanica abbastanza distintiva nel panorama dei runner infiniti, una barra della vita del mare, che si abbassa quando gli oggetti non vengono raccolti.
 
-\section{Meccaniche di gioco}
-\subsection{Spiegazione del gioco}
+\section{Scopo del gioco}
 Il gioco realizzato è intitolato \textbf{Save The Ocean}, ed ha come scopo quello di liberare il fondale marino dalla spazzatura lasciata dall'uomo a bordo di un sommergibile, preservano così il pianeta e le creature dell'oceano.
 
 La spazzatura è rappresentata da bottigliette di plastica e barili pieni di petrolio.
 \\
 
-La sconfitta si verifica in due casi distinti: ogni qualvolta non si raccolga l'immondizia, oppure quando il sommergibile va a sbattere contro uno scoglio. Nel primo caso, non raccogliendo gli oggetti la "vita del mare" diminuisce e quando quest'ultima raggiunge la fine la partita finisce (raccogliendo gli oggetti, però, la vita del mare aumenta); nel secondo caso, la partita termina immediatamente. 
- 
+La sconfitta si verifica in due casi distinti: ogni qualvolta non si raccolga l'immondizia, oppure quando il sommergibile va a sbattere contro uno scoglio. Nel primo caso, non raccogliendo gli oggetti la "vita del mare" diminuisce e quando quest'ultima raggiunge la fine la partita finisce (raccogliendo gli oggetti, però, la vita del mare può essere recuperata); nel secondo caso, la partita termina immediatamente. 
+\\
 
-\subsection{Interazione con l'utente}
- 
-L'utente dovrà raccogliere tutti i rifiuti presenti nell'ambiente. Ad ognuno corrisponde un punteggio differente: con la raccolta delle bottigliette di plastica si guadagnano 50 punti; mentre con la raccolta dei barili 100 punti. 
+L'utente dovrà raccogliere tutti i rifiuti presenti sul fondale marino. Ad ognuno corrisponde un punteggio differente: con la raccolta delle bottigliette di plastica si guadagnano 50 punti; mentre con la raccolta dei barili 150 punti. 
 \\Il gioco, inoltre, tiene traccia del punteggio massimo che viene raggiunto nelle varie sessioni.
-Con il passare del tempo la velocità di gioco aumenta fino a raggiungere e mantenere la velcità massima, in particolare ogni 30 secondi viene aggiunto 0.25 alla velcoità attuale. Con l'aumentare della velocità, aumenta anche la difficoltà quindi il giocatore dovrà essere il più abile possibile a raccogliere gli oggetti. 
+Con il passare del tempo la velocità di gioco aumenta fino a raggiungere e mantenere la velcità massima, in particolare ogni 30 secondi viene aggiunto 0.25 al moltiplicatore dei punti. Con l'aumentare della velocità, aumenta anche la difficoltà quindi il giocatore dovrà essere il più abile possibile a raccogliere gli oggetti. 
 
-
-Quando la partita termina compare la scritta "Game Over", ed il giocatore può decidere se tornare al menù principale oppure ricominciare da capo la partita. 
-
-\section{Gestione dell’efficieza nella generazione delle hitbox
-per gli ostacoli}
-
-Dato che gli ostacoli devono avere una \textbf{hitbox} consistente con la loro forma, viene utillizzata la funzione di libreria 
-graphics.newOutline(), per creare automaticamente il poligono della hitbox basandosi sulle sezioni col parmetro dell'ostacolo "alpha = 0" (trasparente).
-\\
-
-Tale operazione richiede una certa elaborazione sull’immagine ed è onerosa in termini di prestazioni. E'stato dunque inserito un sistema 
-dinamico di cache, che utilizza la table outlineCache dove vengono salvati gli output della funzione "graphics.newOutline()", utilizzando come stringa di riferimento per la tabella il nome del path dove risiede l’asset salvato, es. outlineCache [assetPathString] = graphics.newOutline().
-Dunque ogni volta che è necessario creare l’outline di un ostacolo viene prima verificata la sua presenza in cache: se presente viene 
-estratto da li; se non presente viene generato, salvato in cache, e poi letto.
-\\
-
-Il sistema è dinamico quindi non si basa 
-su una tabella di nomi gia definita ma viene creata all’occorrenza e per qualsiasi nome di percorso.
-
-\section{Librerie}
-In questo capitolo verranno illustrate brevemente le principali liberire implementate, utilizzate per il corretto funzionamento del gioco:\\
-\begin{itemize}
-    \item Librerie Interne: 
-    \begin{itemize}
-        \item Window: questa libreria si occupa della gestione di apertura e chiusura delle finestre con la relativa distruzione quando viene premuto il pulsante "x". Si occupa inoltre di formattare il testo nella posizione corretta all'interno dello schermo.
-         \item Ui: liberira utilizzata per il posizionamento dei pulsanti e adesivi all'interno dell'interfaccia. Ha 3 modalità:
-            \begin{itemize}
-                \item posizionamento statico 
-                \item compattare i pulsanti sotto un pulsante "master" che si occupa di compattare e scompattare il menù di gioco
-                \item apertura e chiusura con sostituzione del pulsante master
-            \end{itemize}
-        \item Tabulator: si occupa di posizionare, come se si stesse creando una tabella, un determinato set di elementi, necessario per mostrare i vari elementi selezionabili per skin e highscores. Tramite una callback, che prende come parametro l'oggetto che è stato toccato, è possibile eseguire alcune operazioni su di esso, come per esempio selezionarlo o acquistarlo. Questa libreria offre due funzionalità legate all'oggetto di riferimento:
-        \begin{itemize}
-            \item stampare un etichetta sull’ oggetto
-            \item stampare un altro oggetto sull'oggetto stesso
-        \end{itemize}
-         \item Audio: esegue azioni sull'audio globale del gioco. Viene invocata nel main per caricare le impostazioni audio dal salvataggio al caricamento del gioco.
-         
-    \end{itemize}
-    
-    \item Librerie legate alle scene: vengono invocate tramite un showOverlay e nascoste tramite un hideOverlay. Il sistema overlay scarica completamente la scena dalla memoria in modo automatico, tuttavia dato che queste scene possono essere usate molte volte nel giro di poco tempo ha senso tenerle caricate, e quindi viene impostato il recicle = true.
-        \begin{itemize}
-            \item Submarine: libreria che dipende dalle librerie window, save data, tabulator. Permette di selezionare le skin dei sottomarini. All’apertura genera una finestra con window, carica dal salvataggio i dati relativi ai sottomarini e costruisce una tavola da passare al tabulatore. Quest'ultimo genera tutti i sottomarini con i relativi prezzi (per quelli che non sono ancora stati acquistati). 
-            \item Menu.Scores: libreria che dipende da window, save data e tabulator. Libreria la cui funzione è quella di caricare una tabella alla volta man mano che l'utente gioca. 
-            \item Menu.About:  libreria che dipende da: window. Viene utilizzata una semplice immagine con del testo sopra la window. 
-        \end{itemize}
-    
-\end{itemize}
-\section{Implementazione}
-Il gioco è stato implementato utilizzando il framework coronaSDK, e scrivendo il codice in "Lua". 
-
-
-Il codice è stato diviso in moduli per avere una visione più completa del programma e per poter apportare modifiche più agevolemente. 
-Ogni modulo del gioco ha un template ben definito:
-\\\\
-
-
-\includegraphics[width=145mm]{module_template.png}\\
-
-
-\subsection{Scene}
-Il gioco è strutturato in "scene", gestite utilizzando il \textbf{composer}, una libreria che fornisce agli sviluppatori  un modo semplice per creare e passare da una scena all'altra. Il ciclo di vita di composer inizia all'interno di main.lua. Tuttavia, main.lua stesso non è una scena del composer: viene semplicemente utilizzato per inizializzarlo, quindi avvia la prima scena tramite composer.gotoScene(). In questa chiamata, si specifica il nome della scena (file) da caricare. 
-
-Quattro diverse funzioni gestiscono gli eventi generati dal Composer: create, show, hide and destroy.
-La funzione "scene:create()" viene utilizzata per creare tutti gli oggetti, caricare in memoria e settare i display object, inclusi pulsanti, testo, grafica e altri oggetti che dovrebbero essere visualizzati prima dell'effettiva comparsa sullo schermo.
-Immediatamente prima della transizione della scena sullo schermo, viene inviato un evento show che utilizza un paramatro "will". Questa è una grande opportunità per reimpostare i valori delle variabili o riposizionare oggetti che potrebbero essersi spostati dalla loro posizione iniziale prevista dall'ultima volta che la scena è stata mostrata. Una volta che la scena è completamente sullo schermo, un altro evento viene inviato alla scena: la funzione show () con un parametro di fase uguale a "did", questa è ora considerata la scena attiva.
-La funzione "scene:hide()" è composta anch'essa da due fasi: una fase "will", quando la scena è sullo schermo (ma sta per uscire); ed una fase "did", immediatamente dopo che la scena esce dallo schermo. Se viene specificato un effetto di transizione o sovrapposizione per la nuova scena , la fase "will" viene inviata prima che l'effetto inizi l'esecuzione e la fase "did" viene inviata dopo che l'effetto è terminato.
-Quando si esce dalla scena, la funzione che viene richiamata per eliminare gli oggetti è "scene:destroy" (nel programma in questione questa funzione non è stata necessaria). 
-\\
-
-
-Le varie scene sono rapprsentate da dei file.lua, che verranno chiamati mediante la funzione del composer gotoScene() citata in precedenza, in particolare:
-\begin{itemize}
-    \item menu.lua
-    \item game.lua
-\end{itemize}
-
-
-
-La schermata iniziale del gioco raffigura il menù, composto da tre pulsanti principali: il pulsante "play" che avvia la partita vera e propria; il pulsante "scores" che mostra i punteggi più alti ottenuti; ed infine il pulsante "about" che mostra le informazioni sugli sviluppatori ed il link al git se si volesse contribuire al progetto. \\
+Quando la partita termina compare la scritta \textbf{Game Over}, ed il giocatore può decidere se tornare al menù principale oppure ricominciare da capo la partita.
+\section{Menù}
+\subsection{What is it}
+La schermata iniziale del gioco raffigura il menù, composto da tre pulsanti principali: il pulsante "play" che avvia la partita vera e propria; il pulsante "scores" che mostra i più alti punteggi ottenuti; ed infine il pulsante "about" che mostra le informazioni sugli sviluppatori ed il link al git se si volesse dare un proprio contributo al progetto. \\
 \begin{center}
     \includegraphics[width=80mm]{menu.png}\\
 \end{center}
-
+\\
 Oltre ai 3 pulsanti principali, c'è anche un pulsante secondario raffigurato mediante un ingranaggio. Cliccandoci sopra si apre un menù a tendina che contiene altri 4 pulsanti:
 \begin{itemize}
     \item uno realtivo alla scelta delle diverse skin del sottomarino; 
@@ -214,10 +136,58 @@ Oltre ai 3 pulsanti principali, c'è anche un pulsante secondario raffigurato me
 
     \item infine uno che disabilita l'audio musicale. 
 \end{itemize}
-\section{Game.lua}
+
+\subsection{Struttura}
+\subsubsection{create()}
+La funzione create() comincia la sua esecuzione impostando le variabili dei "displayObjects" degli oggetti da visualizzare (background e Ui). 
+\\
+
+Dopo di che viene gestita la velocità del background (inizialmente impostata a 0.1) all'interno della finestra del menù. Essendo la velocità impostata a 0.1, il background si muoveva molto lentamente, in modo tale da dare la sensazione di trovarsi effettivamente sott'acqua. A questo proposito viene usata la funzione "timer.performWithDelay()", che chiama una funzione specifica (BackgroundSpeedUpdate) dopo un intervallo di tempo stabilito. Tale funzione viene utilizzata per invertire il verso di scorrimento del background dopo un delay di 4 secondi. 
+\\
+
+Nel create vengono inserite le immagini relative al titolo da visualizzare ed i vari pulsanti (play, scores, about...). Le immagini degli assets sono memorizzate all'interno di una cartella, e vengono caricate all'interno del gioco mediante la funzione "display.newImageRect" in cui si indica: il groupObject in cui inserire l'immagine; il file da cui caricare l'immagine; la directory di base in cui si trova filename; larghezza dell'immagine; l'altezza dell'immagine. 
+\\
+
+I soldi posseduti dall'utente (che verranno poi utilizzati per acquistare skin del sottomarino, bolle oppure ambienti di gioco) sono indicati all'interno di un badge rettangolare con gli angoli arrotondati. Anche in questo caso i vari asset sono stati caricati utilizzando la funzione "display.newImageRect". 
+\\
+
+Nella parte bassa della scena del menù viene indicata la versione attuale del gioco e il titolo del corso. Entrambe sono state realizzate utilizzando la funzione "display.newText()", la quale crea un "text object". Dopo di che vengono impostati i valori degli attributi relativi all'altezza, alla larghezza, al colore e al posizionamento all'interno della scena. 
+\\
+\\
+\textbf{NOTA:} come ausilio per il controllo del funzionamento degli acquisti, è possibile cliccare sopra il badge che contine la cifra dei soldi in possesso del giocatore per farli aumentare di 100\$ 
+
+\subsubsection{show()}
+Nel modulo relativo al menù, la funzione "show()" è stata implementata con lo scopo di riprodurre l'audio musicale su un canale, mediante la funzione "audio.play()".
+
+\subsubsection{hide()}
+La funzione "hide()", come detto in precedenza, è composta da due sottoeventi:  nel "will" viene aggiornato il movimento del background mediante la funzione "timer.canel()"; nel "did" viene stoppato tutto l'audio in esecuzione utilizzando "audio.stop()" (senza argomenti).
+
+\subsubsection{destroy()}
+Nel "destroy()" viene utilizzata la funzione "audio.dispose()" per stoppare l'audio relativo alla soundtrack del menù. 
+
+\subsection{Librerie}
+\subsubsection{About}
+La liberia About non fa altro che mostrare a video una finestra in cui è contenuta un'immagine che rappresenta un testo relativo alle informazioni sugli sviluppatori e un link reindirizza alla repository di github in cui è contenuto il codice. 
+
+\subsubsection{Background}
+La libreria background si occupa di gestire il movimento dello stesso all'interno della scena relativa al menù. Essendo la velocità impostata a 0.1, il background si muove in avanti e indietro molto lentamente, in modo tale da dare la sensazione di trovarsi effettivamente sott'acqua. A questo proposito viene usata la funzione "timer.performWithDelay()", che chiama una funzione specifica (BackgroundSpeedUpdate) dopo un intervallo di tempo stabilito. Tale funzione viene utilizzata per invertire il verso di scorrimento del background dopo un delay di 4 secondi. 
+\subsubsection{Scores}
+Lo score dipende da altri due moduli: Window e Tabulator. Il suo compito è quello di mostrare delle targhette in cui sono contenuti i punteggi ottenuti dal giocatore. I primi tre punteggi sono inseriti all'interno di tre targhette "speciali" rispettivamente d'oro, d'argento e bronzo. Tutti gli altri punteggi invece all'interno di targhette normali. 
+\subsubsection{Title}
+La liberiea "Title.lua" si occupa di impostare il titolo (Save The Ocean) all'interno della scena e di inserire gli oggetti che fluttuano nel background. Il loro movimento deve essere gestito in modo particolare in quanto non possono non possono scontrarsi tra di loro. A questo proposito viene utilizzato un timer che va ad aggiornare le velocità di tali oggetti. Background e title sono stati separati perchè selezionando un nuovo world dalle impostazioni, aggiorna anche il background del menù e se fossero stati nella stessa libreria il ri-aggiornamento del background avrebbe sovrascritto sia il titolo del menù che gli oggetti che fluttuano.
+\subsection{Settings}
+Come detto in precedenza, all'interno del men
+\subsubsection{Bubbles}
+\subsubsection{Submarines}
+\subsubsection{Worlds}
+\subsubsection{Mute}
+
+\section{Game}
+\subsection{What is it}
 Dopo aver premuto il pulsante play si passa al file "game.lua", in cui vengono realizzati tutti gli oggetti ed il codice relativo 
-alla realizzazione della logica del gioco. 
-\subsection{create()}
+alla realizzazione della logica del gioco.
+\subsection{Struttura}
+\subsubsection{create()}
 Nella funzione create(), inzialmente vengono settate le variabili legate al composer: "startTime" è utilizzata per calcolare la 
 velocità dello schermo in base al tempo; "gameSpeed", imposta la velocità iniziale di scorrimento dello schermo a 1. 
 ale velocità viene aggiornata ogni 1000 ms tramite un listener che chiama la funzione updateGameSpeed. 
@@ -238,23 +208,23 @@ La vita del mare viene creata usando la funzione newProgressView in cui vengono 
 \end{itemize}
 La percentuale di progresso della barra viene gestita da un metodo setProgress inserito all'interno della funzione newProgressView. Inoltre la vita del mare viene aggiornata utilizzando un timer: ogni secondo abbassa la vita del mare in funzione della quantità di oggetti che sono fuoriusciti dalla parte sinsitra schermo, e che quindi non sono stati raccolti dal sottomarino. La quantità di vita perduta è proporzionale al valore dell'oggetto perso.
 
-\subsection{show()}
+\subsubsection{show()}
 L'evento show() ha due sottoeventi chiamati "will" e "did". Nel "will" si aggiunge il timer che va ad aggiornare il moltiplicatore di punteggio: ogni 30 secondi si aggiunge 0.25 al moltiplicatore dei punti e la funzione che fa tutto questo è updateScoreMultiplier(). Il codice del sottoevento "did" viene eseguito quando la scena è visualizzata sullo schermo, e come prima cosa viene fatta partire la fisica, altrimenti il gioco inizierebbe con il sottomarino sulla parte bassa dello schermo. Inoltre in questa fase si carica il modulo relativo allo "spawner" dei vari oggetti(bottigliette, barili, scogli) e al caricamento dell'audio (la musica e i vari effetti sonori).
 
-\subsection{hide()}
+\subsubsection{hide()}
 Evento hide() viene usato per nascondere la scena, in particolare le sue funzioni vengono chiamate nella fase "did". Quando la scena è completamente off-screen, vengono eliminati i listener RunTime e i timer creati in precedenza. Una funzione particolarmente importante è "removeScene()" che rimuove completamente la scena, tutti gli oggetti e le variabili al suo interno,
 in particolare si occupa degli oggetti all'interno della gerarchia di sceneGroup 
 \\
 
 NOTA: non rimuove cose come timer o listener collegati all'oggetto "Runtime". Essi vengono eliminati manualmente.
 
-\subsection{destroy()}
+\subsubsection{destroy()}
 L'evento destroy() viene utilizzato per eliminare l'audio prima della rimozione della scena.
 
-\subsection{Breve analisi di alcune funzioni interessanti}
-In questo paragrafo verranno descritte le funzionalità implementate per realizzare le funzionalità citate in precedenza.
+\subsection{Funzioni}
+In questo paragrafo verranno descritte le funzioni implementate per realizzare le funzionalità citate in precedenza.
 \subsubsection{updateGameSpeed()}
-La funzione che aggiorna la velocità di scorrimento dello schermo è chiamata "updateGameSpeed". Nella variabile "gs" viene memorizzata la velocità iniziale (impostata inizialmente a 1). Tale valore viene confrontato periodicamente (ogni 30 secondi) con la velocità massima raggiungibile (maxGameSpeed = 3) e, se strettamente minore, la variabile gs viene aggiornata in funzione del tempo trascorso mediante la formula:\\
+La funzione che aggiorna la velocità di scorrimento dello schermo è chiamata "updateGameSpeed". Nella variabile "gs" viene memorizzata la velocità iniziale (impostata inizialmente a 1). Tale valore viene confrontato periodicamente con la velocità massima raggiungibile (maxGameSpeed = 3) e, se strettamente minore, la variabile gs viene aggiornata in funzione del tempo trascorso mediante la formula:\\
 
 \begin{center}
     gs = 1 + ( (os.time() - st) / 100 )
@@ -265,9 +235,23 @@ La funzione che aggiorna la velocità di scorrimento dello schermo è chiamata "
 Dove \textbf{st} è lo "start time" mentre \textbf{os.time()} è una funzione che restituisce l'ora corrente in secondi a partire dal 1970.
 
 \subsubsection{gameOver()}
-La procedura gameOver(), si occupa di gestire il caso in cui la partita termini: ovvero quando si va a sbattere contro uno scoglio oppure quando la vita del mare cala fino a raggiungere lo 0\%. Quando si verifica uno di questi due casi, la variabile isGameOver assume valore "true" e si interrompono tutti i suoni, la fisica del gioco, il movimento del background. A quel punto viene visualizzato sullo schermo un background una schermata nera di Game Over e la scena viene reindirizzata al menù principale.
+La procedura gameOver(), si occupa di gestire il caso in cui la partita termini: ovvero quando si va a sbattere contro uno scoglio oppure quando la vita del mare cala fino a raggiungere lo 0\%. Quando si verifica uno di questi due casi, la variabile isGameOver assume valore "true" e si interrompono tutti i suoni, la fisica del gioco, il movimento del background.\\
 
+Il gameover è una scena che compare, mediante l'utilizzo del metodo degli overlay, sopra la scena principale, permettendo così al giocatore di scegliere se tornare al menù principale oppure ricominciare la partita.\\ 
+
+Il modulo è impostato in modo tale che vengano disabilitate le pressioni sullo schermo relativo alla scena principale (quella di gioco). I dati da mostrare all'interno della finestra di gameover (lo score e i soldi guadagnati), vengono passati mediante una tabella dei parametri passata alla funzione "showOverlay()".\\
+
+Quando si preme sul pulsante di riavvio della partita, si eliminano tutti gli elementi della scena precedente utilizzando (come suggerito dalla documentazione) una scena vuota chiamata dal  "refresh.lua", che contiene una funzione che rimanda ad una nuova scena del game.
 \subsubsection{onCollision()}
+Le collisioni sono gestite in modo globale dalla funzione “onCollision” aggiunta come
+listener all’evento “collision” dell’oggetto Runtime e non in modo locale.
+La motivazione sta nel fatto che la tipologia di collisioni gestite è “molti a molti” e non
+“uno a molti”, infatti per ridurre al minimo la quantità di oggetti raccoglibili ma non
+prendibili la collisione di tali oggetti viene gestista anche nel caso in cui essi collidano con un
+ostacolo (ovvero se l’ostacolo viene istanziato sopra all’oggetto raccoglibile), in questo
+caso viene registrata la collisione e l’oggetto raccoglibile viene rimosso dal gioco senza
+poi gravare sulla barra della vita del mare (e sull’estetica di gioco).\\
+
 Per realizzare la procedura che gestisce la collisione tra gli oggetti è stato applicato il metodo dei filtri. 
 Questo metodo implica l'assegnazione di \textbf{categoryBits} e \textbf{maskBits} agli oggetti tramite una definizione di una 
 tabella assegnata al filtro durante la costruzione del corpo. Un oggetto entrerà in collisione con altri oggetti solo se i loro 
@@ -293,56 +277,65 @@ Per avere una risposta più rapida sulla barra della vita del mare in questo cas
 
 Per ogni displayObject (quelli che si possono raccogliere) viene definito un attributo "mySeaLife", che viene utilizzato per evitare di contare più volte la vita del mare persa in base a questi oggetti (finchè l'oggetto, dopo essere uscito dallo schermo, non raggiunge -800, ogni volta che si va a richiamare il controllo per aggiornare la vita del mare si diminuisce la vita del valore di quell'oggetto). Quando il seaLife è minore o uguale a 0, si richiama la funzione di gameOver().\\
 
-Il controllo "isGameOver == false" viene fatto perchè altrimenti i suoni verrebbero riprodutti più volte. 
+Il controllo "isGameOver == false" viene fatto perchè altrimenti i suoni verrebbero riprodutti più volte.
 
+\subsection{Librerie}
+\subsubsection{background}
+Lo scopo del modulo di background è quello di mostrare lo sfondo del gioco con un movimento che sfrutta l'effetto di parallasse. Inoltre, facendo scorrere ogni layer del background ad una velocità differente l'uno dall'altro, si ottiene un effetto di profondità.\\
 
+Per gestire i diversi aspect ratio degli schermi presenti su smartphone sono state utilizzate tre immagini per ogni layer, poste una di fianco all'altra, di dimensioni 1920x1080p (aspect ratio 16:9). Questa strategia permette di coprire l'intera area di visione, utilizzando sempre la metodologia di scaling "letterbox", che non modifica l'aspet ratio delle immagini utilizzate (distorcendole), evitando allo stesso tempo le bande nere che deriverebbero dall'uso di questo tipo di scaling su smartphone con schermi più ampi nel senso della lunghezza.
 
+\subsubsection{spawner}
 
-\section{Menu.lua}
-La seconda scena più importante del gioco è quella del menù, la cui implementazione è realizzata all'interno del file "Menù.lua". Questo modulo usa come ausilio le liberire citate al capitolo 4. Al suo interno per prima cosa vengono dichiarati tutte le variabili relative ai moduli e relative agli assets che verranno visualizzati.
-
-\subsection{create()}
-La funzione create() comincia la sua esecuzione impostando le variabili dei "displayObjects" degli oggetti da visualizzare (background e Ui). 
+Dato che gli ostacoli devono avere una \textbf{hitbox} consistente con la loro forma, viene utillizzata la funzione di libreria 
+graphics.newOutline(), per creare automaticamente il poligono della hitbox basandosi sulle sezioni col parmetro dell'ostacolo "alpha = 0" (trasparente).
 \\
 
-Dopo di che viene gestita la velocità del background (inizialmente impostata a 0.1) all'interno della finestra del menù. Essendo la velocità impostata a 0.1, il background si muoveva molto lentamente, in modo tale da dare la sensazione di trovarsi effettivamente sott'acqua. A questo proposito viene usata la funzione "timer.performWithDelay()", che chiama una funzione specifica (BackgroundSpeedUpdate) dopo un intervallo di tempo stabilito. Tale funzione viene utilizzata per invertire il verso di scorrimento del background dopo un delay di 4 secondi. 
+Tale operazione richiede una certa elaborazione sull’immagine ed è onerosa in termini di prestazioni. E'stato dunque inserito un sistema 
+dinamico di cache, che utilizza la table outlineCache dove vengono salvati gli output della funzione "graphics.newOutline()", utilizzando come stringa di riferimento per la tabella il nome del path dove risiede l’asset salvato (es. outlineCache [assetPathString] = graphics.newOutline() ).
+Dunque ogni volta che è necessario creare l’outline di un ostacolo viene prima verificata la sua presenza all'interno della cache: se presente viene
+estratto; se non presente viene generato, salvato nella cache, e poi letto.
 \\
 
-Nel create vengono inserite le immagini relative al titolo da visualizzare ed i vari pulsanti (play, scores, about...). Le immagini 
-degli assets sono memorizzate all'interno di una cartella, e vengono caricate all'interno del gioco mediante la funzione "display.newImageRect" in cui si indica: il groupObject in cui inserire l'immagine; il file da cui caricare l'immagine; la directory di base in cui si trova filename; larghezza dell'immagine; l'altezza dell'immagine. 
+Il sistema è dinamico quindi non si basa 
+su una tabella di nomi gia definita ma viene creata all’occorrenza e per qualsiasi nome di percorso.
+
+\subsubsection{submarine}
+Lo scopo del modulo "submarine.lua" è quello di gestire la generazione dell'oggetto submarine e la creazione delle bolle durante il suo movimento, oltre a tutti i parametri necessari per il funzionamento.
+Il suo movimento è stato realizzato ispirandosi a quello del video-gioco "Jetpack Joyride", calibrandolo modificando la scala di gravità e la forza applicata verso l'alto ad esso quando si tiene premuto sullo schermo.\\
+
+Per fare in modo che non esca dallo schermo sono stati utilizzati due quadrati statici: uno sul lato superiore ed uno sul lato inferiore dello schermo. Essendo dichiarati come statici essi hanno "massa infinita" e dunque non sono spostabili, vincolando di fatto il sottomarino nella posizione voluta.\\
+
+È stato scelto di utilizzare una hitbox circolare per il sottomarino, invece di una più consistente outline dei bordi della figura per evitare problematiche col motore fisico box2D.
 \\
+L’unica parte inerente al movimento del sottomarino, non gestita tramite la fisica, è la rotazione: avviene durante il movimento, e viene gestita mediante la libreria "transition". La modifica di tale parametro (che in linea di massima è applicata molto spesso al sottomarino durante le interazioni), secondo quanto riportato nelle avvertenze, può causare crash nel motore grafico box2D, dal momento che la matematica alla base della collisione è ancora in fase di calcolo. Per ovviare a questo problema si è deciso dunque di utilizzare una semplice hitbox circolare attorno al sottomarino siccome, ruotando un cerchio attorno al suo centro la sua posizione e di conseguenza quella della sua area (la hitbox), rimane invariata, risolvendo alla radice possibili problematiche col movimento della hitbox durante l’elaborazione della collisione.
 
-I soldi posseduti dall'utente (che verranno poi utilizzati per acquistare skin del sottomarino, bolle oppure ambienti di gioco) sono 
-indicati all'interno di un badge rettangolare con gli angoli arrotondati. Anche in questo caso i vari asset sono stati caricati 
-utilizzando la funzione "display.newImageRect". 
+\section{Moduli globali}
+In questo paragrafo verranno illustrate brevemente i principali moduli implementati, utilizzati per il corretto funzionamento del gioco:
 \\
-
-Nella parte bassa della scena del menù viene indicata la versione attuale del gioco e il titolo del corso. Entrambe sono state 
-realizzate utilizzando la funzione "display.newText()", la quale crea un "text object". Dopo di che vengono impostati i valori degli 
-attributi relativi all'altezza, alla larghezza, al colore e al posizionamento all'interno della scena. 
-\\
-\\
-\textbf{NOTA:} come ausilio per il controllo del funzionamento degli acquisti, è possibile cliccare sopra il badge che contine la 
-cifra dei soldi in possesso del giocatore per farli aumentare di 100\$ 
-
-\subsection{show()}
-Nel modulo relativo al menù, la funzione "show()" è stata implementata con lo scopo di riprodurre l'audio musicale su un canale, 
-mediante la funzione "audio.play()".
-
-\subsection{hide()}
-La funzione "hide()", come detto in precedenza, è composta da due sottoeventi:  nel "will" viene aggiornato il movimento del 
-background mediante la funzione "timer.canel()"; nel "did" viene stoppato tutto l'audio in esecuzione utilizzando "audio.stop()" 
-(senza argomenti).
-
-\subsection{destroy()}
-Nel "destroy()" viene utilizzata la funzione "audio.dispose()" per stoppare l'audio relativo alla soundtrack del menù. 
-
-\section{Savedata.lua}
+\subsection{Window}
+Questa libreria si occupa della gestione di apertura e chiusura delle finestre con la relativa distruzione quando viene premuto il pulsante "x". Si occupa inoltre di formattare il testo nella posizione corretta all'interno dello schermo.
+\subsection{Ui}
+Libreria utilizzata per il posizionamento dei pulsanti e adesivi all'interno dell'interfaccia. Ha 3 modalità:
+            \begin{itemize}
+                \item posizionamento statico 
+                \item unire i pulsanti sotto un pulsante "master" che si occupa di compattare e scompattare il menù di gioco
+                \item apertura e chiusura con sostituzione del pulsante master
+            \end{itemize}
+\subsection{Tabulator} 
+Si occupa di posizionare, come se si stesse creando una tabella, un determinato set di elementi, necessario per mostrare i vari elementi selezionabili come skin e highscores. Tramite una callback, che prende come parametro l'oggetto che è stato toccato, è possibile eseguire alcune operazioni su di esso, come per esempio selezionarlo o acquistarlo. Questa libreria offre due funzionalità legate all'oggetto di riferimento:
+        \begin{itemize}
+            \item stampare un badge sull’ oggetto
+            \item stampare un altro oggetto sull'oggetto stesso
+        \end{itemize}
+\subsection{Audio} 
+Esegue azioni sull'audio globale del gioco. Viene invocata nel main per caricare le impostazioni audio dal salvataggio al caricamento del gioco.
+\subsection{Savedata}
+Un modulo che ricopre una particolare importanza è senza dubbio il "savedata.lua", il quale si occupa di tenere in memoria i punteggi ottenuti dal giocatore, i soldi guadagnati, l'ultimo sottomarino utilizzato e l'ultimo ambiente in cui si ha effettuato la partita. Ogni dato di salvataggio è memorizzato in un file json, in particolare "gamedata.json" e "scores.json". 
+Tutte le impostazioni di gioco  (skin, bolle, ambienti, punti, soldi) vengono conservate al'interno di "gamedata.json", che viene aperto in sola lettura mentre all'interno di "scores.json" vengono salvati i punteggi più alti. 
 
 \section{Difficoltà riscontrate}
-Per quanto riguarda le difficoltà riscontrate una delle principali riguarda la mancanza di documentazione adeguata relativa alle 
-caratteristiche del linguaggio lua (es. scoping) e la scarsità di problematiche già risolte su siti appositi come StackOverflow. 
-Dal lato implementativo, le uniche difficoltà sono state nella ricerca di eventuali errori, dovute all'assenza di strumenti di 
-debugging.
+Per quanto riguarda le difficoltà riscontrate una delle principali riguarda la mancanza di documentazione adeguata relativa alle caratteristiche del linguaggio lua (es.scoping) e la scarsità di problematiche già risolte su siti appositi come StackOverflow. 
+Dal lato implementativo, le uniche difficoltà sono state nella ricerca di eventuali errori, dovute all'assenza di strumenti di debugging.
 
 \end{document}
