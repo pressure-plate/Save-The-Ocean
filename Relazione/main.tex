@@ -1,6 +1,5 @@
 
-
-\documentclass[12pt]{article}
+\documentclass[15pt]{article}
 \usepackage[italian]{babel}
 \usepackage[utf8x]{inputenc}
 \usepackage{amsmath}
@@ -48,7 +47,7 @@
 
 \begin{minipage}{1\textwidth}
 \begin{flushleft} \large
-\emph{Autore:}\\
+\emph{Autori:}\\
 Fedrigo Mattia 138180 - fedrigo.mattia001@spes.uniud.it\\
 Maestrutti Andrea 138461 - maestrutti.andrea@spes.uniud.it\\
 Mauro Luca 138106 - mauro.luca001@spes.uniud.it\\
@@ -74,7 +73,7 @@ Not Simone 139032 - not.simone@spes.uniud.it\\
 %	LOGO SECTION
 %----------------------------------------------------------------------------------------
 
-\includegraphics[width=50mm]{uniud.png}\\[1cm] % Include a department/university logo - this will require the graphicx package
+\includegraphics[width=50mm]{images/uniud.png}[1cm] % Include a department/university logo - this will require the graphicx package
  
 %----------------------------------------------------------------------------------------
 
@@ -84,76 +83,117 @@ Not Simone 139032 - not.simone@spes.uniud.it\\
 \tableofcontents
 \clearpage
 \section{Il problema}
-Il progetto d’esame relativo all’insegnamento di Laboratorio di Game Programming (LGP) consiste nell’implementazione di un videogioco utilizzando il framework di sviluppo CoronaSDK. Il tema del videogioco è l'ecologia e l'ambiente. 
+Il progetto d’esame relativo all’insegnamento di Laboratorio di Game Programming (LGP) 
+consiste nell’implementazione di un videogioco utilizzando il framework di sviluppo CoronaSDK.
+Il tema del videogioco è l'ecologia e l'ambiente.
+Ai fini dello sviluppo è stato utilizzato il linguaggio di programmazione "Lua", 
+che è un linguaggio utilizzato prevalentemente per scripting.
 
-Ai fini dello sviluppo è stato utilizzato il linguaggio di programmazione "Lua", che è un linguaggio utilizzato prevalentemente per scripting.
-\\
+\textbf{NOTA}: 
+Il codice, con i relativi moduli, è stato scritto interamente da noi.
+Si assicura che nulla è stato copiato o scaricato da progetti già esistenti. 
+Buona parte degli assets sono stati realizzati utilizzando il software "Adobe Illustrator".
 
-\\\\
-\textbf{NOTA}: Il codice, con i relativi moduli, è stato scritto interamente da noi. Si assicura che nulla è stato copiato o scaricato da progetti già esistenti. Buona parte degli assets sono stati realizzati utilizzando il software "Adobe Illustrator".
 \subsection{Considerazioni}
-La costruzione di un gioco su tematiche serie e istruttive quali l'ecologia e l'ambiente, non è mai un compito facile, specie per quanto concerne le componenenti di coinvolgimento e giocabilità che, parlando di un videogioco, devono essere tra gli aspetti principali. Abbiampo quindi deciso di creare un format ispirato ai classici del gioco mobile, con comandi semplificati al massimo, e gameplay ispirati a successi internazionali: come jetpack joyride (per il movimento) e geometry dash (atmosfera di gioco e grande precisione nei controlli rihiesta nelle fasi avanzate del gioco). Abbiamo lavorato su questi elementi base, a cui abbiamo aggiunto le tematiche ambientali in modo coerente, stilizzando l'aspetto dei rifiuti e inserendo una meccanica abbastanza distintiva nel panorama dei runner infiniti, una barra della vita del mare, che si abbassa quando gli oggetti non vengono raccolti.
+La costruzione di un gioco su tematiche serie e istruttive quali l'ecologia e l'ambiente,
+non è mai un compito facile, 
+specie per quanto concerne le componenenti di coinvolgimento e giocabilità che, parlando di un videogioco, 
+devono essere tra gli aspetti principali. 
+Abbiampo quindi deciso di creare un format ispirato ai classici del gioco mobile,
+con comandi semplificati al massimo,
+e gameplay ispirati a successi internazionali:
+come jetpack joyride (per il movimento) e geometry dash
+(atmosfera di gioco e grande precisione nei controlli rihiesta nelle fasi avanzate del gioco). 
+Abbiamo lavorato su questi elementi base, a cui abbiamo aggiunto le tematiche ambientali in modo coerente, 
+stilizzando l'aspetto dei rifiuti e inserendo una meccanica abbastanza distintiva nel panorama dei runner infiniti,
+una barra della vita del mare, che si abbassa quando gli oggetti non vengono raccolti.
 
 \section{Scopo del gioco}
-Il gioco realizzato è intitolato \textbf{Save The Ocean}, ed ha come scopo quello di liberare il fondale marino dalla spazzatura lasciata dall'uomo a bordo di un sommergibile, preservano così il pianeta e le creature dell'oceano.
+Il gioco realizzato è intitolato \textbf{Save The Ocean}, 
+ed ha come scopo quello di liberare il fondale marino dalla spazzatura lasciata dall'uomo a bordo di un sommergibile, 
+preservano così il pianeta e le creature dell'oceano.
 
 La spazzatura è rappresentata da bottigliette di plastica e barili pieni di petrolio.
-\\
 
-La sconfitta si verifica in due casi distinti: ogni qualvolta non si raccolga l'immondizia, oppure quando il sommergibile va a sbattere contro uno scoglio. Nel primo caso, non raccogliendo gli oggetti la "vita del mare" diminuisce e quando quest'ultima raggiunge la fine la partita finisce (raccogliendo gli oggetti, però, la vita del mare può essere recuperata); nel secondo caso, la partita termina immediatamente. 
-\\
+La sconfitta si verifica in due casi distinti:
+ogni qualvolta non si raccolga l'immondizia, 
+oppure quando il sommergibile va a sbattere contro uno scoglio. 
+Nel primo caso, non raccogliendo gli oggetti la "vita del mare" diminuisce e quando quest'ultima raggiunge la fine la partita finisce
+(raccogliendo gli oggetti, però, la vita del mare può essere recuperata); 
+nel secondo caso, la partita termina immediatamente.
 
-L'utente dovrà raccogliere tutti i rifiuti presenti sul fondale marino. Ad ognuno corrisponde un punteggio differente: con la raccolta delle bottigliette di plastica si guadagnano 50 punti; mentre con la raccolta dei barili 150 punti. 
-\\Il gioco, inoltre, tiene traccia del punteggio massimo che viene raggiunto nelle varie sessioni.
-Con il passare del tempo la velocità di gioco aumenta fino a raggiungere e mantenere la velcità massima, in particolare ogni 30 secondi viene aggiunto 0.25 al moltiplicatore dei punti. Con l'aumentare della velocità, aumenta anche la difficoltà quindi il giocatore dovrà essere il più abile possibile a raccogliere gli oggetti. 
+L'utente dovrà raccogliere tutti i rifiuti presenti sul fondale marino. 
+Ad ognuno corrisponde un punteggio differente: 
+con la raccolta delle bottigliette di plastica si guadagnano 50 punti;
+mentre con la raccolta dei barili 150 punti. 
 
-Quando la partita termina compare la scritta \textbf{Game Over}, ed il giocatore può decidere se tornare al menù principale oppure ricominciare da capo la partita.
+Il gioco, inoltre, 
+tiene traccia del punteggio massimo che viene raggiunto nelle varie sessioni.
+Con il passare del tempo la velocità di gioco aumenta
+fino a raggiungere e mantenere la velcità massima, 
+in particolare ogni 30 secondi viene aggiunto 0.25 al moltiplicatore dei punti. 
+Con l'aumentare della velocità,
+aumenta anche la difficoltà quindi il giocatore dovrà essere il più abile possibile a raccogliere gli oggetti. 
+
+Quando la partita termina compare la scritta \textbf{Game Over}, 
+ed il giocatore può decidere se tornare al menù principale oppure ricominciare da capo la partita.
+
+
 \section{Menù}
+
 \subsection{What is it}
-La schermata iniziale del gioco raffigura il menù, composto da tre pulsanti principali: il pulsante "play" che avvia la partita vera e propria; il pulsante "scores" che mostra i più alti punteggi ottenuti; ed infine il pulsante "about" che mostra le informazioni sugli sviluppatori ed il link al git se si volesse dare un proprio contributo al progetto. \\
+La schermata iniziale del gioco raffigura il menù, 
+composto da tre pulsanti principali: il pulsante "play" che avvia la partita vera e propria; 
+il pulsante "scores" che mostra i più alti punteggi ottenuti; 
+ed infine il pulsante "about" che mostra le informazioni sugli sviluppatori
+ed il link al git se si volesse dare un proprio contributo al progetto. 
+
+
 \begin{center}
-    \includegraphics[width=80mm]{menu.png}\\
+\includegraphics[width=80mm]{images/menu.png}
 \end{center}
-\\
-Oltre ai 3 pulsanti principali, c'è anche un pulsante secondario raffigurato mediante un ingranaggio. Cliccandoci sopra si apre un menù a tendina che contiene altri 4 pulsanti:
+
+Oltre ai 3 pulsanti principali, 
+c'è anche un pulsante secondario raffigurato mediante un ingranaggio.
+Cliccandoci sopra si apre un menù a tendina che contiene altri 4 pulsanti:
+
 \begin{itemize}
     \item uno realtivo alla scelta delle diverse skin del sottomarino; 
-\begin{center}
-    \includegraphics[width=80mm]{skin.png}\\
-\end{center}
+    \begin{center}
+    \includegraphics[width=80mm]{images/skin.png}
+    \end{center}
+
     \item uno che mostra i vari ambienti di gioco selezionabili; 
+    \begin{center}
+    \includegraphics[width=80mm]{images/ambienti.png}
+    \end{center}
 
-\begin{center}
-    \includegraphics[width=80mm]{ambienti.png}\\
-\end{center}
+    \item uno che permette la scelta del colore delle bolle che usciranno dal sottomarino.
+    \begin{center}
+    \includegraphics[width=80mm]{images/bolle.png}
+    \end{center}
 
-
-    \item uno che permette la scelta del colore delle bolle che usciranno dal sottomarino. 
-\\
-\begin{center}
-    \includegraphics[width=80mm]{bolle.png}\\
-\end{center}
-
-    \item infine uno che disabilita l'audio musicale. 
+    \item infine uno che disabilita l'audio musicale.
 \end{itemize}
 
 \subsection{Struttura}
-\subsubsection{create()}
-La funzione create() comincia la sua esecuzione impostando le variabili dei "displayObjects" degli oggetti da visualizzare (background e Ui). 
-\\
 
-Dopo di che viene gestita la velocità del background (inizialmente impostata a 0.1) all'interno della finestra del menù. Essendo la velocità impostata a 0.1, il background si muoveva molto lentamente, in modo tale da dare la sensazione di trovarsi effettivamente sott'acqua. A questo proposito viene usata la funzione "timer.performWithDelay()", che chiama una funzione specifica (BackgroundSpeedUpdate) dopo un intervallo di tempo stabilito. Tale funzione viene utilizzata per invertire il verso di scorrimento del background dopo un delay di 4 secondi. 
-\\
+\subsubsection{create()}
+La funzione create() comincia la sua esecuzione impostando le variabili dei "displayObjects" degli oggetti da visualizzare (background e Ui).
+
+Dopo di che viene gestita la velocità del background (inizialmente impostata a 0.1) all'interno della finestra del menù. 
+Essendo la velocità impostata a 0.1, il background si muoveva molto lentamente, 
+in modo tale da dare la sensazione di trovarsi effettivamente sott'acqua. 
+A questo proposito viene usata la funzione "timer.performWithDelay()", 
+che chiama una funzione specifica (BackgroundSpeedUpdate) dopo un intervallo di tempo stabilito. 
+Tale funzione viene utilizzata per invertire il verso di scorrimento del background dopo un delay di 4 secondi.
 
 Nel create vengono inserite le immagini relative al titolo da visualizzare ed i vari pulsanti (play, scores, about...). Le immagini degli assets sono memorizzate all'interno di una cartella, e vengono caricate all'interno del gioco mediante la funzione "display.newImageRect" in cui si indica: il groupObject in cui inserire l'immagine; il file da cui caricare l'immagine; la directory di base in cui si trova filename; larghezza dell'immagine; l'altezza dell'immagine. 
-\\
 
 I soldi posseduti dall'utente (che verranno poi utilizzati per acquistare skin del sottomarino, bolle oppure ambienti di gioco) sono indicati all'interno di un badge rettangolare con gli angoli arrotondati. Anche in questo caso i vari asset sono stati caricati utilizzando la funzione "display.newImageRect". 
-\\
 
 Nella parte bassa della scena del menù viene indicata la versione attuale del gioco e il titolo del corso. Entrambe sono state realizzate utilizzando la funzione "display.newText()", la quale crea un "text object". Dopo di che vengono impostati i valori degli attributi relativi all'altezza, alla larghezza, al colore e al posizionamento all'interno della scena. 
-\\
-\\
+
 \textbf{NOTA:} come ausilio per il controllo del funzionamento degli acquisti, è possibile cliccare sopra il badge che contine la cifra dei soldi in possesso del giocatore per farli aumentare di 100\$ 
 
 \subsubsection{show()}
