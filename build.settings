@@ -14,11 +14,9 @@ settings =
 	-- Android settings
 	android =
 	{
-		versionCode = "11",
+		versionCode = "12",
 		usesPermissions =
-		{
-			"android.permission.INTERNET",
-		},
+		{},
 	},
 
 	-- iOS settings
@@ -35,7 +33,14 @@ settings =
 	excludeFiles =
 	{
 		-- Exclude unnecessary files for each platform
-		all = { "Icon.png", "Icon-*dpi.png", "Images.xcassets", },
+		all = { 
+			"Icon.png", 
+			"Icon-*dpi.png", 
+			"Images.xcassets", 
+			"Relazione", 
+			"assets/AI/",
+			"templates"
+		},
 		android = { "LaunchScreen.storyboardc", },
 	},
 
